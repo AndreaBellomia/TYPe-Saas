@@ -29,11 +29,12 @@ SECRET_KEY = "django-insecure-@+*tyqwzro&@k%jnt4-yd)1&kbi(4!9@lb@$fc)$i=g1@8ei2b
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 
 # Application definition
 
-LIBRARY_APP = ["rest_framework", "knox", "django_filters"]
+LIBRARY_APP = ["rest_framework", "knox", "django_filters", "corsheaders"]
 
 INTERNAL_APP = ["myapp.authentication", "myapp.core"]
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -96,13 +98,13 @@ REST_FRAMEWORK = {
 
 # Knox security framework
 REST_KNOX = {
-    'SECURE_HASH_ALGORITHM':'cryptography.hazmat.primitives.hashes.SHA512',
-    'AUTH_TOKEN_CHARACTER_LENGTH': 64,
-    'TOKEN_TTL': timedelta(hours=48),
-    'USER_SERIALIZER': 'myapp.authentication.serializers.UserSerializer',
-    'TOKEN_LIMIT_PER_USER': None,
-    'AUTO_REFRESH': False,
-    'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+    "SECURE_HASH_ALGORITHM": "cryptography.hazmat.primitives.hashes.SHA512",
+    "AUTH_TOKEN_CHARACTER_LENGTH": 64,
+    "TOKEN_TTL": timedelta(hours=48),
+    "USER_SERIALIZER": "myapp.authentication.serializers.UserSerializer",
+    "TOKEN_LIMIT_PER_USER": None,
+    "AUTO_REFRESH": False,
+    "EXPIRY_DATETIME_FORMAT": api_settings.DATETIME_FORMAT,
 }
 
 # Password validation
