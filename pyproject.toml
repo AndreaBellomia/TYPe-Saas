@@ -13,6 +13,7 @@ markdown = "^3.5.2"
 django-filter = "^24.1"
 django-debug-toolbar = "^4.3.0"
 psycopg2 = "^2.9.9"
+django-rest-knox = "^4.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
