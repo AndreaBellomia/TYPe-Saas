@@ -1,23 +1,11 @@
 import axios, { AxiosInstance } from "axios";
-
+import Cookies from "js-cookie";
+import { JWT_TOKEN } from "@/libs/auth";
 
 type ParamsList = Array<{ param: string; value: string }>;
-type GenericObject = {[key:string] : string}
+type GenericObject = { [key: string]: string };
 type CallbackFunction = (response: any) => void;
 type CallbackErrorFunction = (error: any) => void;
-
-
-export const URLS: GenericObject = {
-    API_SERVER : "http://localhost:8000"
-}
-
-export class FetchDispatchError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "FetchDispatchError";
-  }
-}
-
 enum AxiosMethods {
   GET = "get",
   POST = "post",
@@ -26,6 +14,16 @@ enum AxiosMethods {
   DELETE = "delete",
 }
 
+export const URLS: GenericObject = {
+  API_SERVER: "http://localhost:8000",
+};
+
+export class FetchDispatchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FetchDispatchError";
+  }
+}
 
 export class Axios {
   protected axiosClient: AxiosInstance;
@@ -45,6 +43,10 @@ export class Axios {
         ...headers,
       },
     });
+  }
+
+  setHeader(header: string, value: string): void {
+    this.axiosClient.defaults.headers[header] = value;
   }
 
   private fetch(
@@ -80,7 +82,7 @@ export class Axios {
     this.fetch(url, AxiosMethods.GET, callback, error, args);
   }
 
-  async post(
+  post(
     url: string,
     callback: CallbackFunction,
     error: CallbackFunction,
@@ -89,7 +91,7 @@ export class Axios {
     this.fetch(url, AxiosMethods.POST, callback, error, args);
   }
 
-  async put(
+  put(
     url: string,
     callback: CallbackFunction,
     error: CallbackFunction,
@@ -98,7 +100,7 @@ export class Axios {
     this.fetch(url, AxiosMethods.PUT, callback, error, args);
   }
 
-  async patch(
+  patch(
     url: string,
     callback: CallbackFunction,
     error: CallbackFunction,
@@ -107,7 +109,7 @@ export class Axios {
     this.fetch(url, AxiosMethods.PATCH, callback, error, args);
   }
 
-  async delete(
+  delete(
     url: string,
     callback: CallbackFunction,
     error: CallbackFunction,
@@ -126,5 +128,14 @@ export class Axios {
     });
 
     return outputURL;
+  }
+}
+
+export class DjangoApi extends Axios {
+  constructor() {
+    const token = Cookies.get(JWT_TOKEN);
+    super(token, "Token");
+
+    this.axiosClient.defaults.baseURL = URLS.API_SERVER;
   }
 }

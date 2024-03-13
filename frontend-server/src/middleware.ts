@@ -1,9 +1,9 @@
-
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const now: Date = new Date();
+import { URLS } from "@/libs/fetch";
+import { JWT_TOKEN, USER_INFO_TOKEN } from "@/libs/auth";
 
+export async function middleware(request: NextRequest) {
   //@ts-ignore
   Date.prototype.addHours = function (h: number) {
     this.setHours(this.getHours() + h);
@@ -12,9 +12,10 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  const tokenJWT: string | undefined = request.cookies.get("auth")?.value;
+  const tokenJWT: string | undefined = request.cookies.get(JWT_TOKEN)?.value;
 
-  const userData: string | undefined = request.cookies.get("user")?.value;
+  const userData: string | undefined =
+    request.cookies.get(USER_INFO_TOKEN)?.value;
 
   if (
     typeof tokenJWT === "undefined" &&
@@ -37,7 +38,7 @@ export async function middleware(request: NextRequest) {
       const data = await userRequest.json();
 
       response.cookies.set({
-        name: "user",
+        name: USER_INFO_TOKEN,
         value: JSON.stringify(data),
         httpOnly: false,
         secure: true,
@@ -46,7 +47,7 @@ export async function middleware(request: NextRequest) {
       });
     } else {
       const data = await userRequest.json();
-      console.error(data);
+      !request.nextUrl.pathname.startsWith("/login") && console.error(data);
     }
   }
 

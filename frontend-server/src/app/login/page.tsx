@@ -3,7 +3,7 @@
 
 import { SyntheticEvent, useState, MouseEvent } from 'react'
 import Cookies from "js-cookie";
-import { Axios, URLS } from "@/libs/fetch";
+import { DjangoApi } from "@/libs/fetch";
 
 
 // import { useCookies } from 'react-cookie';
@@ -58,9 +58,8 @@ export default function _() {
     
 
     const printToken = () => {
-      const client = new Axios(Cookies.get("auth"))
-      const url = URLS.API_SERVER + "/authentication/authenticated"
-      client.get(url, (resp) => {console.log(resp)}, (err) => {console.log(err)})
+      const client = new DjangoApi()
+      client.get("/authentication/authenticated", (resp) => {console.log(resp)}, (err) => {console.log(err)})
     }
 
     
