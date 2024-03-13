@@ -1,15 +1,27 @@
 import Cookies from "js-cookie";
 
+
+export interface UserData {
+  id: number
+  last_login: Date
+  is_superuser: boolean
+  is_staff: boolean
+  is_active: boolean
+  email: string
+  groups: Array<any>
+  user_permissions: Array<any>
+}
+
 export const JWT_TOKEN = "auth";
 
 export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
-  static getUserData(): any {
-    Cookies.get(USER_INFO_TOKEN);
+  static getUserData(): UserData {
+    return JSON.parse(Cookies.get(USER_INFO_TOKEN))
   }
 
-  static getAuthData(): any {
-    Cookies.get(JWT_TOKEN);
+  static getAuthData(): string {
+    return Cookies.get(JWT_TOKEN);
   }
 }

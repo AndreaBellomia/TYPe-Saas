@@ -19,9 +19,9 @@ export async function middleware(request: NextRequest) {
 
   if (
     typeof tokenJWT === "undefined" &&
-    !request.nextUrl.pathname.startsWith("/login")
+    !request.nextUrl.pathname.startsWith("/authentication/login")
   ) {
-    return Response.redirect(new URL("/login", request.url));
+    return Response.redirect(new URL("/authentication/login", request.url));
   }
 
   if (typeof userData === "undefined") {
@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
       });
     } else {
       const data = await userRequest.json();
-      !request.nextUrl.pathname.startsWith("/login") && console.error(data);
+      !request.nextUrl.pathname.startsWith("/authentication/login") && console.error(data);
     }
   }
 
