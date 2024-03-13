@@ -1,82 +1,83 @@
+"use client";
+import { Formik } from "formik";
+import { TextField, Button } from "@mui/material";
+import { useRouter, AppRouterInstance } from "next/navigation";
 
-"use client"
+import * as Yup from "yup";
 
-import { SyntheticEvent, useState, MouseEvent } from 'react'
-import Cookies from "js-cookie";
-import { DjangoApi } from "@/libs/fetch";
-
-
-// import { useCookies } from 'react-cookie';
-
-interface FormValue {
-    email: string;
-    password: string
-}
+import { AuthUtility } from "@/libs/auth";
 
 export default function _() {
+  const router: AppRouterInstance = useRouter();
 
-    const [form, setForm] = useState<FormValue>({
-        email: '',
-        password: '',
-    });
-
-    // const [cookies, setCookie] = useCookies(['jwt']);
-
-    const onChange: (event: SyntheticEvent<HTMLInputElement, Event>) => void = (event) => {
-
-        const target = event.target as HTMLInputElement;
-        const value: string = target.value;
-
-        setForm({
-            ...form,
-            [target.name]: value
-        })
-    }
-
-    const onSubmit : (event: MouseEvent<HTMLButtonElement>) => void = (event) => {
-      fetch("login/api/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(response.statusText);
+  return (
+    <>
+      <Formik
+        initialValues={{
+          email: "",
+          password: "",
+        }}
+        validationSchema={Yup.object().shape({
+          password: Yup.string()
+            .min(2, "Troppo breve!")
+            .max(100, "Troppo lunga")
+            .required("Campo obbligatorio"),
+          email: Yup.string()
+            .email("Email non valida")
+            .required("Campo obbligatorio"),
+        })}
+        onSubmit={(values) => {
+          AuthUtility.loginUser(values.email, values.password).then((value: boolean) => {
+            if (value) {
+              router.push("/");
             }
-            return response.json();
-          })
-          .then((data) => {
-              console.log(data)
-
-          })
-          .catch((error) => {
-            console.error("Error occurred:", error);
           });
-}
-    
+        }}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          dirty,
+          isValid,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+        }) => (
+          <form>
+            <TextField
+              label="Email"
+              variant="outlined"
+              name="email"
+              type="email"
+              error={!!(errors.email && touched.email)}
+              helperText={touched.email && errors.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.email}
+            />
 
-    const printToken = () => {
-      const client = new DjangoApi()
-      client.get("/authentication/authenticated", (resp) => {console.log(resp)}, (err) => {console.log(err)})
-    }
+            <TextField
+              label="Password"
+              variant="outlined"
+              name="password"
+              type="password"
+              error={!!(errors.password && touched.password)}
+              helperText={touched.password && errors.password}
+              onChange={handleChange}
+              value={values.password}
+            />
 
-    
-
-    return (
-        <>  
-            <div className='relative top-2/4 h-100 w-100'>
-                <div className='flex flex-col'>
-                <input name="email" type="email" placeholder="Email" onChange={onChange} className='text-black mt-2'/>
-                <input type="password"  name="password" onChange={onChange} className='text-black mt-2'/>
-
-                <button onClick={onSubmit}>Submit</button>
-                <button onClick={printToken}>Print token</button>
-                </div>
-            </div>
-
- 
-        </>
-    );
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!(isValid && dirty)}
+            >
+              Login !
+            </Button>
+          </form>
+        )}
+      </Formik>
+    </>
+  );
 }
