@@ -31,7 +31,6 @@ export async function POST(request: Request) {
 
     return Response.json({ detail: "ok" });
   } catch (error) {
-    console.error("Error occurred:", error);
-    return Response.json({ detail: "error" }, { status: 500 });
+    return Response.json({ detail: error }, { status: 401 });
   }
 }

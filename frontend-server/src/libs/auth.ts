@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { snack } from "@/libs/SnakClient";
 
 export interface UserData {
   id: number;
@@ -37,9 +38,9 @@ export class AuthUtility {
     });
 
     if (!resp.ok) {
-      return false;
+      snack.error("Credenziali non corrette!")
     }
 
-    return true;
+    return resp;
   }
 }

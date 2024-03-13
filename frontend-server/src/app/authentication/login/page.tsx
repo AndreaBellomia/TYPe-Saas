@@ -1,83 +1,115 @@
 "use client";
 import { Formik } from "formik";
-import { TextField, Button } from "@mui/material";
-import { useRouter, AppRouterInstance } from "next/navigation";
-
-import * as Yup from "yup";
-
+import { snack } from "@/libs/SnakClient";
 import { AuthUtility } from "@/libs/auth";
 
+import * as Yup from "yup";
+import { useRouter } from "next/navigation";
+import { TextField, Button, Paper, Box, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+const CenterCard = styled(Box)(({ theme }) => ({
+  top: "50%",
+  left: "50%",
+  position: "relative",
+
+  transform: "translate(-50%, -50%)",
+
+  maxWidth: 600
+}));
+
 export default function _() {
-  const router: AppRouterInstance = useRouter();
+  const router = useRouter();
 
   return (
     <>
-      <Formik
-        initialValues={{
-          email: "",
-          password: "",
-        }}
-        validationSchema={Yup.object().shape({
-          password: Yup.string()
-            .min(2, "Troppo breve!")
-            .max(100, "Troppo lunga")
-            .required("Campo obbligatorio"),
-          email: Yup.string()
-            .email("Email non valida")
-            .required("Campo obbligatorio"),
-        })}
-        onSubmit={(values) => {
-          AuthUtility.loginUser(values.email, values.password).then((value: boolean) => {
-            if (value) {
-              router.push("/");
-            }
-          });
-        }}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          dirty,
-          isValid,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-        }) => (
-          <form>
-            <TextField
-              label="Email"
-              variant="outlined"
-              name="email"
-              type="email"
-              error={!!(errors.email && touched.email)}
-              helperText={touched.email && errors.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.email}
-            />
+      <CenterCard>
+        <Paper elevation={4}>
+          <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            validationSchema={Yup.object().shape({
+              password: Yup.string()
+                .min(2, "Troppo breve!")
+                .max(100, "Troppo lunga")
+                .required("Campo obbligatorio"),
+              email: Yup.string()
+                .email("Email non valida")
+                .required("Campo obbligatorio"),
+            })}
+            onSubmit={(values, helpers) => {
+              AuthUtility.loginUser(values.email, values.password).then(
+                (response: Response) => {
+                  if (response.ok) {
+                    router.push("/");
+                  }
+                  helpers.setFieldError("password", response.statusText)
+                },
+              );
+            }}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              dirty,
+              isValid,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+            }) => (
+              <Box sx={{ display: "flex", flexDirection: "column", p: 5, alignItems: "center" }}>
+                <Typography variant="h4">Login</Typography>
 
-            <TextField
-              label="Password"
-              variant="outlined"
-              name="password"
-              type="password"
-              error={!!(errors.password && touched.password)}
-              helperText={touched.password && errors.password}
-              onChange={handleChange}
-              value={values.password}
-            />
+                <Box sx={{ my: 2 }} />
 
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={!(isValid && dirty)}
-            >
-              Login !
-            </Button>
-          </form>
-        )}
-      </Formik>
+                <TextField
+                  sx={{ width : "100%" }}
+                  label="Email"
+                  variant="outlined"
+                  name="email"
+                  type="email"
+                  error={!!(errors.email && touched.email)}
+                  helperText={touched.email && errors.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.email}
+                />
+
+                <Box sx={{ my: 2 }} />
+
+                <TextField
+                  sx={{ width : "100%" }}
+                  label="Password"
+                  variant="outlined"
+                  name="password"
+                  type="password"
+                  error={!!(errors.password && touched.password)}
+                  helperText={touched.password && errors.password}
+                  onChange={handleChange}
+                  value={values.password}
+                />
+
+                <Box sx={{ my: 2 }} />
+
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  disabled={!(isValid && dirty)}
+                >
+                  Login
+                </Button>
+
+                <Box sx={{ my: 2 }} />
+
+                <Typography variant="subtitle2">Se non eri registrato clicca qui</Typography>
+              </Box>
+            )}
+          </Formik>
+        </Paper>
+      </CenterCard>
     </>
   );
 }

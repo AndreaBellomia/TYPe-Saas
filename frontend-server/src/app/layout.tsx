@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
+import Snackbar, { SnackProvider } from "@/app/components/Snackbar";
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
-
-// import "./globals.css";
-
-
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,8 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it">
-      <body>{children}</body>
+    <html lang="it" style={{ height : "100%" }}>
+      <body style={{ height : "100%", margin: 0 }}>
+        <Snackbar>
+          <SnackProvider />
+          {children}
+        </Snackbar>
+      </body>
     </html>
   );
 }
