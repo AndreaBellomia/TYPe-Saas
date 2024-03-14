@@ -30,6 +30,8 @@ class TicketType(admin.ModelAdmin):
     )
 
     def created_by_link(self, obj):
+        if obj.created_by is None:
+            return "--"
         url = reverse(
             "admin:authentication_customuser_change", args=(obj.created_by.id,)
         )
@@ -38,6 +40,8 @@ class TicketType(admin.ModelAdmin):
     created_by_link.short_description = "Created By"
 
     def assigned_to_link(self, obj):
+        if obj.assigned_to is None:
+            return "--"
         url = reverse(
             "admin:authentication_customuser_change", args=(obj.assigned_to.id,)
         )

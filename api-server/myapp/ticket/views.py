@@ -20,7 +20,9 @@ class UserTicketAPI(ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        queryset = Ticket.objects.filter(created_by_id=user.id)
+        queryset = Ticket.objects.filter(created_by_id=user.id).prefetch_related(
+            "created_by", "created_by__user_info"
+        )
         return queryset
 
     def perform_create(self, serializer):

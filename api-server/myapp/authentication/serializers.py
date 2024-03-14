@@ -3,7 +3,21 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from myapp.authentication.models import CustomUser
+from myapp.authentication.models import CustomUser, UserInfo
+
+
+class UserInfoSmallSerializer(serializers.ModelSerializer):
+
+    first_name = serializers.PrimaryKeyRelatedField(
+        read_only=True, source="user_info.first_name"
+    )
+    last_name = serializers.PrimaryKeyRelatedField(
+        read_only=True, source="user_info.last_name"
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ("id", "email", "first_name", "last_name")
 
 
 class UserSerializer(serializers.ModelSerializer):

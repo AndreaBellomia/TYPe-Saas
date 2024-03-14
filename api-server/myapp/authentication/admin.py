@@ -1,9 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from myapp.authentication.forms import AuthChangeForm, AuthCreationForm
+from myapp.authentication.models import UserInfo
 
 ref_model = get_user_model()
 
@@ -46,3 +49,20 @@ class AuthAdmin(UserAdmin):
         "groups",
         "user_permissions",
     )
+
+
+@admin.register(UserInfo)
+class UserInfoPage(admin.ModelAdmin):
+    list_display = ("id", "first_name", "last_name")
+    search_fields = ("first_name", "last_name")
+    ordering = ("id",)
+
+    def user_link(self, obj):
+        if obj.user is None:
+            return "--"
+        url = reverse(
+            "admin:authentication_customuser_change", args=(obj.created_by.id,)
+        )
+        return format_html('<a href="{}">{}</a>', url, obj.created_by)
+
+    user_link.short_description = "User"

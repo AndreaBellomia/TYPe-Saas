@@ -48,3 +48,12 @@ class CustomUser(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+
+class UserInfo(AbstractModel):
+    user = models.OneToOneField(CustomUser, related_name="user_info", on_delete=models.CASCADE)
+    
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    
+    phone_number = models.CharField(max_length=30)
