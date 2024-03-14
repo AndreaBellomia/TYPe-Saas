@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import Cookies from "js-cookie";
 import { JWT_TOKEN } from "@/libs/auth";
+import { snack } from "@/libs/SnakClient"
 
 type ParamsList = Array<{ param: string; value: string }>;
 type GenericObject = { [key: string]: string };
@@ -65,7 +66,7 @@ export class Axios {
           error(reason);
         } catch (e) {
           if (e instanceof FetchDispatchError) {
-            console.error("Tooltip to user");
+            snack.error(e.message)
           }
 
           console.error("Api fetch error: ", e);

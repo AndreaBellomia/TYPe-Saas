@@ -94,6 +94,7 @@ export default function _() {
 
                 <Box sx={{ my: 2 }} />
 
+                {/*  @ts-ignore */}
                 <Button
                   variant="contained"
                   onClick={handleSubmit}

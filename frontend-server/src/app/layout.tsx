@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Snackbar, { SnackProvider } from "@/app/components/Snackbar";
+import Snackbar, { SnackProvider } from "@/components/Snackbar";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
