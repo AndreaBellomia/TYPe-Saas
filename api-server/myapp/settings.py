@@ -36,7 +36,7 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 LIBRARY_APP = ["rest_framework", "knox", "django_filters", "corsheaders"]
 
-INTERNAL_APP = ["myapp.authentication", "myapp.core"]
+INTERNAL_APP = ["myapp.authentication", "myapp.core", "myapp.ticket"]
 
 
 INSTALLED_APPS = (

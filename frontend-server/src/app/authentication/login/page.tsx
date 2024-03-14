@@ -101,10 +101,6 @@ export default function _() {
                 >
                   Login
                 </Button>
-
-                <Box sx={{ my: 2 }} />
-
-                <Typography variant="subtitle2">Se non eri registrato clicca qui</Typography>
               </Box>
             )}
           </Formik>
