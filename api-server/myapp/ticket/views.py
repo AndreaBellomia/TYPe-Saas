@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from rest_framework import filters
 
 from rest_framework.generics import ListCreateAPIView
 
+from myapp.core.paginations import BasicPaginationController
+from myapp.core.permissions import UserReadOnly
+from myapp.core.filters import StatusFilter
 from myapp.ticket.serializers import TicketTypeSerializer, UserTicketSerializer
 from myapp.ticket.models import TicketType, Ticket
-from myapp.ticket.permissions import UserReadOnly
 
 
 class TicketTypeListAPI(ListCreateAPIView):
@@ -16,6 +18,20 @@ class TicketTypeListAPI(ListCreateAPIView):
 
 class UserTicketAPI(ListCreateAPIView):
     serializer_class = UserTicketSerializer
+    pagination_class = BasicPaginationController
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, StatusFilter]
+    status_field = "status"
+    ordering_fields = [
+        "id",
+        "assigned_to",
+        "created_at",
+        "expiring_date",
+        "status",
+        "type",
+    ]
+    search_fields = [
+        "label",
+    ]
 
     def get_queryset(self):
         user = self.request.user

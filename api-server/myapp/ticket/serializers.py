@@ -13,9 +13,11 @@ class TicketTypeSerializer(serializers.ModelSerializer):
 
 class UserTicketSerializer(serializers.ModelSerializer):
 
-    assigned_to = UserInfoSmallSerializer()
+    assigned_to = UserInfoSmallSerializer(read_only=True)
+    type = TicketTypeSerializer(read_only=True)
+    type_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Ticket
         exclude = ("updated_at", "created_by")
-        read_only_fields = ("assigned_to", "status")
+        read_only_fields = ("status",)
