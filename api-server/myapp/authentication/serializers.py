@@ -18,6 +18,7 @@ class UserInfoSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("id", "email", "first_name", "last_name")
+        read_only_fields = ("email",)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,3 +50,38 @@ class AuthSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        exclude = ("created_at", "updated_at", "user")
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    user_info = UserInfoSerializer()
+
+    class Meta:
+        model = CustomUser
+        exclude = ("password",)
+        read_only_fields = (
+            "email",
+            "user_permissions",
+            "groups",
+            "is_superuser",
+            "is_staff",
+            "is_active",
+            "date_joined",
+            "last_login",
+        )
+
+    def update(self, instance, validated_data):
+        user_info: UserInfo = instance.user_info
+
+        user_info.first_name = validated_data["user_info"]["first_name"]
+        user_info.last_name = validated_data["user_info"]["last_name"]
+        user_info.phone_number = validated_data["user_info"]["phone_number"]
+        user_info.save()
+
+        return instance

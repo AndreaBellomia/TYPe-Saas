@@ -1,15 +1,21 @@
 # django imports
 from django.contrib.auth import login, logout
+from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions, status
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from knox.views import LoginView as KnoxLoginView
 
-from myapp.authentication.serializers import AuthSerializer, UserSerializer
+from myapp.authentication.serializers import (
+    AuthSerializer,
+    UserProfileSerializer,
+    UserSerializer,
+)
+from myapp.authentication.models import CustomUser
 
 
 class LogoutView(GenericAPIView):
@@ -48,3 +54,11 @@ class UserAuthenticated(APIView):
             {"detail": "You must be logged in to see this page"},
             status.HTTP_401_UNAUTHORIZED,
         )
+
+
+class ProfileUserView(RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(CustomUser, pk=user.id)
