@@ -19,3 +19,15 @@ class UserReadOnly(BasePermission):
             return True
 
         return False
+
+
+class GroupPermission(BasePermission):
+
+    def has_permission(self, request, view):
+        user: CustomUser = request.user
+
+        groups = list(user.groups.all().values_list("name", flat=True))
+
+        if [i for i in groups if i in view.permission_groups]:
+            return True
+        return False

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from myapp.ticket.models import TicketType, Ticket
+from myapp.authentication.models import CustomUser
 from myapp.authentication.serializers import UserInfoSmallSerializer
+from myapp.ticket.models import TicketType, Ticket
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
@@ -28,3 +29,16 @@ class UserTicketSerializer(serializers.ModelSerializer):
         model = Ticket
         exclude = ("updated_at", "created_by")
         read_only_fields = ("status",)
+
+
+class AdminTicketSerializer(serializers.ModelSerializer):
+
+    def validate(self, attrs):
+
+        if attrs["assigned_to"] and not attrs["assigned_to"].is_staff:
+            raise serializers.ValidationError({"assigned_to": f"Must be a staff user!"})
+        return super().validate(attrs)
+
+    class Meta:
+        model = Ticket
+        fields = "__all__"

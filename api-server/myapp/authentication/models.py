@@ -49,11 +49,26 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
+    @property
+    def is_employer(self):
+        group_name = "employer"
+        if self.groups.filter(name=group_name).exists():
+            return True
+        return False
+    
+    @property
+    def is_manager(self):
+        group_name = "manager"
+        if self.groups.filter(name=group_name).exists():
+            return True
+        return False
 
 class UserInfo(AbstractModel):
-    user = models.OneToOneField(CustomUser, related_name="user_info", on_delete=models.CASCADE)
-    
+    user = models.OneToOneField(
+        CustomUser, related_name="user_info", on_delete=models.CASCADE
+    )
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    
+
     phone_number = models.CharField(max_length=30)

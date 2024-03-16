@@ -1,12 +1,24 @@
+import logging
+
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+
 from rest_framework import filters
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import IsAdminUser
 
-from rest_framework.generics import ListCreateAPIView
-
+from myapp.authentication.models import CustomUser
 from myapp.core.paginations import BasicPaginationController
-from myapp.core.permissions import UserReadOnly
+from myapp.core.permissions import UserReadOnly, GroupPermission
 from myapp.core.filters import StatusFilter
-from myapp.ticket.serializers import TicketTypeSerializer, UserTicketSerializer
+from myapp.ticket.serializers import (
+    AdminTicketSerializer,
+    TicketTypeSerializer,
+    UserTicketSerializer,
+)
 from myapp.ticket.models import TicketType, Ticket
+
+logger = logging.getLogger(__name__)
 
 
 class TicketTypeListAPI(ListCreateAPIView):
@@ -44,3 +56,72 @@ class UserTicketAPI(ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(created_by=user)
+
+
+class AdminTicketAPI(ListCreateAPIView):
+    permission_classes = [IsAdminUser, GroupPermission]
+    permission_groups = ["manager", "employer"]
+
+    def get_serializer_class(self):
+        user: CustomUser = self.request.user
+        serializer = AdminTicketSerializer
+
+        if user.is_employer:
+            serializer.Meta.read_only_fields = ("assigned_to",)
+        return serializer
+
+    def query_employer(self):
+        return Ticket.objects.filter(
+            Q(assigned_to=self.request.user) | Q(created_by=self.request.user)
+        )
+
+    def get_queryset(self):
+        user: CustomUser = self.request.user
+
+        if user.is_manager:
+            return Ticket.objects.all()
+
+        return self.query_employer()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        instance = serializer.save()
+        if user.is_employer:
+            instance.assigned_to = user
+            instance.save(assigned_to=user)
+
+
+class AdminTicketUpdateAPI(RetrieveUpdateAPIView):
+    permission_classes = [IsAdminUser, GroupPermission]
+    permission_groups = ["manager", "employer"]
+
+    def get_serializer_class(self):
+        user: CustomUser = self.request.user
+        serializer = AdminTicketSerializer
+
+        if user.is_employer:
+            serializer.Meta.read_only_fields = ("assigned_to",)
+        return serializer
+
+    def query_employer(self):
+        return Ticket.objects.filter(
+            Q(assigned_to=self.request.user) | Q(created_by=self.request.user)
+        )
+
+    def get_object(self):
+        user: CustomUser = self.request.user
+        id = self.kwargs["id"]
+
+        if user.is_manager:
+            return get_object_or_404(self.query_employer(), pk=id)
+
+        return get_object_or_404(Ticket, pk=id)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        instance = serializer.save()
+        if user.is_employer:
+            instance.assigned_to = user
+            instance.save(assigned_to=user)
