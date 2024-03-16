@@ -43,6 +43,7 @@ class UserTicketAPI(ListCreateAPIView):
     ]
     search_fields = [
         "label",
+        "assigned_to",
     ]
 
     def get_queryset(self):
@@ -61,6 +62,24 @@ class UserTicketAPI(ListCreateAPIView):
 class AdminTicketAPI(ListCreateAPIView):
     permission_classes = [IsAdminUser, GroupPermission]
     permission_groups = ["manager", "employer"]
+    pagination_class = BasicPaginationController
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, StatusFilter]
+    status_field = "status"
+    ordering_fields = [
+        "id",
+        "assigned_to",
+        "created_by",
+        "created_at",
+        "expiring_date",
+        "status",
+        "type",
+    ]
+    search_fields = [
+        "label",
+        "created_by",
+        "assigned_to"
+    ]
+
 
     def get_serializer_class(self):
         user: CustomUser = self.request.user
@@ -77,7 +96,6 @@ class AdminTicketAPI(ListCreateAPIView):
 
     def get_queryset(self):
         user: CustomUser = self.request.user
-
         if user.is_manager:
             return Ticket.objects.all()
 
@@ -95,7 +113,7 @@ class AdminTicketAPI(ListCreateAPIView):
 class AdminTicketUpdateAPI(RetrieveUpdateAPIView):
     permission_classes = [IsAdminUser, GroupPermission]
     permission_groups = ["manager", "employer"]
-
+    
     def get_serializer_class(self):
         user: CustomUser = self.request.user
         serializer = AdminTicketSerializer
