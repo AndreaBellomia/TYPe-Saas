@@ -108,7 +108,13 @@ class AdminTicketAPI(ListCreateAPIView):
         if user.is_employer:
             instance.assigned_to = user
             instance.save(assigned_to=user)
-
+            
+            
+class BoardAdminAPI(AdminTicketAPI):
+    pagination_class = None
+    
+    def get_queryset(self):
+        return super().get_queryset().exclude(Q(status=Ticket.Status.BACKLOG))
 
 class AdminTicketUpdateAPI(RetrieveUpdateAPIView):
     permission_classes = [IsAdminUser, GroupPermission]

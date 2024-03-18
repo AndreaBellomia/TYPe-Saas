@@ -27,27 +27,32 @@ export async function middleware(request: NextRequest) {
   if (typeof userData === "undefined") {
     const url: string = URLS.API_SERVER + "/authentication/authenticated";
 
-    const userRequest = await fetch(url, {
-      headers: {
-        Authorization: "Token " + tokenJWT,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (userRequest.ok) {
-      const data = await userRequest.json();
-
-      response.cookies.set({
-        name: USER_INFO_TOKEN,
-        value: JSON.stringify(data),
-        httpOnly: false,
-        secure: true,
-        //@ts-ignore
-        expires: new Date().addHours(2),
+    try {
+      const userRequest = await fetch(url, {
+        headers: {
+          Authorization: "Token " + tokenJWT,
+          "Content-Type": "application/json",
+        },
       });
-    } else {
-      const data = await userRequest.json();
-      !request.nextUrl.pathname.startsWith("/authentication/login") && console.error(data);
+
+      if (userRequest.ok) {
+        const data = await userRequest.json();
+
+        response.cookies.set({
+          name: USER_INFO_TOKEN,
+          value: JSON.stringify(data),
+          httpOnly: false,
+          secure: true,
+          //@ts-ignore
+          expires: new Date().addHours(2),
+        });
+      } else {
+        const data = await userRequest.json();
+        !request.nextUrl.pathname.startsWith("/authentication/login") &&
+          console.error(data);
+      }
+    } catch {
+      console.error("Middleware error during fetch auth server.");
     }
   }
 
