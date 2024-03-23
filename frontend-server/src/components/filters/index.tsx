@@ -1,4 +1,5 @@
 import InputField from "./InputField"
+import StatusField from "./StatusField"
 
 
-export { InputField }
+export { InputField, StatusField }
