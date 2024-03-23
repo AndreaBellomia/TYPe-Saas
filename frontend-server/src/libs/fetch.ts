@@ -119,12 +119,12 @@ export class Axios {
     this.fetch(url, AxiosMethods.DELETE, callback, error, args);
   }
 
-  static buildURLparams(url: string, paramsList: ParamsList): string {
+  public static buildURLparams(url: string, paramsList: ParamsList): string {
     let outputURL: string = url + "?";
     paramsList.forEach((elem, index) => {
-      outputURL.concat(`${elem.param}=${elem.value}`);
+      outputURL = outputURL.concat(`${elem.param}=${elem.value}`);
       if (index < paramsList.length - 1) {
-        outputURL.concat("&");
+        outputURL = outputURL.concat("&");
       }
     });
 

@@ -13,16 +13,16 @@ import {
 } from "@mui/material";
 
 interface TablesMixinProps {
-  orderBy: string | null;
+  orderBy: [any, React.Dispatch<React.SetStateAction<any>>];
   headers: TableHeaderMixin[];
   data: any[];
 }
 
 interface RenderTableHeaderProps {
-    headers:TableHeaderMixin[];
-    orderingKey: string | null;
-    ordering: string | undefined;
-    setOrderBy: any
+  headers: TableHeaderMixin[];
+  orderingKey: string | null;
+  ordering: string | undefined;
+  setOrderBy: any;
 }
 
 interface TablesHeader {
@@ -33,10 +33,21 @@ interface TablesHeader {
   accessor: string;
   sx?: { [key: string]: string };
   sxTh?: { [key: string]: string };
-  render: (value: string, row: { [key: string]: string }) => string | React.ReactNode;
+  render: (
+    value: string,
+    row: { [key: string]: string },
+  ) => string | React.ReactNode;
 }
 
-function getOrdering(currentOrder: string): "desc" | "asc"{
+interface TablesHeaderProps extends Omit<TablesHeader, "accessor" | "render"> {
+  accessor?: string;
+  render?: (
+    value: string,
+    row: { [key: string]: string },
+  ) => string | React.ReactNode;
+}
+
+function getOrdering(currentOrder: string): "desc" | "asc" {
   return currentOrder.startsWith("-") ? "desc" : "asc";
 }
 
@@ -46,7 +57,7 @@ function getOrderingKey(currentOrder: string): string {
     : currentOrder;
 }
 
-function toggleOrderBy(orderKey:string, currentOrder:string): string {
+function toggleOrderBy(orderKey: string, currentOrder: string): string {
   const currentKey = currentOrder.startsWith("-")
     ? currentOrder.substring(1)
     : currentOrder;
@@ -57,17 +68,15 @@ function toggleOrderBy(orderKey:string, currentOrder:string): string {
   return orderKey;
 }
 
-export class TableHeaderMixin implements TablesHeader{
-    key: TablesHeader["key"]
-    label: TablesHeader["label"]
-    align: TablesHeader["align"]
-    orderable: TablesHeader["orderable"]
-    accessor: TablesHeader["accessor"]
-    sx: TablesHeader["sx"]
-    sxTh: TablesHeader["sxTh"]
-    render: TablesHeader["render"]
-    
-
+export class TableHeaderMixin implements TablesHeader {
+  key: TablesHeader["key"];
+  label: TablesHeader["label"];
+  align: TablesHeader["align"];
+  orderable: TablesHeader["orderable"];
+  accessor: TablesHeader["accessor"];
+  sx: TablesHeader["sx"];
+  sxTh: TablesHeader["sxTh"];
+  render: TablesHeader["render"];
 
   constructor({
     key,
@@ -77,13 +86,13 @@ export class TableHeaderMixin implements TablesHeader{
     accessor = "",
     sx = {},
     sxTh = {},
-    render = (value, row)  => value,
-  }: TablesHeader) {
-    this.key = key
-    this.label = label
-    this.align = align
-    this.orderable = orderable
-    this.orderable = orderable
+    render = (value, row) => value,
+  }: TablesHeaderProps) {
+    this.key = key;
+    this.label = label;
+    this.align = align;
+    this.orderable = orderable;
+    this.orderable = orderable;
     this.accessor = accessor || key;
     this.sx = sx;
     this.sxTh = sxTh;
@@ -92,7 +101,7 @@ export class TableHeaderMixin implements TablesHeader{
 }
 
 export default function TablesMixin({
-  orderBy: orderByProp = null,
+  orderBy: orderByProp = [undefined, (e: any) => {}],
   headers: headersProp,
   data: dataProp,
 }: TablesMixinProps) {
@@ -101,15 +110,19 @@ export default function TablesMixin({
 
   let ordering: "desc" | "asc" | undefined = undefined;
   let orderingKey: string | null = null;
-  let [orderBy, setOrderBy] = [undefined, (e: any) => {}];
+  let [orderBy, setOrderBy] = orderByProp;
 
-  if (orderByProp) {
-    [orderBy, setOrderBy] = orderByProp;
+  if (typeof orderByProp === "object") {
     ordering = getOrdering(orderBy);
     orderingKey = getOrderingKey(orderBy);
   }
 
-  function renderTableHeader({ headers, orderingKey, ordering, setOrderBy }: RenderTableHeaderProps) {
+  function renderTableHeader({
+    headers,
+    orderingKey,
+    ordering,
+    setOrderBy,
+  }: RenderTableHeaderProps) {
     return (
       <TableRow>
         {headers.map((header: TableHeaderMixin, index: number) => (
@@ -125,7 +138,7 @@ export default function TablesMixin({
                 direction={ordering}
                 IconComponent={KeyboardArrowDownIcon}
                 onClick={() =>
-                  setOrderBy(toggleOrderBy(header.accessor, orderingKey))
+                  setOrderBy(toggleOrderBy(header.accessor, orderBy))
                 }
               >
                 {header.label}
@@ -139,15 +152,23 @@ export default function TablesMixin({
     );
   }
 
-  function renderTableBody(headers: TablesMixinProps["headers"], body: { [key: string]: string }, index: number) {
-    
-    
-    const getAccessoValue = (render: TablesHeader["render"], body: { [key: string]: string }, accessor: TablesHeader["accessor"]): string | React.ReactNode => {
-      
-        const subAccess = accessor.split("__");
+  function renderTableBody(
+    headers: TablesMixinProps["headers"],
+    body: { [key: string]: string },
+    index: number,
+  ) {
+    const getAccessoValue = (
+      render: TablesHeader["render"],
+      body: { [key: string]: string },
+      accessor: TablesHeader["accessor"],
+    ): string | React.ReactNode => {
+      const subAccess = accessor.split("__");
 
       if (subAccess.length > 1) {
-        const getValue = (obj: { [key: string]: string }, keyList: Array<string>): string =>
+        const getValue = (
+          obj: { [key: string]: string },
+          keyList: Array<string>,
+        ): string =>
           keyList.reduce(
             (a: any, k: string) =>
               a && a[k] !== "undefined" ? a[k] : undefined,
@@ -177,10 +198,14 @@ export default function TablesMixin({
     <>
       <TableContainer component={"div"}>
         <Table sx={{ minWidth: 650 }}>
-          <TableHead>{renderTableHeader({headers, orderingKey, ordering, setOrderBy})}</TableHead>
+          <TableHead>
+            {renderTableHeader({ headers, orderingKey, ordering, setOrderBy })}
+          </TableHead>
           <TableBody>
             {bodies.length ? (
-              bodies.map((body: { [key: string]: string }, index: number) => renderTableBody(headers, body, index))
+              bodies.map((body: { [key: string]: string }, index: number) =>
+                renderTableBody(headers, body, index),
+              )
             ) : (
               <TableRow>
                 <TableCell

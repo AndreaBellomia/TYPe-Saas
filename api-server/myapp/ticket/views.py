@@ -76,8 +76,8 @@ class AdminTicketAPI(ListCreateAPIView):
     ]
     search_fields = [
         "label",
-        "created_by",
-        "assigned_to"
+        "created_by__email",
+        "assigned_to__email"
     ]
 
 
@@ -115,6 +115,7 @@ class BoardAdminAPI(AdminTicketAPI):
     
     def get_queryset(self):
         return super().get_queryset().exclude(Q(status=Ticket.Status.BACKLOG))
+
 
 class AdminTicketUpdateAPI(RetrieveUpdateAPIView):
     permission_classes = [IsAdminUser, GroupPermission]
