@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { Pagination } from '@mui/material';
-
+import { Pagination } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
@@ -32,7 +31,7 @@ export default function _() {
       (response) => {
         console.log(response);
         setTableData(response.data.results);
-        setTablePageCount(response.data.num_pages)
+        setTablePageCount(response.data.num_pages);
       },
       (error) => {
         snack.error("Errore interno del server");
