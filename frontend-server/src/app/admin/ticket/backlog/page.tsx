@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { Pagination, Grid } from "@mui/material";
+import { Pagination, Grid, Button } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
@@ -21,6 +21,8 @@ export default function _() {
   const [tablePageCount, setTablePageCount] = useState(1);
   const [search, setSearch] = useState("");
   const [state, setState] = useState(Object.values(TICKET_STATUSES).filter(e => e !== TICKET_STATUSES.DONE).reduce((acc, key) => acc + "," + key));
+
+  const [modalTicket, setModalTicket] = useState(false)
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/tickets/list", [
@@ -57,7 +59,8 @@ export default function _() {
 
   return (
     <>
-      <ModalTicketBasic/>
+      <Button onClick={() => setModalTicket(true)}>Crea un ticket</Button>
+      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} />
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
           <InputField setterValue={setSearch} placeholder="Cerca" />

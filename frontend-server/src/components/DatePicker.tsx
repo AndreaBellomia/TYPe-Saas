@@ -29,6 +29,7 @@ export default function CustomDatePicker(props: any) {
             error: otherProps.error,
             helperText: otherProps.helperText,
             label: otherProps.label,
+            onBlur: otherProps.onBlur
           },
           actionBar: { actions: ["clear"] },
         }}

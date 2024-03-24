@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions, status
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
@@ -62,3 +62,22 @@ class ProfileUserView(RetrieveUpdateAPIView):
     def get_object(self):
         user = self.request.user
         return get_object_or_404(CustomUser, pk=user.id)
+
+
+class UsersListView(ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get_queryset(self):
+        admin_only = self.request.GET.get("admin_only")
+        
+        queryset = CustomUser.objects.filter(
+            is_active=True
+        )
+        
+        if admin_only and admin_only.lower() == "true":
+            queryset = queryset.filter(
+                is_staff=True
+            )
+        
+        return queryset
