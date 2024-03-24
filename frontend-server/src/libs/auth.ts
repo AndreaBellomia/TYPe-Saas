@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { snack } from "@/libs/SnakClient";
+import { GROUPS } from "@/constants"
 
 export interface UserData {
   id: number;
@@ -17,8 +18,12 @@ export const JWT_TOKEN = "auth";
 export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
-  static getUserData(): UserData {
-    return JSON.parse(Cookies.get(USER_INFO_TOKEN));
+  static getUserData(): UserData | undefined {
+    try {
+      return JSON.parse(Cookies.get(USER_INFO_TOKEN));
+    } catch (e) {
+      return undefined;
+    }
   }
 
   static getAuthData(): string {
@@ -38,9 +43,18 @@ export class AuthUtility {
     });
 
     if (!resp.ok) {
-      snack.error("Credenziali non corrette!")
+      snack.error("Credenziali non corrette!");
     }
 
     return resp;
+  }
+
+  public static isManager() {
+    const userData = this.getUserData();
+    if (userData && userData.is_staff && userData.groups.includes(GROUPS.manager)) {
+      return true;
+    }
+
+    return false;
   }
 }

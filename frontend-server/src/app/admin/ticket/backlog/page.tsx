@@ -43,7 +43,7 @@ export default function _() {
         console.error(error);
       },
     );
-  }, [tableOrder, tablePage, search, state]);
+  }, [tableOrder, tablePage, search, state, modalTicket]);
 
   const tableHeaders = [
     new TableHeaderMixin({

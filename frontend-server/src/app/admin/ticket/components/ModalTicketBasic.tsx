@@ -17,11 +17,12 @@ import {
 
 import Modal from "@/components/Modal";
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
+import { AuthUtility } from "@/libs/auth";
 import { DjangoApi } from "@/libs/fetch";
 
 import ModalTicketForm from "@/app/admin/ticket/components/ModalTicketForm"
 
-import { TICKET_STATUSES } from "@/constants";
+
 const API = new DjangoApi();
 
 interface ComponentProps {
@@ -51,7 +52,7 @@ export default function _({ modalStatus }: ComponentProps) {
       <Modal state={[open, setOpen]}>
         <>
           <Button onClick={() => setEditable(!editable)}>Modifica</Button>
-          {editable ? <ModalTicketForm partial={true} /> : 
+          {editable ? <ModalTicketForm partial={AuthUtility.isManager()} setModal={setOpen} /> : 
           <>
           visualizza
           </>}

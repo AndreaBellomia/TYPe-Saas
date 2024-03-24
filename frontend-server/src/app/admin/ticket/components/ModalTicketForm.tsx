@@ -14,7 +14,8 @@ import {
   FormControl,
 } from "@mui/material";
 
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { snack } from "@/libs/SnakClient";
 import { TICKET_STATUSES } from "@/constants";
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
 import FormikAutocomplete from "@/components/forms/Autocomplete";
@@ -31,7 +32,7 @@ interface FormFields {
   assigned_to?: string;
 }
 
-export default function _({ partial }: { partial: boolean }) {
+export default function _({ partial, setModal }: { partial: boolean, setModal: React.Dispatch<React.SetStateAction<boolean>>}) {
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);
   const [users, setUsers] = useState<{ label: string; id: number }[]>([]);
   const [admins, setAdmins] = useState<{ label: string; id: number }[]>([]);
@@ -85,12 +86,12 @@ export default function _({ partial }: { partial: boolean }) {
     description: "",
     status: TICKET_STATUSES.BACKLOG,
     created_by: "",
-    type_id: "",
+    type: "",
   };
 
   let validation = Yup.object().shape({
     label: Yup.string()
-      .min(20, "Troppo breve!")
+      .min(10, "Troppo breve!")
       .max(100, "Troppo lunga")
       .required("Campo obbligatorio"),
     expiring_date: Yup.date()
@@ -98,7 +99,7 @@ export default function _({ partial }: { partial: boolean }) {
       .required("Campo obbligatorio"),
     description: Yup.string().max(5000, "Descrizione troppo lunga"),
     status: Yup.mixed().oneOf(Object.values(TICKET_STATUSES)),
-    type_id: Yup.mixed()
+    type: Yup.mixed()
       .oneOf(
         types.map((type) => type.id),
         "Il valore inserito non è valido!",
@@ -131,6 +132,23 @@ export default function _({ partial }: { partial: boolean }) {
       validationSchema={validation}
       onSubmit={(values, helpers) => {
         console.log(values);
+
+        API.post(
+          "/ticket/admin/tickets/list",
+          (response) => {
+            helpers.resetForm();
+            snack.success("created");
+            setModal(false)
+          },
+          (error) => {
+            const data = error.response.data;
+            Object.keys(data).forEach((key) => {
+              helpers.setFieldError(key, data[key]);
+            });
+            throw new FetchDispatchError("Errore, si prega di riprovare!");
+          },
+          values,
+        );
       }}
     >
       {({
@@ -224,7 +242,7 @@ export default function _({ partial }: { partial: boolean }) {
           <Box sx={{ my: 2 }} />
 
           <FormikAutocomplete
-            name="type_id"
+            name="type"
             label="Tipo"
             value="tipo"
             options={types}

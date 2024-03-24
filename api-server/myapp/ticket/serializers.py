@@ -34,8 +34,8 @@ class UserTicketSerializer(serializers.ModelSerializer):
 class AdminTicketSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
-
-        if attrs["assigned_to"] and not attrs["assigned_to"].is_staff:
+        assigned_to = attrs.get("assigned_to")
+        if assigned_to and not assigned_to.is_staff:
             raise serializers.ValidationError({"assigned_to": f"Must be a staff user!"})
         return super().validate(attrs)
 

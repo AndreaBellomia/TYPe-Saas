@@ -55,7 +55,6 @@ export default function _() {
             apiService.post(
               "/ticket/tickets/list",
               (response) => {
-                console.log(response);
                 helpers.resetForm();
                 snack.success("created");
               },

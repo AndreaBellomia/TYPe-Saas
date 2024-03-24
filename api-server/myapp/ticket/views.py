@@ -107,7 +107,7 @@ class AdminTicketAPI(ListCreateAPIView):
         instance = serializer.save()
         if user.is_employer:
             instance.assigned_to = user
-            instance.save(assigned_to=user)
+            instance.save()
             
             
 class BoardAdminAPI(AdminTicketAPI):
