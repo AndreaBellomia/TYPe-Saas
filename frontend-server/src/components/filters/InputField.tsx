@@ -3,7 +3,12 @@ import { styled, alpha } from '@mui/material/styles';
 import { InputBase, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-export default function InputSearch({ setterValue, placeholder = 'Cerca...' }) {
+interface ComponentsProp {
+    setterValue: React.Dispatch<string>;
+    placeholder: string
+}
+
+export default function InputSearch({ setterValue, placeholder = 'Cerca...' }: ComponentsProp) {
   const [debouncedInput, setDebouncedInput] = useState('');
 
   useEffect(() => {

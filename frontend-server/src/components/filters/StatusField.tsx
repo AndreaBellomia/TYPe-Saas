@@ -9,6 +9,7 @@ import Select from '@mui/material/Select';
 
 import CheckIcon from '@mui/icons-material/Check';
 
+import { TICKET_STATUSES } from "@/constants"
 
 interface ComponentProps {
     state: [string, React.Dispatch<React.SetStateAction<string>>]
@@ -26,31 +27,31 @@ const MenuProps = {
   },
 };
 
-const names = [
+const names: { label: string, key: string }[] = [
   {
     label: 'Backlog',
-    key: 'backlog',
+    key: TICKET_STATUSES.BACKLOG,
   },
   {
     label: 'Da fare',
-    key: 'todo',
+    key: TICKET_STATUSES.TODO,
   },
   {
     label: 'In lavorazione',
-    key: 'progress',
+    key: TICKET_STATUSES.PROGRESS,
   },
   {
     label: 'Bloccato',
-    key: 'blocked',
+    key: TICKET_STATUSES.BLOCKED,
   },
   {
     label: 'Completo',
-    key: 'done',
+    key: TICKET_STATUSES.DONE,
   },
 ];
 
-function getRenderValue(selected) {
-  return selected.map((key) => names.find((obj) => obj.key === key).label).join(', ');
+function getRenderValue(selected: Array<string>) {
+  return selected.map((key) => names.find((obj) => obj.key === key)?.label).join(', ');
 }
 
 export default function _({ state }: ComponentProps) {
@@ -75,7 +76,7 @@ export default function _({ state }: ComponentProps) {
           multiple
           value={getValues()}
           onChange={handleChange}
-          input={<OutlinedInput placeholder="cioa" />}
+          input={<OutlinedInput placeholder="" />}
           renderValue={getRenderValue}
           MenuProps={MenuProps}
         >
