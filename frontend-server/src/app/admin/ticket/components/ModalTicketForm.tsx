@@ -7,7 +7,6 @@ import {
   Button,
   Box,
   Typography,
-  TextField,
   Select,
   MenuItem,
   InputLabel,
@@ -18,7 +17,7 @@ import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
 import { TICKET_STATUSES } from "@/constants";
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
-import FormikAutocomplete from "@/components/forms/Autocomplete";
+import { Autocomplete, TextField } from "@/components/forms";
 
 const API = new DjangoApi();
 
@@ -27,12 +26,18 @@ interface FormFields {
   expiring_date: string;
   description: string;
   status: string;
-  created_by: string;
-  type_id: string;
-  assigned_to?: string;
+  created_by: number | null;
+  type: number | null;
+  assigned_to?: number | null;
 }
 
-export default function _({ partial, setModal }: { partial: boolean, setModal: React.Dispatch<React.SetStateAction<boolean>>}) {
+export default function _({
+  partial,
+  setModal,
+}: {
+  partial: boolean;
+  setModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);
   const [users, setUsers] = useState<{ label: string; id: number }[]>([]);
   const [admins, setAdmins] = useState<{ label: string; id: number }[]>([]);
@@ -85,8 +90,8 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
     expiring_date: "",
     description: "",
     status: TICKET_STATUSES.BACKLOG,
-    created_by: "",
-    type: "",
+    created_by: null,
+    type: null,
   };
 
   let validation = Yup.object().shape({
@@ -123,7 +128,7 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
         .required("Campo obbligatorio"),
     });
 
-    formFields.assigned_to = "";
+    formFields.assigned_to = null;
   }
 
   return (
@@ -138,7 +143,7 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
           (response) => {
             helpers.resetForm();
             snack.success("created");
-            setModal(false)
+            setModal(false);
           },
           (error) => {
             const data = error.response.data;
@@ -175,33 +180,28 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
           <Box sx={{ my: 2 }} />
 
           <TextField
-            sx={{ width: "100%" }}
-            label="Titolo"
-            variant="outlined"
             name="label"
             type="text"
-            error={!!(errors.label && touched.label)}
-            helperText={touched.label && errors.label}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={values.label}
+            label="Tipo"
+            values={values}
+            errors={errors}
+            touched={touched}
+            handleChange={handleChange}
+            handleBlur={handleBlur}
           />
 
           <Box sx={{ my: 2 }} />
 
           <TextField
-            sx={{ width: "100%" }}
-            label="Descrizione"
-            variant="outlined"
             name="description"
-            maxRows={10}
-            multiline
             type="text"
-            error={!!(errors.description && touched.description)}
-            helperText={touched.description && errors.description}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={values.description}
+            label="Descrizione"
+            values={values}
+            errors={errors}
+            touched={touched}
+            maxRows={10}
+            handleChange={handleChange}
+            handleBlur={handleBlur}
           />
 
           <Box sx={{ my: 2 }} />
@@ -241,10 +241,10 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
 
           <Box sx={{ my: 2 }} />
 
-          <FormikAutocomplete
+          <Autocomplete
             name="type"
             label="Tipo"
-            value="tipo"
+            values={values}
             options={types}
             errors={errors}
             touched={touched}
@@ -254,10 +254,10 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
 
           <Box sx={{ my: 2 }} />
 
-          <FormikAutocomplete
+          <Autocomplete
             name="created_by"
             label="Creato da"
-            value="creato da"
+            values={values}
             options={users}
             errors={errors}
             touched={touched}
@@ -269,10 +269,10 @@ export default function _({ partial, setModal }: { partial: boolean, setModal: R
             <>
               <Box sx={{ my: 2 }} />
 
-              <FormikAutocomplete
+              <Autocomplete
                 name="assigned_to"
                 label="Assegnato a"
-                value="assegnato a"
+                values={values}
                 options={admins}
                 errors={errors}
                 touched={touched}

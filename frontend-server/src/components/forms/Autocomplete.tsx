@@ -8,7 +8,7 @@ interface ComponentsProps {
   errors: { [key: string]: any };
   touched: { [key: string]: any };
   label: string;
-  value: string;
+  values: { [key: string]: any };
   setFieldValue: FormikHelpers<any>["setFieldValue"];
   setFieldTouched: FormikHelpers<any>["setFieldTouched"];
 }
@@ -19,10 +19,11 @@ export default function _({
   errors,
   touched,
   label,
-  value,
+  values,
   setFieldValue,
   setFieldTouched,
 }: ComponentsProps) {
+  const filedValue = options.find((option) => option.id === values[name]);
   return (
     <Autocomplete
       sx={{ width: "100%" }}
@@ -32,6 +33,7 @@ export default function _({
           ? setFieldValue(name, "")
           : setFieldValue(name, value.id);
       }}
+      value={filedValue || null}
       onBlur={() => setFieldTouched(name, true)}
       renderInput={(params) => (
         <TextField
@@ -39,7 +41,6 @@ export default function _({
           {...params}
           label={label}
           helperText={touched[name] && errors[name]}
-          value={value}
         />
       )}
     />
