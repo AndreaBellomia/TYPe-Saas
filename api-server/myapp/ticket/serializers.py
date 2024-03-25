@@ -32,6 +32,16 @@ class UserTicketSerializer(serializers.ModelSerializer):
 
 
 class AdminTicketSerializer(serializers.ModelSerializer):
+    
+    type = TicketTypeSerializer(read_only=True)
+    type_id = serializers.IntegerField()
+    
+    assigned_to = UserInfoSmallSerializer(read_only=True)
+    assigned_to_id = serializers.IntegerField()
+    
+    created_by = UserInfoSmallSerializer(read_only=True)
+    created_by_id = serializers.IntegerField()
+
 
     def validate(self, attrs):
         assigned_to = attrs.get("assigned_to")

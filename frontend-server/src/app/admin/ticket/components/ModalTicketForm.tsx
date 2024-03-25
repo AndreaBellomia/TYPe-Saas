@@ -1,6 +1,6 @@
 "use-client";
 import React, { useEffect, useState } from "react";
-import { useFormik } from "formik";
+import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 
 import {
@@ -32,9 +32,18 @@ export interface FormFields {
   expiring_date: string;
   description: string;
   status: string;
-  created_by: number | null;
-  type: number | null;
-  assigned_to?: number | null;
+  created_by_id: number | null;
+  type_id: number | null;
+  assigned_to_id?: number | null;
+}
+
+function errorsHandler(
+  helpers: FormikHelpers<any>,
+  errors: { [key: string]: string },
+): void {
+  Object.keys(errors).forEach((key) => {
+    helpers.setFieldError(key, errors[key]);
+  });
 }
 
 export default function _({ partial, setModal, objectData }: ComponentProps) {
@@ -52,20 +61,20 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
       .required("Campo obbligatorio"),
     description: Yup.string().max(5000, "Descrizione troppo lunga"),
     status: Yup.mixed().oneOf(Object.values(TICKET_STATUSES)),
-    type: Yup.mixed()
+    type_id: Yup.mixed()
       .oneOf(
         types.map((type) => type.id),
         "Il valore inserito non è valido!",
       )
       .required("Campo obbligatorio"),
-    created_by: Yup.mixed()
+      created_by_id: Yup.mixed()
       .oneOf(
         users.map((type) => type.id),
         "Il valore inserito non è valido!",
       )
       .required("Campo obbligatorio"),
     ...(partial && {
-      assigned_to: Yup.mixed()
+      assigned_to_id: Yup.mixed()
         .oneOf(
           admins.map((admin) => admin.id),
           "Il valore inserito non è valido!",
@@ -79,34 +88,46 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
     expiring_date: "",
     description: "",
     status: TICKET_STATUSES.BACKLOG,
-    created_by: null,
-    type: null,
-    ...(partial && { assigned_to: null }),
+    created_by_id: null,
+    type_id: null,
+    ...(partial && { assigned_to_id: null }),
   };
 
   const formik = useFormik({
     initialValues: formFields,
     validationSchema: validation,
     onSubmit: (values, helpers) => {
-      console.log(values);
-
-      API.post(
-        "/ticket/admin/tickets/list",
-        (response) => {
-          helpers.resetForm();
-          snack.success("created");
-          setModal(false);
-        },
-        (error) => {
-          const data = error.response.data;
-          Object.keys(data).forEach((key) => {
-            helpers.setFieldError(key, data[key]);
-          });
-          throw new FetchDispatchError("Errore, si prega di riprovare!");
-        },
-        // @ts-ignore
-        values,
-      );
+      if (objectData) {
+        API.put(
+          `/ticket/admin/tickets/update/${objectData.id}`,
+          (response) => {
+            helpers.resetForm();
+            snack.success(`Ticket numero ${objectData.id} è stato aggiornato`);
+            setModal(false);
+          },
+          (error) => {
+            errorsHandler(helpers, error.response.data)
+            throw new FetchDispatchError("Errore, si prega di riprovare!");
+          },
+          // @ts-ignore
+          values,
+        );
+      } else {
+        API.post(
+          "/ticket/admin/tickets/list",
+          (response) => {
+            helpers.resetForm();
+            snack.success("Nuovo ticket creato");
+            setModal(false);
+          },
+          (error) => {
+            errorsHandler(helpers, error.response.data)
+            throw new FetchDispatchError("Errore, si prega di riprovare!");
+          },
+          // @ts-ignore
+          values,
+        );
+      }
     },
   });
 
@@ -153,7 +174,6 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
         },
       );
     }
-    
   }, []);
 
   useEffect(() => {
@@ -237,7 +257,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
       <Box sx={{ my: 2 }} />
 
       <Autocomplete
-        name="type"
+        name="type_id"
         label="Tipo"
         values={formik.values}
         options={types}
@@ -250,7 +270,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
       <Box sx={{ my: 2 }} />
 
       <Autocomplete
-        name="created_by"
+        name="created_by_id"
         label="Creato da"
         values={formik.values}
         options={users}
@@ -265,7 +285,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
           <Box sx={{ my: 2 }} />
 
           <Autocomplete
-            name="assigned_to"
+            name="assigned_to_id"
             label="Assegnato a"
             values={formik.values}
             options={admins}
