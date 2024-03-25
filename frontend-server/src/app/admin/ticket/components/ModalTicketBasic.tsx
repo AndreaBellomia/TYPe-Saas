@@ -111,8 +111,6 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
     }
 
     setEditable(detailId === null);
-
-    console.log(data);
   }, [open]);
 
   return (

@@ -3,6 +3,7 @@ import { FilledTextFieldProps, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 
 function CustomTextField(props: FilledTextFieldProps): React.ReactElement {
@@ -33,7 +34,7 @@ export default function CustomDatePicker(props: any) {
           },
           actionBar: { actions: ["clear"] },
         }}
-        value={otherProps.value || null}
+        value={dayjs(otherProps.value) || null}
         name={otherProps.name}
         localeText={{
           clearButtonLabel: "CANCELLA",

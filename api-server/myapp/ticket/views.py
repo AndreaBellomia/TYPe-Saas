@@ -86,7 +86,8 @@ class AdminTicketAPI(ListCreateAPIView):
         serializer = AdminTicketSerializer
 
         if user.is_employer:
-            serializer.Meta.read_only_fields = ("assigned_to",)
+            serializer.Meta.read_only_fields = ("assigned_to_id",)
+            
         return serializer
 
     def query_employer(self):
@@ -124,9 +125,9 @@ class AdminTicketUpdateAPI(RetrieveUpdateAPIView):
     def get_serializer_class(self):
         user: CustomUser = self.request.user
         serializer = AdminTicketSerializer
-
+        
         if user.is_employer:
-            serializer.Meta.read_only_fields = ("assigned_to",)
+            serializer.Meta.read_only_fields = ("assigned_to_id",)
         return serializer
 
     def query_employer(self):

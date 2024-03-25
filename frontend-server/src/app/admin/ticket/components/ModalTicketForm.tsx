@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 
+import dayjs from "dayjs";
+
 import {
   Button,
   Box,
@@ -106,6 +108,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
             setModal(false);
           },
           (error) => {
+            console.error(error);
             errorsHandler(helpers, error.response.data)
             throw new FetchDispatchError("Errore, si prega di riprovare!");
           },
@@ -121,6 +124,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
             setModal(false);
           },
           (error) => {
+            console.error(error);
             errorsHandler(helpers, error.response.data)
             throw new FetchDispatchError("Errore, si prega di riprovare!");
           },
@@ -178,6 +182,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
 
   useEffect(() => {
     if (objectData) {
+      console.log(objectData)
       Object.keys(formik.values).forEach((key) => {
         formik.setFieldValue(key, objectData[key]);
       });
@@ -232,6 +237,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
         helperText={formik.touched.expiring_date && formik.errors.expiring_date}
         onBlur={() => formik.setFieldTouched("expiring_date", true)}
         name="expiring_date"
+        value={formik.values.expiring_date}
       />
 
       <Box sx={{ my: 2 }} />
@@ -298,14 +304,26 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
       )}
 
       <Box sx={{ my: 2 }} />
-      {/*  @ts-ignore */}
-      <Button
+      {!objectData ?
+        // @ts-ignore
+        <Button
         variant="contained"
         onClick={formik.handleSubmit}
         disabled={!(formik.isValid && formik.dirty)}
       >
         Crea
       </Button>
+      : (
+        // @ts-ignore
+        <Button
+        variant="contained"
+        onClick={formik.handleSubmit}
+        disabled={!(formik.isValid && formik.dirty)}
+      >
+        Aggiorna
+      </Button>
+      )}
+      
     </Box>
   );
 }
