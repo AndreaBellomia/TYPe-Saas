@@ -26,6 +26,7 @@ const API = new DjangoApi();
 interface ComponentProps {
   partial: boolean;
   setModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditable: React.Dispatch<React.SetStateAction<boolean>>;
   objectData: { [key: string]: any } | null;
 }
 
@@ -48,7 +49,12 @@ function errorsHandler(
   });
 }
 
-export default function _({ partial, setModal, objectData }: ComponentProps) {
+export default function _({
+  partial,
+  setModal,
+  objectData,
+  setEditable,
+}: ComponentProps) {
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);
   const [users, setUsers] = useState<{ label: string; id: number }[]>([]);
   const [admins, setAdmins] = useState<{ label: string; id: number }[]>([]);
@@ -69,7 +75,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
         "Il valore inserito non è valido!",
       )
       .required("Campo obbligatorio"),
-      created_by_id: Yup.mixed()
+    created_by_id: Yup.mixed()
       .oneOf(
         users.map((type) => type.id),
         "Il valore inserito non è valido!",
@@ -109,7 +115,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
           },
           (error) => {
             console.error(error);
-            errorsHandler(helpers, error.response.data)
+            errorsHandler(helpers, error.response.data);
             throw new FetchDispatchError("Errore, si prega di riprovare!");
           },
           // @ts-ignore
@@ -125,7 +131,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
           },
           (error) => {
             console.error(error);
-            errorsHandler(helpers, error.response.data)
+            errorsHandler(helpers, error.response.data);
             throw new FetchDispatchError("Errore, si prega di riprovare!");
           },
           // @ts-ignore
@@ -150,7 +156,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
     );
 
     API.get(
-      "authentication/users/list",
+      "authentication/users/list/small",
       (response) => {
         const data: Array<any> = response.data;
         setUsers(data.map((e) => ({ label: e.email, id: e.id })));
@@ -164,7 +170,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
 
     if (partial) {
       API.get(
-        DjangoApi.buildURLparams("authentication/users/list", [
+        DjangoApi.buildURLparams("authentication/users/list/small", [
           { param: "admin_only", value: "true" },
         ]),
         (response) => {
@@ -182,7 +188,7 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
 
   useEffect(() => {
     if (objectData) {
-      console.log(objectData)
+      console.log(objectData);
       Object.keys(formik.values).forEach((key) => {
         formik.setFieldValue(key, objectData[key]);
       });
@@ -304,26 +310,29 @@ export default function _({ partial, setModal, objectData }: ComponentProps) {
       )}
 
       <Box sx={{ my: 2 }} />
-      {!objectData ?
+      {!objectData ? (
         // @ts-ignore
         <Button
-        variant="contained"
-        onClick={formik.handleSubmit}
-        disabled={!(formik.isValid && formik.dirty)}
-      >
-        Crea
-      </Button>
-      : (
-        // @ts-ignore
-        <Button
-        variant="contained"
-        onClick={formik.handleSubmit}
-        disabled={!(formik.isValid && formik.dirty)}
-      >
-        Aggiorna
-      </Button>
+          variant="contained"
+          onClick={() => formik.handleSubmit()}
+          disabled={!(formik.isValid && formik.dirty)}
+        >
+          Crea
+        </Button>
+      ) : (
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Button variant="contained" color="error" onClick={() => setEditable(false)}>
+            Annulla
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => formik.handleSubmit()}
+            disabled={!(formik.isValid && formik.dirty)}
+          >
+            Aggiorna
+          </Button>
+        </Box>
       )}
-      
     </Box>
   );
 }

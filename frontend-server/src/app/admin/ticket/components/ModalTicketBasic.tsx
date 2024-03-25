@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from "react";
 import dayjs from "dayjs";
 
 import {
-  Button,
   Box,
   Typography,
   Grid,
@@ -74,10 +73,12 @@ function userAvatarComponent(user: {
 }
 
 function dateTimeParser(date: string): string {
+  // @ts-ignore
   return dayjs(date, "YYYY-mm-ddTHH:mm:ss").$d.toLocaleString("it");
 }
 
 function dateParser(date: string): string {
+  // @ts-ignore
   return dayjs(date, "YYYY-mm-ddTHH:mm:ss").$d.toLocaleString("it", {
     year: "numeric",
     month: "2-digit",
@@ -111,7 +112,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
     }
 
     setEditable(detailId === null);
-  }, [open]);
+  }, [detailId]);
 
   return (
     <>
@@ -121,6 +122,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
             <ModalTicketForm
               partial={isManager.current}
               setModal={setOpen}
+              setEditable={setEditable}
               objectData={data}
             />
           ) : (
@@ -145,7 +147,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
                 <Divider sx={{ my: 2 }} />
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} lg={9}>
+                  <Grid item xs={12} lg={8}>
                     <Typography variant="subtitle1" color="text.secondary">
                       Titolo
                     </Typography>

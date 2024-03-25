@@ -2,11 +2,13 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions, status
+from rest_framework import permissions, status, filters
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+
+from myapp.core.paginations import BasicPaginationController
 
 from knox.views import LoginView as KnoxLoginView
 
@@ -64,7 +66,7 @@ class ProfileUserView(RetrieveUpdateAPIView):
         return get_object_or_404(CustomUser, pk=user.id)
 
 
-class UsersListView(ListAPIView):
+class UsersSmallListView(ListAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
     
@@ -81,3 +83,18 @@ class UsersListView(ListAPIView):
             )
         
         return queryset
+    
+class UsersListView(ListAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    filter_backends = [filters.SearchFilter]
+    queryset = CustomUser.objects.all().prefetch_related("user_info")
+    
+    pagination_class = BasicPaginationController
+
+    search_fields = [
+        "email",
+        "id",
+        "user_info__first_name",
+        "user_info__last_name",
+    ]

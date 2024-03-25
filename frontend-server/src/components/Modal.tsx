@@ -18,6 +18,7 @@ const ModalBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   padding: "1.5rem",
   borderRadius: "1rem",
+  boxSizing: "border-box",
 
   [theme.breakpoints.up("md")]: {
     width: "75%",
