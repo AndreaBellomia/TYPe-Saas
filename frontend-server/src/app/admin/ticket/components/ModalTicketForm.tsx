@@ -1,6 +1,6 @@
 "use-client";
-import React, { useEffect, useState, useRef } from "react";
-import { Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 
 import {
@@ -21,7 +21,13 @@ import { Autocomplete, TextField } from "@/components/forms";
 
 const API = new DjangoApi();
 
-interface FormFields {
+interface ComponentProps {
+  partial: boolean;
+  setModal: React.Dispatch<React.SetStateAction<boolean>>;
+  objectData: { [key: string]: any } | null;
+}
+
+export interface FormFields {
   label: string;
   expiring_date: string;
   description: string;
@@ -31,70 +37,12 @@ interface FormFields {
   assigned_to?: number | null;
 }
 
-export default function _({
-  partial,
-  setModal,
-}: {
-  partial: boolean;
-  setModal: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function _({ partial, setModal, objectData }: ComponentProps) {
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);
   const [users, setUsers] = useState<{ label: string; id: number }[]>([]);
   const [admins, setAdmins] = useState<{ label: string; id: number }[]>([]);
 
-  useEffect(() => {
-    const fetchTypes = async () => {
-      await API.get(
-        "ticket/types/list",
-        (response) => {
-          const data: Array<any> = response.data;
-          setTypes(data.map((e) => ({ label: e.name, id: e.id })));
-        },
-        () => {},
-      );
-    };
-
-    const fetchUsers = async () => {
-      await API.get(
-        "authentication/users/list",
-        (response) => {
-          const data: Array<any> = response.data;
-          setUsers(data.map((e) => ({ label: e.email, id: e.id })));
-        },
-        () => {},
-      );
-    };
-
-    const fetchAdmin = async () => {
-      const url = DjangoApi.buildURLparams("authentication/users/list", [
-        { param: "admin_only", value: "true" },
-      ]);
-
-      await API.get(
-        url,
-        (response) => {
-          const data: Array<any> = response.data;
-          setAdmins(data.map((e) => ({ label: e.email, id: e.id })));
-        },
-        () => {},
-      );
-    };
-
-    fetchTypes();
-    fetchUsers();
-    partial && fetchAdmin();
-  }, []);
-
-  let formFields: FormFields = {
-    label: "",
-    expiring_date: "",
-    description: "",
-    status: TICKET_STATUSES.BACKLOG,
-    created_by: null,
-    type: null,
-  };
-
-  let validation = Yup.object().shape({
+  const validation = Yup.object().shape({
     label: Yup.string()
       .min(10, "Troppo breve!")
       .max(100, "Troppo lunga")
@@ -116,183 +64,228 @@ export default function _({
         "Il valore inserito non è valido!",
       )
       .required("Campo obbligatorio"),
-  });
-
-  if (partial) {
-    validation = validation.shape({
+    ...(partial && {
       assigned_to: Yup.mixed()
         .oneOf(
           admins.map((admin) => admin.id),
           "Il valore inserito non è valido!",
         )
         .required("Campo obbligatorio"),
-    });
+    }),
+  });
 
-    formFields.assigned_to = null;
-  }
+  const formFields: FormFields = {
+    label: "",
+    expiring_date: "",
+    description: "",
+    status: TICKET_STATUSES.BACKLOG,
+    created_by: null,
+    type: null,
+    ...(partial && { assigned_to: null }),
+  };
+
+  const formik = useFormik({
+    initialValues: formFields,
+    validationSchema: validation,
+    onSubmit: (values, helpers) => {
+      console.log(values);
+
+      API.post(
+        "/ticket/admin/tickets/list",
+        (response) => {
+          helpers.resetForm();
+          snack.success("created");
+          setModal(false);
+        },
+        (error) => {
+          const data = error.response.data;
+          Object.keys(data).forEach((key) => {
+            helpers.setFieldError(key, data[key]);
+          });
+          throw new FetchDispatchError("Errore, si prega di riprovare!");
+        },
+        // @ts-ignore
+        values,
+      );
+    },
+  });
+
+  useEffect(() => {
+    API.get(
+      "ticket/types/list",
+      (response) => {
+        const data: Array<any> = response.data;
+        setTypes(data.map((e) => ({ label: e.name, id: e.id })));
+      },
+      (e) => {
+        throw new FetchDispatchError(
+          "Errore durante il recupero dei tipo, riprova più tardi.",
+        );
+      },
+    );
+
+    API.get(
+      "authentication/users/list",
+      (response) => {
+        const data: Array<any> = response.data;
+        setUsers(data.map((e) => ({ label: e.email, id: e.id })));
+      },
+      () => {
+        throw new FetchDispatchError(
+          "Errore durante il recupero degli utenti, riprova più tardi.",
+        );
+      },
+    );
+
+    if (partial) {
+      API.get(
+        DjangoApi.buildURLparams("authentication/users/list", [
+          { param: "admin_only", value: "true" },
+        ]),
+        (response) => {
+          const data: Array<any> = response.data;
+          setAdmins(data.map((e) => ({ label: e.email, id: e.id })));
+        },
+        () => {
+          throw new FetchDispatchError(
+            "Errore durante il recupero degli amministratori, riprova più tardi.",
+          );
+        },
+      );
+    }
+    
+  }, []);
+
+  useEffect(() => {
+    if (objectData) {
+      Object.keys(formik.values).forEach((key) => {
+        formik.setFieldValue(key, objectData[key]);
+      });
+    }
+  }, [objectData]);
 
   return (
-    <Formik
-      initialValues={formFields}
-      validationSchema={validation}
-      onSubmit={(values, helpers) => {
-        console.log(values);
-
-        API.post(
-          "/ticket/admin/tickets/list",
-          (response) => {
-            helpers.resetForm();
-            snack.success("created");
-            setModal(false);
-          },
-          (error) => {
-            const data = error.response.data;
-            Object.keys(data).forEach((key) => {
-              helpers.setFieldError(key, data[key]);
-            });
-            throw new FetchDispatchError("Errore, si prega di riprovare!");
-          },
-          values,
-        );
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
-      {({
-        values,
-        errors,
-        touched,
-        dirty,
-        isValid,
-        handleChange,
-        handleBlur,
-        setFieldValue,
-        handleSubmit,
-        setFieldTouched,
-      }) => (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
+      <Typography variant="h4">Crea un nuovo ticket</Typography>
+
+      <Box sx={{ my: 2 }} />
+
+      <TextField
+        name="label"
+        type="text"
+        label="Tipo"
+        values={formik.values}
+        errors={formik.errors}
+        touched={formik.touched}
+        handleChange={formik.handleChange}
+        handleBlur={formik.handleBlur}
+      />
+
+      <Box sx={{ my: 2 }} />
+
+      <TextField
+        name="description"
+        type="text"
+        label="Descrizione"
+        values={formik.values}
+        errors={formik.errors}
+        touched={formik.touched}
+        maxRows={10}
+        handleChange={formik.handleChange}
+        handleBlur={formik.handleBlur}
+      />
+
+      <Box sx={{ my: 2 }} />
+
+      <DatePicker
+        label="Data di scadenza"
+        onChange={(e: any) => {
+          formik.setFieldValue("expiring_date", parseDateValue(e));
+        }}
+        error={!!(formik.errors.expiring_date && formik.touched.expiring_date)}
+        helperText={formik.touched.expiring_date && formik.errors.expiring_date}
+        onBlur={() => formik.setFieldTouched("expiring_date", true)}
+        name="expiring_date"
+      />
+
+      <Box sx={{ my: 2 }} />
+
+      <FormControl sx={{ width: "100%" }}>
+        <InputLabel id="status-select-id-label">Stato</InputLabel>
+        <Select
+          labelId="status-select-id-label"
+          id="status-select-id"
+          value={formik.values.status}
+          name="status"
+          label="Stato"
+          onChange={formik.handleChange}
         >
-          <Typography variant="h4">Crea un nuovo ticket</Typography>
+          <MenuItem value={TICKET_STATUSES.BACKLOG}>Backlog</MenuItem>
+          <MenuItem value={TICKET_STATUSES.TODO}>Da fare</MenuItem>
+          <MenuItem value={TICKET_STATUSES.PROGRESS}>In lavorazione</MenuItem>
+          <MenuItem value={TICKET_STATUSES.BLOCKED}>Bloccato</MenuItem>
+          <MenuItem value={TICKET_STATUSES.DONE}>Completato</MenuItem>
+        </Select>
+      </FormControl>
 
-          <Box sx={{ my: 2 }} />
+      <Box sx={{ my: 2 }} />
 
-          <TextField
-            name="label"
-            type="text"
-            label="Tipo"
-            values={values}
-            errors={errors}
-            touched={touched}
-            handleChange={handleChange}
-            handleBlur={handleBlur}
-          />
+      <Autocomplete
+        name="type"
+        label="Tipo"
+        values={formik.values}
+        options={types}
+        errors={formik.errors}
+        touched={formik.touched}
+        setFieldValue={formik.setFieldValue}
+        setFieldTouched={formik.setFieldTouched}
+      />
 
-          <Box sx={{ my: 2 }} />
+      <Box sx={{ my: 2 }} />
 
-          <TextField
-            name="description"
-            type="text"
-            label="Descrizione"
-            values={values}
-            errors={errors}
-            touched={touched}
-            maxRows={10}
-            handleChange={handleChange}
-            handleBlur={handleBlur}
-          />
+      <Autocomplete
+        name="created_by"
+        label="Creato da"
+        values={formik.values}
+        options={users}
+        errors={formik.errors}
+        touched={formik.touched}
+        setFieldValue={formik.setFieldValue}
+        setFieldTouched={formik.setFieldTouched}
+      />
 
-          <Box sx={{ my: 2 }} />
-
-          <DatePicker
-            label="Data di scadenza"
-            onChange={(e: any) => {
-              setFieldValue("expiring_date", parseDateValue(e));
-            }}
-            error={!!(errors.expiring_date && touched.expiring_date)}
-            helperText={touched.expiring_date && errors.expiring_date}
-            onBlur={() => setFieldTouched("expiring_date", true)}
-            name="expiring_date"
-          />
-
-          <Box sx={{ my: 2 }} />
-
-          <FormControl sx={{ width: "100%" }}>
-            <InputLabel id="status-select-id-label">Stato</InputLabel>
-            <Select
-              labelId="status-select-id-label"
-              id="status-select-id"
-              value={values.status}
-              name="status"
-              label="Stato"
-              onChange={handleChange}
-            >
-              <MenuItem value={TICKET_STATUSES.BACKLOG}>Backlog</MenuItem>
-              <MenuItem value={TICKET_STATUSES.TODO}>Da fare</MenuItem>
-              <MenuItem value={TICKET_STATUSES.PROGRESS}>
-                In lavorazione
-              </MenuItem>
-              <MenuItem value={TICKET_STATUSES.BLOCKED}>Bloccato</MenuItem>
-              <MenuItem value={TICKET_STATUSES.DONE}>Completato</MenuItem>
-            </Select>
-          </FormControl>
-
+      {partial && (
+        <>
           <Box sx={{ my: 2 }} />
 
           <Autocomplete
-            name="type"
-            label="Tipo"
-            values={values}
-            options={types}
-            errors={errors}
-            touched={touched}
-            setFieldValue={setFieldValue}
-            setFieldTouched={setFieldTouched}
+            name="assigned_to"
+            label="Assegnato a"
+            values={formik.values}
+            options={admins}
+            errors={formik.errors}
+            touched={formik.touched}
+            setFieldValue={formik.setFieldValue}
+            setFieldTouched={formik.setFieldTouched}
           />
-
-          <Box sx={{ my: 2 }} />
-
-          <Autocomplete
-            name="created_by"
-            label="Creato da"
-            values={values}
-            options={users}
-            errors={errors}
-            touched={touched}
-            setFieldValue={setFieldValue}
-            setFieldTouched={setFieldTouched}
-          />
-
-          {partial && (
-            <>
-              <Box sx={{ my: 2 }} />
-
-              <Autocomplete
-                name="assigned_to"
-                label="Assegnato a"
-                values={values}
-                options={admins}
-                errors={errors}
-                touched={touched}
-                setFieldValue={setFieldValue}
-                setFieldTouched={setFieldTouched}
-              />
-            </>
-          )}
-
-          <Box sx={{ my: 2 }} />
-          {/*  @ts-ignore */}
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={!(isValid && dirty)}
-          >
-            Crea
-          </Button>
-        </Box>
+        </>
       )}
-    </Formik>
+
+      <Box sx={{ my: 2 }} />
+      {/*  @ts-ignore */}
+      <Button
+        variant="contained"
+        onClick={formik.handleSubmit}
+        disabled={!(formik.isValid && formik.dirty)}
+      >
+        Crea
+      </Button>
+    </Box>
   );
 }

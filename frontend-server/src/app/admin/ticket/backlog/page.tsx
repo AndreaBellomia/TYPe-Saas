@@ -23,6 +23,7 @@ export default function _() {
   const [state, setState] = useState(Object.values(TICKET_STATUSES).filter(e => e !== TICKET_STATUSES.DONE).reduce((acc, key) => acc + "," + key));
 
   const [modalTicket, setModalTicket] = useState(false)
+  const [modalTicketDetail, setModalTicketDetail] = useState<null | string>(null)
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/tickets/list", [
@@ -55,12 +56,29 @@ export default function _() {
       key: "label",
       label: "Titolo",
     }),
+    new TableHeaderMixin({
+      key: "detail",
+      accessor: "id",
+      label: "",
+      align: "right",
+      render: (value, row) => <Button variant="outlined" onClick={() => handlerOpenModal(value)}>dettaglio</Button>
+
+    }),
   ];
+
+  const handlerOpenModal = (id: string | null): void => {
+    if (id) {
+      setModalTicketDetail(id)
+    } else {
+      setModalTicketDetail(null)
+    }
+    setModalTicket(true)
+  }
 
   return (
     <>
-      <Button onClick={() => setModalTicket(true)}>Crea un ticket</Button>
-      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} />
+      <Button onClick={() => handlerOpenModal(null)}>Crea un ticket</Button>
+      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} />
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
           <InputField setterValue={setSearch} placeholder="Cerca" />

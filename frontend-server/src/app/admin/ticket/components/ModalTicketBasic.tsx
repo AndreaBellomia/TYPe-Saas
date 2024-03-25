@@ -1,7 +1,5 @@
 "use-client";
 import React, { useEffect, useState, useRef } from "react";
-import { Formik } from "formik";
-import * as Yup from "yup";
 
 import {
   Button,
@@ -16,34 +14,41 @@ import {
 } from "@mui/material";
 
 import Modal from "@/components/Modal";
-import DatePicker, { parseDateValue } from "@/components/DatePicker";
 import { AuthUtility } from "@/libs/auth";
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 
-import ModalTicketForm from "@/app/admin/ticket/components/ModalTicketForm"
-
+import ModalTicketForm from "@/app/admin/ticket/components/ModalTicketForm";
 
 const API = new DjangoApi();
 
 interface ComponentProps {
   modalStatus: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  detailId: string | null;
 }
 
-export default function _({ modalStatus }: ComponentProps) {
+export default function _({ modalStatus, detailId }: ComponentProps) {
   const [open, setOpen] = modalStatus;
+  const [data, setData] = useState<{ [key: string]: any } | null>(null);
   const [editable, setEditable] = useState(true);
-  const typesRef = useRef<{ label: string; id: number }[]>([]);
+  const isManager = useRef(AuthUtility.isManager());
 
   useEffect(() => {
-    if (open) {
+    if (detailId) {
       API.get(
-        "ticket/types/list",
+        `/ticket/admin/tickets/update/${detailId}`,
         (response) => {
-          const data: Array<any> = response.data;
-          typesRef.current = data.map((e) => ({ label: e.name, id: e.id }));
+          const data: { [key: string]: any } = response.data;
+
+          setData(data);
         },
-        () => {},
+        () => {
+          throw new FetchDispatchError(
+            "Errore durante il recupero dei dati, riprova più tardi.",
+          );
+        },
       );
+    } else {
+      setData(null);
     }
   }, [open]);
 
@@ -52,10 +57,15 @@ export default function _({ modalStatus }: ComponentProps) {
       <Modal state={[open, setOpen]}>
         <>
           <Button onClick={() => setEditable(!editable)}>Modifica</Button>
-          {editable ? <ModalTicketForm partial={AuthUtility.isManager()} setModal={setOpen} /> : 
-          <>
-          visualizza
-          </>}
+          {editable ? (
+            <ModalTicketForm
+              partial={isManager.current}
+              setModal={setOpen}
+              objectData={data}
+            />
+          ) : (
+            <>visualizza</>
+          )}
         </>
       </Modal>
     </>
