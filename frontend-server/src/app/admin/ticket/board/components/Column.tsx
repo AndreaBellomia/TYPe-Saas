@@ -19,6 +19,7 @@ interface ComponentProps {
 interface ListElement {
   label: string;
   id: number;
+  assigned_to: {[key:string] : any};
 }
 
 export default function _({
@@ -28,14 +29,13 @@ export default function _({
   handleEnd,
   columnData,
 }: ComponentProps) {
-
-
   const [dataList, data, setValues] = useDragAndDrop<HTMLUListElement, ListElement>(
     [],
     {
       group: groupName,
       name: name,
       handleEnd: handleEnd,
+      sortable: false
       
     },
   );
@@ -43,8 +43,6 @@ export default function _({
   React.useEffect(() => {
     setValues(columnData)
   }, [columnData])
-
-  
 
   return (
     <Paper
@@ -60,23 +58,14 @@ export default function _({
         {header}
       </Typography>
 
-      <Paper
-        sx={{
-          marginBottom: 0,
-          backgroundColor: "gray",
-          padding: 1,
-          height: "100%",
-        }}
-        elevation={0}
-      >
-        <List ref={dataList} sx={{ height: "100%" }}>
-          {data.map((e, index) => (
-            <Box my={index === 0 ? 0 : 2} key={e.id}>
-              <TicketCard title={e.label} />
-            </Box>
-          ))}
-        </List>
-      </Paper>
+
+    <List ref={dataList} sx={{ height: "100%" }}>
+        {data.map((e, index) => (
+        <Box my={index === 0 ? 0 : 2} key={e.id}>
+            <TicketCard title={e.label} user={e.assigned_to} />
+        </Box>
+        ))}
+    </List>
     </Paper>
   );
 }

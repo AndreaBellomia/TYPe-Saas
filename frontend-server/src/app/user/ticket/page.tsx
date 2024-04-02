@@ -1,60 +1,66 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import {
-    Container,
-    Box,
-  } from "@mui/material";
+  Container,
+  Pagination,
+  Button
+} from "@mui/material";
 
-import TicketCard, { TicketStatus } from "@/app/user/ticket/components/TicketCard"
-import { number } from "yup";
+import TicketCard from "@/app/user/ticket/components/TicketCard";
+import { useRouter } from 'next/navigation'
+
+import InfiniteScroll from "./components/InfiniteScroll";
+
+import { DjangoApi } from "@/libs/fetch";
+
+import { Ticket } from "@/types";
+
+const API = new DjangoApi();
 
 export default function _() {
-    const scrollContainerRef = useRef<HTMLDivElement>(null)
-    const [scrollPosition, setScrollPosition] = useState(0)
-
-    const [scrollLen, setScrollLen] = useState(Array(20).fill(0).map((e, index) => ({
-        label : index
-    }))) 
-
-    const compNum = Array()
-
-    const [scrollTop, setScrollTop] = useState(0);
+  const router = useRouter()
+  const [page, setPage] = useState(0);
+  const [pageCount, setPageCount] = useState(0)
 
 
+  const [data, setData] = useState<Ticket[]>([]);
 
+  useEffect(() => {
+    API.get(
+      "ticket/tickets/list",
+      (response) => {
+        setData(response.data.results);
+        setPageCount(response.data.num_pages)
+        console.log(response.data);
+      },
+      (e) => {
+        console.error(e);
+      },
+    );
+  }, []);
 
-    const handlerScroll = (event: Event): void => {
-        const target = event.target as HTMLElement;
+  return (
+    <>
+      <Container>
+        <Button onClick={() => router.push("ticket/crea")}>Nuovo ticket</Button>
+        {data &&
+          data.map((e, index) => (
+            <TicketCard
+              label={e.label}
+              description={e.description}
+              status={e.status}
+              key={index}
+            />
+          ))}
 
-        const scrollHeight = target.scrollHeight - target.clientHeight
-
-        if (scrollHeight <= target.scrollTop + 1) {
-
-            const newElement = Array(10).fill(0).map((e, index) => ({
-                label : scrollLen[scrollLen.length - 1].label + index
-            }))
-
-            const actualArray = scrollLen.slice(scrollLen.length -10 , scrollLen.length)
-
-            setScrollLen([...actualArray, ...newElement])
-
-            console.log(scrollHeight / 2)
-
-            target.scrollTo(0, scrollHeight / 2)
-
-        }
-
-
-
-    }
-
-    return (
-        <>
-        <Container>
-            <Box sx={{ maxHeight: "100vh", overflowY: "scroll" }} onScroll={handlerScroll} ref={scrollContainerRef} >
-                {scrollLen.map((e, index) => <TicketCard label={`${e.label}`} description="prova" status={TicketStatus.COMPLETED} key={index} />)}
-            </Box>
-        </Container>
-        </>
-    )
+          <Pagination
+            count={Number(pageCount)}
+            shape="rounded"
+            onChange={(e, page) => {
+              setPage(page);
+            }}
+          />
+      </Container>
+    </>
+  );
 }

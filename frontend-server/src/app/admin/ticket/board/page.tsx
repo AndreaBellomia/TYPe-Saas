@@ -11,32 +11,27 @@ import { DjangoApi } from "@/libs/fetch";
 const API = new DjangoApi();
 
 function handlerMoveCard(data: any) {
-  API.put(
-    "/ticket/admin/tickets/board",
-    (response) => {
-      console.log(response);
-    },
-    (e) => {
-      console.error(e);
-    },
-    {
-      id: data.targetData.node.data.value.id,
-      status: data.targetData.parent.data.config.name,
-    },
-  );
+  const oldStatus = data.targetData.node.data.value.status;
+  const newStatus = data.targetData.parent.data.config.name;
+
+  if (oldStatus !== newStatus) {
+    API.put(
+      "/ticket/admin/tickets/board",
+      (response) => {
+        data.targetData.node.data.value.status = newStatus
+      },
+      (e) => {
+        console.error(e);
+      },
+      {
+        id: data.targetData.node.data.value.id,
+        status: newStatus,
+      },
+    );
+  }
 }
 
 export default function _() {
-  const todoItems: { label: string; id: number }[] = [
-    { label: "Schedule perm", id: 1 },
-    { label: "Rewind VHS tapes", id: 2 },
-    { label: "Rewind VHS tapes", id: 3 },
-    { label: "Make change for the arcade", id: 4 },
-    { label: "Get disposable camera developed", id: 5 },
-    { label: "Learn C++", id: 6 },
-    { label: "Return Nintendo Power Glove", id: 7 },
-  ];
-
   const [boardItems, setBoardItems] = useState({
     todo: [],
     progress: [],
@@ -62,15 +57,16 @@ export default function _() {
       <Box
         sx={{
           display: "flex",
+          height: "100%",
           flexDirection: "column",
           boxSizing: "border-box",
-          margin: 0,
+          margin: 2,
         }}
       >
         <Typography variant="h1" color="initial">
           Board
         </Typography>
-        <Grid container spacing={1} sx={{ height: "60vh" }}>
+        <Grid container spacing={1} sx={{ height: "100%" }}>
           <Grid item xs={3}>
             <ColumnBoard
               groupName="board"

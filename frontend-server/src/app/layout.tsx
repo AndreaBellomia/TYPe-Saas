@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" style={{ height : "100%" }}>
-      <body style={{ height : "100%", margin: 0 }}>
+    <html lang="it" style={{ }}>
+      <body style={{ height : "100%", width: "100%", margin: 0,  top: 0, position: "absolute" }}>
         <Snackbar>
           <SnackProvider />
           {children}
