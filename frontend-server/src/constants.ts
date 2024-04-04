@@ -8,5 +8,10 @@ export const TICKET_STATUSES: { [key: string]: string } = {
 
 export const GROUPS: { [key: string]: number } = {
   manager: 1,
-  employer: 0,
+  employer: 2,
 };
+
+export const GROUPS_MAPS: { [key: number]: string } = {
+  1: "Manager",
+  2: "Impiegato"
+}

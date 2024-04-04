@@ -10,24 +10,24 @@ interface CustomAvatarProps extends MuiAvatarProps {
   dimension?: number;
 }
 
-const StyledAvatar = styled(Avatar, {
+export const StyledAvatar = styled(Avatar, {
   shouldForwardProp: (prop) => prop !== "dimension",
 })<CustomAvatarProps>(({ theme, dimension }) => ({
   backgroundColor: theme.palette.primary.light,
   ...(dimension && {
     height: dimension,
     width: dimension,
-    fontSize: dimension / 1.9,
+    fontSize: dimension / 2,
   }),
 }));
 
 export interface AvatarProps {
   user: SmallUser;
   dimension: number;
-  typography?: TypographyProps["variant"]
+  typographyProps?: TypographyProps
 }
 
-function CustomAvatar({ user, dimension, typography }: AvatarProps) {
+function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
   if (!user) {
     return (
       <Typography variant="body2" color="text.secondary">
@@ -57,7 +57,7 @@ function CustomAvatar({ user, dimension, typography }: AvatarProps) {
         {avatarName}
       </StyledAvatar>
       <Box sx={{ overflow: "hidden" }}>
-        <Typography variant={typography || "body1"} color="text.primary">
+        <Typography {...typographyProps}>
           {user.email}
         </Typography>
       </Box>

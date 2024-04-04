@@ -21,7 +21,7 @@ export default function _({ title, user, description }: ComponentsProps) {
         </Typography>
         <Typography variant="body2">{formattedDesc}</Typography>
         <Box sx={{ my: 2 }}></Box>
-        <Avatar user={user} dimension={30}/>
+        <Avatar user={user} dimension={30} typographyProps={{ variant: "body1" }}/>
       </Paper>
     </>
   );

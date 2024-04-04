@@ -45,7 +45,7 @@ export interface UserType {
   is_staff: boolean;
   is_active: boolean;
   email: string;
-  groups: Array<any>;
+  groups: Array<number>;
   user_permissions: Array<any>;
 }
 

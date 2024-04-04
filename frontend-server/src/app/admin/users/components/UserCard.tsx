@@ -44,7 +44,7 @@ function UserCard({ user }: { user: User }) {
       >
         <Grid container spacing={2} overflow="hidden">
           <Grid item md={6}>
-            <Avatar user={avatarUser} dimension={30} />
+            <Avatar user={avatarUser} dimension={30} typographyProps={{ variant: "body1" }} />
           </Grid>
           <Grid item md={6} textAlign="end">
             <Chip
