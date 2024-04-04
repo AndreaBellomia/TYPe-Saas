@@ -25,8 +25,9 @@ import {
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import InboxIcon from "@mui/icons-material/Inbox";
-import MailIcon from "@mui/icons-material/Mail";
+import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
+
 
 const drawerWidth = 240;
 
@@ -60,6 +61,7 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  color: "white",
   ...(open && {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: `${drawerWidth}px`,
@@ -75,19 +77,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: "flex-end",
+  justifyContent: "space-between",
+  backgroundColor: theme.palette.neutral.main
 }));
 
 const navBarUrl = [
   {
     name: "Board",
     url: "/admin/ticket/board",
-    icon: <ChevronLeftIcon />,
+    icon: <DashboardRoundedIcon color="primary" />,
   },
   {
-    name: "Back log",
+    name: "Backlog",
     url: "/admin/ticket/backlog",
-    icon: <ChevronLeftIcon />,
+    icon: <StickyNote2RoundedIcon color="primary" />,
   },
 ];
 
@@ -116,7 +119,7 @@ export default function _({
       <Box sx={{ display: "flex", flexGrow: 1, height: "100%" }}>
         <CssBaseline />
 
-        <AppBar position="fixed" open={collapsed}>
+        <AppBar color="neutral" position="fixed" open={collapsed}>
           <Toolbar
             sx={{
               display: "flex",
@@ -133,7 +136,7 @@ export default function _({
               }}
             >
               <IconButton
-                color="inherit"
+                color="primary"
                 aria-label="open drawer"
                 onClick={handleDrawerOpen}
                 edge="start"
@@ -141,9 +144,6 @@ export default function _({
               >
                 <MenuIcon />
               </IconButton>
-              <Typography variant="h6" noWrap component="div">
-                Admin
-              </Typography>
             </Box>
 
             <Box
@@ -174,21 +174,26 @@ export default function _({
           variant="persistent"
           anchor="left"
           open={collapsed}
+          PaperProps={{
+            sx: {border: 0},
+            elevation: 5
+          }}
         >
           <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
+            <Typography variant="h6" noWrap color="white">
+                Admin
+            </Typography>
+            <IconButton onClick={handleDrawerClose} color="primary">
               <ChevronLeftIcon />
             </IconButton>
           </DrawerHeader>
-
-          <Divider />
 
           <List>
             {navBarUrl &&
               navBarUrl.map((e, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemButton href={e.url}>
-                    <ListItemIcon>{e.icon}</ListItemIcon>
+                    <ListItemIcon >{e.icon}</ListItemIcon>
                     <ListItemText primary={e.name} />
                   </ListItemButton>
                 </ListItem>

@@ -10,8 +10,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookie = cookies();
-  const user = AuthUtility.parseServerSideJson(cookie.get("user").value);
 
+  let user = undefined
+
+  try {
+    user = AuthUtility.parseServerSideJson(cookie.get("user").value);
+  } catch (e) {
+  }
+  
   return (
     <>
       <NavBar user={user}>

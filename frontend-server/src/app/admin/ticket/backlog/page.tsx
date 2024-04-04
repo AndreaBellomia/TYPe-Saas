@@ -77,7 +77,9 @@ export default function _() {
 
   return (
     <>
-      <Button onClick={() => handlerOpenModal(null)}>Crea un ticket</Button>
+      <Box sx={{ display: "flex", justifyContent: "end", mb: 2 }}>
+        <Button variant="contained" onClick={() => handlerOpenModal(null)}>Crea un ticket</Button>
+      </Box>
       <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} />
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -97,6 +99,7 @@ export default function _() {
           <Pagination
             count={Number(tablePageCount)}
             shape="rounded"
+            color="primary"
             onChange={(e, page) => {
               setTablePage(page);
             }}

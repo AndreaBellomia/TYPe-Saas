@@ -6,20 +6,16 @@ import TicketCard from "@/app/admin/ticket/components/TicketCard";
 
 import { NodeDragEventData, NodeTouchEventData } from "@formkit/drag-and-drop";
 
+import { Ticket } from "@/types"
+
 interface ComponentProps {
   groupName: string;
   name: string;
   header: string;
-  columnData: Array<ListElement>;
+  columnData: Array<Ticket>;
   handleEnd: (
-    data: NodeDragEventData<ListElement> | NodeTouchEventData<ListElement>,
+    data: NodeDragEventData<Ticket> | NodeTouchEventData<Ticket>,
   ) => void;
-}
-
-interface ListElement {
-  label: string;
-  id: number;
-  assigned_to: {[key:string] : any};
 }
 
 export default function _({
@@ -29,7 +25,7 @@ export default function _({
   handleEnd,
   columnData,
 }: ComponentProps) {
-  const [dataList, data, setValues] = useDragAndDrop<HTMLUListElement, ListElement>(
+  const [dataList, data, setValues] = useDragAndDrop<HTMLUListElement, Ticket>(
     [],
     {
       group: groupName,
@@ -52,17 +48,20 @@ export default function _({
         display: "flex",
         flexDirection: "column",
       }}
-      elevation={5}
+      variant="outlined"
     >
-      <Typography variant="h5" color="initial">
-        {header}
-      </Typography>
+      <Box sx={{ p : 1 }}>
+        <Typography variant="h5" color="secondary">
+          {header}
+        </Typography>
+      </Box>
+
 
 
     <List ref={dataList} sx={{ height: "100%" }}>
         {data.map((e, index) => (
         <Box my={index === 0 ? 0 : 2} key={e.id}>
-            <TicketCard title={e.label} user={e.assigned_to} />
+            <TicketCard title={e.label} user={e.assigned_to} description={e.description}  />
         </Box>
         ))}
     </List>

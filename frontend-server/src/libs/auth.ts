@@ -1,8 +1,9 @@
 import Cookies from "js-cookie";
 import { snack } from "@/libs/SnakClient";
-import { GROUPS } from "@/constants"
+import { GROUPS } from "@/constants";
 
-import { UserType } from "@/types"
+import { UserType } from "@/types";
+import { URLS } from "@/libs/fetch";
 
 export const JWT_TOKEN = "auth";
 
@@ -42,18 +43,24 @@ export class AuthUtility {
 
   public static isManager() {
     const userData = this.getUserData();
-    if (userData && userData.is_staff && userData.groups.includes(GROUPS.manager)) {
+    if (
+      userData &&
+      userData.is_staff &&
+      userData.groups.includes(GROUPS.manager)
+    ) {
       return true;
     }
 
     return false;
   }
 
-  public static parseServerSideJson(data: string): {[key: string]: any} | undefined {
+  public static parseServerSideJson(
+    data: string,
+  ): { [key: string]: any } | undefined {
     try {
       return JSON.parse(data);
     } catch (e) {
       return undefined;
-    } 
+    }
   }
 }

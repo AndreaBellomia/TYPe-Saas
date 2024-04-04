@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Snackbar, { SnackProvider } from "@/components/Snackbar";
+import ThemeProvider from '@/app/ThemeProvider';
 
 import StoreProvider from "@/app/StoreProvider";
 
@@ -30,10 +31,13 @@ export default function RootLayout({
         }}
       >
         <StoreProvider>
-          <Snackbar>
-            <SnackProvider />
-            {children}
-          </Snackbar>
+          <ThemeProvider>
+            <Snackbar>
+              <SnackProvider />
+              {children}
+            </Snackbar>
+          </ThemeProvider>
+
         </StoreProvider>
       </body>
     </html>
