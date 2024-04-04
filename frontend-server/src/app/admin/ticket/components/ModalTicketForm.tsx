@@ -65,7 +65,6 @@ export default function _({
       .max(100, "Troppo lunga")
       .required("Campo obbligatorio"),
     expiring_date: Yup.date()
-      .min(new Date(), "La data deve essere nel futuro")
       .required("Campo obbligatorio"),
     description: Yup.string().max(5000, "Descrizione troppo lunga"),
     status: Yup.mixed().oneOf(Object.values(TICKET_STATUSES)),
@@ -320,14 +319,13 @@ export default function _({
           Crea
         </Button>
       ) : (
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%"  }}>
           <Button variant="contained" color="error" onClick={() => setEditable(false)}>
             Annulla
           </Button>
           <Button
             variant="contained"
             onClick={() => formik.handleSubmit()}
-            disabled={!(formik.isValid && formik.dirty)}
           >
             Aggiorna
           </Button>

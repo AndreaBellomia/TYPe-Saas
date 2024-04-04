@@ -16,6 +16,7 @@ interface ComponentProps {
   handleEnd: (
     data: NodeDragEventData<Ticket> | NodeTouchEventData<Ticket>,
   ) => void;
+  handleCard: (id: string | null) => void
 }
 
 export default function _({
@@ -24,6 +25,7 @@ export default function _({
   name,
   handleEnd,
   columnData,
+  handleCard
 }: ComponentProps) {
   const [dataList, data, setValues] = useDragAndDrop<HTMLUListElement, Ticket>(
     [],
@@ -60,8 +62,8 @@ export default function _({
 
     <List ref={dataList} sx={{ height: "100%" }}>
         {data.map((e, index) => (
-        <Box my={index === 0 ? 0 : 2} key={e.id}>
-            <TicketCard title={e.label} user={e.assigned_to} description={e.description}  />
+        <Box my={index === 0 ? 0 : 2} key={e.id} onClick={() => handleCard(e.id)} >
+            <TicketCard title={e.label} user={e.assigned_to} description={e.description} />
         </Box>
         ))}
     </List>

@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Paper, Typography, Box, Grid } from "@mui/material";
 
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
+import ModalTicketBasic from "@/app/admin/ticket/components/ModalTicketBasic"
 
 import { TICKET_STATUSES } from "@/constants";
 
@@ -32,6 +33,8 @@ function handlerMoveCard(data: any) {
 }
 
 export default function _() {
+  const [modalTicket, setModalTicket] = useState(false)
+  const [modalTicketDetail, setModalTicketDetail] = useState<null | string>(null)
   const [boardItems, setBoardItems] = useState({
     todo: [],
     progress: [],
@@ -52,8 +55,20 @@ export default function _() {
     );
   }, []);
 
+
+  const handlerOpenModal = (id: string | null): void => {
+    console.log(id)
+    if (id) {
+      setModalTicketDetail(id)
+    } else {
+      setModalTicketDetail(null)
+    }
+    setModalTicket(true)
+  }
+
   return (
     <>
+      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} />
       <Box
         sx={{
           display: "flex",
@@ -74,6 +89,7 @@ export default function _() {
               name={TICKET_STATUSES.TODO}
               columnData={boardItems.todo}
               handleEnd={handlerMoveCard}
+              handleCard={handlerOpenModal}
             />
           </Grid>
           <Grid item xs={3}>
@@ -83,6 +99,7 @@ export default function _() {
               name={TICKET_STATUSES.PROGRESS}
               columnData={boardItems.progress}
               handleEnd={handlerMoveCard}
+              handleCard={handlerOpenModal}
             />
           </Grid>
           <Grid item xs={3}>
@@ -92,6 +109,7 @@ export default function _() {
               name={TICKET_STATUSES.BLOCKED}
               columnData={boardItems.blocked}
               handleEnd={handlerMoveCard}
+              handleCard={handlerOpenModal}
             />
           </Grid>
           <Grid item xs={3}>
@@ -101,6 +119,7 @@ export default function _() {
               name={TICKET_STATUSES.DONE}
               columnData={boardItems.done}
               handleEnd={handlerMoveCard}
+              handleCard={handlerOpenModal}
             />
           </Grid>
         </Grid>

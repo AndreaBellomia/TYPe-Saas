@@ -69,7 +69,7 @@ function NavBar({ children, user } : {
               >
                 <MenuItem onClick={() => {router.push("/admin/ticket/board")}}>Admin</MenuItem>
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose} color="error">
+                <MenuItem onClick={handleClose}>
                   <Typography variant="body1" color="error">Logout</Typography>
                 </MenuItem>
               </Menu>

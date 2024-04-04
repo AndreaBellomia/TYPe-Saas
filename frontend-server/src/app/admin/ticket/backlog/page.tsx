@@ -66,9 +66,9 @@ export default function _() {
     }),
   ];
 
-  const handlerOpenModal = (id: string | null): void => {
+  const handlerOpenModal = (id: string | number | null): void => {
     if (id) {
-      setModalTicketDetail(id)
+      setModalTicketDetail(String(id))
     } else {
       setModalTicketDetail(null)
     }
