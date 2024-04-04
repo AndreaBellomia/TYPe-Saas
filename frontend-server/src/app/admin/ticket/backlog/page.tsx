@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { Pagination, Grid, Button } from "@mui/material";
+import { Pagination, Grid, Button, Box } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";

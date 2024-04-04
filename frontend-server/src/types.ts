@@ -36,3 +36,14 @@ export interface Ticket {
     description: string
     status: StatusesType
 }
+
+export interface UserType {
+    id: number;
+    last_login: Date;
+    is_superuser: boolean;
+    is_staff: boolean;
+    is_active: boolean;
+    email: string;
+    groups: Array<any>;
+    user_permissions: Array<any>;
+  }

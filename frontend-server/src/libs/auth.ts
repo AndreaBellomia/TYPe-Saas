@@ -2,23 +2,14 @@ import Cookies from "js-cookie";
 import { snack } from "@/libs/SnakClient";
 import { GROUPS } from "@/constants"
 
-export interface UserData {
-  id: number;
-  last_login: Date;
-  is_superuser: boolean;
-  is_staff: boolean;
-  is_active: boolean;
-  email: string;
-  groups: Array<any>;
-  user_permissions: Array<any>;
-}
+import { UserType } from "@/types"
 
 export const JWT_TOKEN = "auth";
 
 export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
-  static getUserData(): UserData | undefined {
+  public static getUserData(): UserType | undefined {
     try {
       return JSON.parse(Cookies.get(USER_INFO_TOKEN));
     } catch (e) {
@@ -56,5 +47,13 @@ export class AuthUtility {
     }
 
     return false;
+  }
+
+  public static parseServerSideJson(data: string): {[key: string]: any} | undefined {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      return undefined;
+    } 
   }
 }

@@ -58,13 +58,13 @@ export default function _() {
         sx={{
           display: "flex",
           height: "100%",
+          position: "relative",
           flexDirection: "column",
           boxSizing: "border-box",
-          margin: 2,
         }}
       >
-        <Typography variant="h1" color="initial">
-          Board
+        <Typography variant="h4" color="initial">
+          
         </Typography>
         <Grid container spacing={1} sx={{ height: "100%" }}>
           <Grid item xs={3}>
