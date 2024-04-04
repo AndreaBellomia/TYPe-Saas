@@ -66,6 +66,11 @@ class ProfileUserView(RetrieveUpdateAPIView):
         return get_object_or_404(CustomUser, pk=user.id)
 
 
+class UserDetailView(ProfileUserView):
+    
+    def get_object(self):
+        return get_object_or_404(CustomUser, pk=self.kwargs["id"])
+
 class UsersSmallListView(ListAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)

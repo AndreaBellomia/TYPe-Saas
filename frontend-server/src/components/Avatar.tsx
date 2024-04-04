@@ -1,20 +1,33 @@
 import { styled } from "@mui/material/styles";
-import { Paper, Typography, Box, Avatar } from "@mui/material";
+import { Paper, Box } from "@mui/material";
+
+import Avatar, { AvatarProps as MuiAvatarProps } from "@mui/material/Avatar";
+import Typography, { TypographyProps } from "@mui/material/Typography";
 
 import { SmallUser } from "@/types";
 
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
+interface CustomAvatarProps extends MuiAvatarProps {
+  dimension?: number;
+}
+
+const StyledAvatar = styled(Avatar, {
+  shouldForwardProp: (prop) => prop !== "dimension",
+})<CustomAvatarProps>(({ theme, dimension }) => ({
   backgroundColor: theme.palette.primary.light,
-  height: 30,
-  width: 30,
-  fontSize: theme.typography.body2.fontSize,
+  ...(dimension && {
+    height: dimension,
+    width: dimension,
+    fontSize: dimension / 1.9,
+  }),
 }));
 
 export interface AvatarProps {
   user: SmallUser;
+  dimension: number;
+  typography?: TypographyProps["variant"]
 }
 
-function CustomAvatar({ user }: AvatarProps) {
+function CustomAvatar({ user, dimension, typography }: AvatarProps) {
   if (!user) {
     return (
       <Typography variant="body2" color="text.secondary">
@@ -36,6 +49,7 @@ function CustomAvatar({ user }: AvatarProps) {
       }}
     >
       <StyledAvatar
+        dimension={dimension}
         sx={{
           mr: 1,
         }}
@@ -43,7 +57,7 @@ function CustomAvatar({ user }: AvatarProps) {
         {avatarName}
       </StyledAvatar>
       <Box sx={{ overflow: "hidden" }}>
-        <Typography variant="body1" color="text.primary">
+        <Typography variant={typography || "body1"} color="text.primary">
           {user.email}
         </Typography>
       </Box>

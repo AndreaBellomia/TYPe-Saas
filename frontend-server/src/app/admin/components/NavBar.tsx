@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React from "react";
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -27,6 +27,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
+import AssignmentIndRoundedIcon from '@mui/icons-material/AssignmentIndRounded';
 
 
 const drawerWidth = 240;
@@ -61,6 +62,7 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  backgroundColor: theme.palette.neutral.dark,
   color: "white",
   ...(open && {
     width: `calc(100% - ${drawerWidth}px)`,
@@ -75,13 +77,19 @@ const AppBar = styled(MuiAppBar, {
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  padding: theme.spacing(0, 1),
+  padding: theme.spacing(0, 2),
+  paddingRight: theme.spacing(1),
   ...theme.mixins.toolbar,
   justifyContent: "space-between",
-  backgroundColor: theme.palette.neutral.main
+  backgroundColor: theme.palette.neutral.dark
 }));
 
 const navBarUrl = [
+  {
+    name: "Utenti",
+    url: "/admin/users",
+    icon: <AssignmentIndRoundedIcon color="primary" />,
+  },
   {
     name: "Board",
     url: "/admin/ticket/board",
@@ -99,7 +107,7 @@ export default function _({
   user,
 }: Readonly<{
   children: React.ReactNode;
-  user: UserType;
+  user: UserType | undefined;
 }>) {
 
 
@@ -119,7 +127,7 @@ export default function _({
       <Box sx={{ display: "flex", flexGrow: 1, height: "100%" }}>
         <CssBaseline />
 
-        <AppBar color="neutral" position="fixed" open={collapsed}>
+        <AppBar position="fixed" open={collapsed}>
           <Toolbar
             sx={{
               display: "flex",

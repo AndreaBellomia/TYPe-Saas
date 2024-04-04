@@ -1,6 +1,8 @@
+// @ts-ignore
 import Cookies from "js-cookie";
 import { snack } from "@/libs/SnakClient";
 import { GROUPS } from "@/constants";
+import { cookies } from "next/headers";
 
 import { UserType } from "@/types";
 import { URLS } from "@/libs/fetch";
@@ -11,11 +13,18 @@ export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
   public static getUserData(): UserType | undefined {
-    try {
-      return JSON.parse(Cookies.get(USER_INFO_TOKEN));
-    } catch (e) {
-      return undefined;
+    let cookiesUser = undefined;
+
+    if (typeof window !== 'undefined') {
+      cookiesUser = Cookies.get(USER_INFO_TOKEN);
     }
+  
+    if (cookiesUser !== undefined) {
+      return JSON.parse(cookiesUser);
+    }
+  
+    return undefined;
+  
   }
 
   static getAuthData(): string {
@@ -54,9 +63,9 @@ export class AuthUtility {
     return false;
   }
 
-  public static parseServerSideJson(
+  public static parseServerSideJson<T>(
     data: string,
-  ): { [key: string]: any } | undefined {
+  ): T | undefined {
     try {
       return JSON.parse(data);
     } catch (e) {

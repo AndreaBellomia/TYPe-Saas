@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
 
-import NavBar from "@/app/admin/components/NavBar"
+import NavBar from "@/app/admin/components/NavBar";
 
 import { AuthUtility } from "@/libs/auth";
+import { UserType } from "@/types";
 
 export default function RootLayout({
   children,
@@ -11,18 +12,17 @@ export default function RootLayout({
 }>) {
   const cookie = cookies();
 
-  let user = undefined
+  let user = undefined;
 
-  try {
-    user = AuthUtility.parseServerSideJson(cookie.get("user").value);
-  } catch (e) {
+  const rawUser = cookie.get("user")?.value;
+
+  if (rawUser) {
+    user = AuthUtility.parseServerSideJson<UserType>(rawUser);
   }
-  
+
   return (
     <>
-      <NavBar user={user}>
-        {children}
-      </NavBar>
+      <NavBar user={user}>{children}</NavBar>
     </>
   );
 }

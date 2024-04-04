@@ -11,4 +11,5 @@ urlpatterns = [
     path("authenticated", views.UserAuthenticated.as_view(), name="authenticated"),
     path("users/list/small", views.UsersSmallListView.as_view(), name="users-list-small"),
     path("users/list", views.UsersListView.as_view(), name="users-list"),
+    path("users/<int:id>", views.UserDetailView.as_view(), name="users-detail"),
 ]
