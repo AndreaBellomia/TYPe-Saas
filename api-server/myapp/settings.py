@@ -30,6 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
@@ -87,7 +88,8 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 # Rest framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "knox.auth.TokenAuthentication",
+        "myapp.authentication.auth.CookieTokenAuthentication",
+        # "knox.auth.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = ["myapp.authentication.backends.EmailBackend"]
 
-
+AUTH_COOKIE_NAME = "token"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

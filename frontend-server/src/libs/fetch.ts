@@ -35,9 +35,9 @@ export class Axios {
   ) {
     const headers: { [key: string]: string } = {};
 
-    if (typeof token === "string") {
-      headers.Authorization = tokenType + " " + token;
-    }
+    // if (typeof token === "string") {
+    //   headers.Authorization = tokenType + " " + token;
+    // }
 
     this.axiosClient = axios.create({
       headers: {
@@ -138,5 +138,6 @@ export class DjangoApi extends Axios {
     super(token, "Token");
 
     this.axiosClient.defaults.baseURL = URLS.API_SERVER;
+    this.axiosClient.defaults.withCredentials = true;
   }
 }
