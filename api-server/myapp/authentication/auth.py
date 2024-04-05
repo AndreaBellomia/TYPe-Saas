@@ -1,6 +1,5 @@
 from knox.auth import TokenAuthentication
 from django.conf import settings
-from datetime import datetime
 from rest_framework import exceptions
 
 from django.utils import timezone as tz

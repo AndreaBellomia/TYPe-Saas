@@ -43,7 +43,7 @@ export default function _() {
               AuthUtility.loginUser(values.email, values.password).then(
                 (response: Response) => {
                   if (response.ok) {
-                    router.push("/");
+                    router.push("/user/ticket");
                   }
                   helpers.setFieldError("password", response.statusText)
                 },
