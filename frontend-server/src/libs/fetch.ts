@@ -1,6 +1,4 @@
 import axios, { AxiosInstance } from "axios";
-import Cookies from "js-cookie";
-import { JWT_TOKEN } from "@/libs/auth";
 import { snack } from "@/libs/SnakClient"
 
 type ParamsList = Array<{ param: string; value: string }>;
@@ -29,15 +27,8 @@ export class FetchDispatchError extends Error {
 export class Axios {
   protected axiosClient: AxiosInstance;
 
-  constructor(
-    private token: string | null = null,
-    public tokenType: string = "Token",
-  ) {
+  constructor() {
     const headers: { [key: string]: string } = {};
-
-    // if (typeof token === "string") {
-    //   headers.Authorization = tokenType + " " + token;
-    // }
 
     this.axiosClient = axios.create({
       headers: {
@@ -134,8 +125,7 @@ export class Axios {
 
 export class DjangoApi extends Axios {
   constructor() {
-    const token = Cookies.get(JWT_TOKEN);
-    super(token, "Token");
+    super();
 
     this.axiosClient.defaults.baseURL = URLS.API_SERVER;
     this.axiosClient.defaults.withCredentials = true;

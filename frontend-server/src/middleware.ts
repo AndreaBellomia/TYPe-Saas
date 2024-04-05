@@ -17,45 +17,45 @@ export async function middleware(request: NextRequest) {
   const userData: string | undefined =
     request.cookies.get(USER_INFO_TOKEN)?.value;
 
+  if (
+    typeof tokenJWT === "undefined" &&
+    !request.nextUrl.pathname.startsWith("/authentication/login")
+  ) {
+    return Response.redirect(new URL("/authentication/login", request.url));
+  }
 
-  // if (
-  //   typeof tokenJWT === "undefined" &&
-  //   !request.nextUrl.pathname.startsWith("/authentication/login")
-  // ) {
-  //   return Response.redirect(new URL("/authentication/login", request.url));
-  // }
+  if (typeof userData === "undefined") {
+    const url: string = URLS.API_SERVER + "/authentication/authenticated";
 
-  // if (typeof userData === "undefined") {
-  //   const url: string = URLS.API_SERVER + "/authentication/authenticated";
+    try {
+      const userRequest = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: JWT_TOKEN + "=" + tokenJWT,
+        },
+        credentials: "include",
+      });
 
-  //   try {
-  //     const userRequest = await fetch(url, {
-  //       headers: {
-  //         Authorization: "Token " + tokenJWT,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
+      if (userRequest.ok) {
+        const data = await userRequest.json();
 
-  //     if (userRequest.ok) {
-  //       const data = await userRequest.json();
-
-  //       response.cookies.set({
-  //         name: USER_INFO_TOKEN,
-  //         value: JSON.stringify(data),
-  //         httpOnly: false,
-  //         secure: true,
-  //         //@ts-ignore
-  //         expires: new Date().addHours(2),
-  //       });
-  //     } else {
-  //       const data = await userRequest.json();
-  //       !request.nextUrl.pathname.startsWith("/authentication/login") &&
-  //         console.error(data);
-  //     }
-  //   } catch {
-  //     console.error("Middleware error during fetch auth server.");
-  //   }
-  // }
+        response.cookies.set({
+          name: USER_INFO_TOKEN,
+          value: JSON.stringify(data),
+          httpOnly: false,
+          secure: true,
+          //@ts-ignore
+          expires: new Date().addHours(2),
+        });
+      } else {
+        const data = await userRequest.json();
+        !request.nextUrl.pathname.startsWith("/authentication/login") &&
+          console.error(data);
+      }
+    } catch {
+      console.error("Middleware error during fetch auth server.");
+    }
+  }
 
   return response;
 }

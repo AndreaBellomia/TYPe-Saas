@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { UserType } from "@/types";
 import { URLS } from "@/libs/fetch";
 
-export const JWT_TOKEN = "auth";
+export const JWT_TOKEN = "token";
 
 export const USER_INFO_TOKEN = "user";
 
@@ -32,7 +32,7 @@ export class AuthUtility {
   }
 
   static async loginUser(email: string, password: string) {
-    const resp = await fetch("login/api/", {
+    const resp = await fetch(URLS.API_SERVER + "/authentication/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,6 +41,7 @@ export class AuthUtility {
         email: email,
         password: password,
       }),
+      credentials: "include"
     });
 
     if (!resp.ok) {
