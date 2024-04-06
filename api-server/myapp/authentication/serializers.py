@@ -1,3 +1,5 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
@@ -85,3 +87,38 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user_info.save()
 
         return instance
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate_old_password(self, value):
+
+        user = self.context["user"]
+        if not user.check_password(value):
+            raise serializers.ValidationError({"old_password", "La password non è corretta."})
+        return value
+
+    def validate(self, data):
+        if data["new_password"] != data["confirm_new_password"]:
+            raise serializers.ValidationError(
+                {
+                    "new_password": "Le nuove password non corrispondono.",
+                    "confirm_new_password": "Le nuove password non corrispondono.",
+                }
+            )
+
+        try:
+            validate_password(data["new_password"], self.context["user"])
+        except ValidationError as e:
+            raise serializers.ValidationError({"new_password": e})
+
+        return data
+
+    def save(self):
+        user = self.context["user"]
+        user.set_password(self.validated_data["new_password"])
+        user.save()
+        return user

@@ -5,6 +5,7 @@ import { FormikHandlers } from "formik";
 
 interface ComponentsProps {
   name: string;
+  required?: boolean
   type: React.InputHTMLAttributes<unknown>['type'];
   maxRows?: number;
   errors: { [key: string]: any };
@@ -25,6 +26,7 @@ export default function _({
   maxRows,
   handleChange,
   handleBlur,
+  required
 }: ComponentsProps) {
   return (
     <TextField
@@ -40,6 +42,7 @@ export default function _({
       value={values[name]}
       maxRows={maxRows || undefined}
       multiline={!!maxRows}
+      required={required || false}
     />
   );
 }

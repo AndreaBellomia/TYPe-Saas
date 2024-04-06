@@ -6,12 +6,31 @@ export const TICKET_STATUSES: { [key: string]: string } = {
   DONE: "done",
 };
 
-export const GROUPS: { [key: string]: number } = {
-  manager: 1,
-  employer: 2,
-};
+const [GROUPS, GROUPS_MAPS] = ((): [
+  { [key: string]: number },
+  { [key: number]: string },
+] => {
+  const data = [
+    {
+      key: 1,
+      label: "Amministratore",
+      label_key: "manager",
+    },
+    {
+      key: 2,
+      label: "Collaboratore",
+      label_key: "employer",
+    },
+  ];
 
-export const GROUPS_MAPS: { [key: number]: string } = {
-  1: "Manager",
-  2: "Impiegato"
-}
+  const keysToNumbers: { [key: string]: number } = {};
+  const numbersToLabels: { [key: number]: string } = {};
+
+  data.forEach((e) => {
+    keysToNumbers[e.label_key] = e.key;
+    numbersToLabels[e.key] = e.label;
+  });
+
+  return [keysToNumbers, numbersToLabels];
+})()
+export { GROUPS, GROUPS_MAPS };

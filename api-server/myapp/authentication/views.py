@@ -19,6 +19,7 @@ from knox.models import AuthToken
 
 from myapp.authentication.serializers import (
     AuthSerializer,
+    ChangePasswordSerializer,
     UserProfileSerializer,
     UserSerializer,
 )
@@ -60,9 +61,24 @@ class LoginView(KnoxLoginView):
         data = self.get_post_response_data(request, token, instance)
         response = Response(data)
         response.set_cookie(
-            settings.AUTH_COOKIE_NAME, data["token"], expires=instance.expiry, httponly=True
+            settings.AUTH_COOKIE_NAME,
+            data["token"],
+            expires=instance.expiry,
+            httponly=True,
         )
         return response
+
+
+class ChangePasswordView(GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request):
+        user = self.request.user
+
+        serializer = self.serializer_class(data=request.data, context={"user": user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "success"})
 
 
 class UserAuthenticated(APIView):
@@ -126,3 +142,5 @@ class UsersListView(ListAPIView):
         "user_info__first_name",
         "user_info__last_name",
     ]
+
+

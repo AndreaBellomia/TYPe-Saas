@@ -4,7 +4,7 @@ import { Paper, Box } from "@mui/material";
 import Avatar, { AvatarProps as MuiAvatarProps } from "@mui/material/Avatar";
 import Typography, { TypographyProps } from "@mui/material/Typography";
 
-import { SmallUser } from "@/types";
+import { SmallUser, User } from "@/types";
 
 interface CustomAvatarProps extends MuiAvatarProps {
   dimension?: number;
@@ -22,9 +22,9 @@ export const StyledAvatar = styled(Avatar, {
 }));
 
 export interface AvatarProps {
-  user: SmallUser;
+  user: SmallUser | User;
   dimension: number;
-  typographyProps?: TypographyProps
+  typographyProps?: TypographyProps;
 }
 
 function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
@@ -36,10 +36,22 @@ function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
     );
   }
 
-  const avatarName: string | null =
-    user.first_name && user.last_name
-      ? user.first_name[0] + user.last_name[0]
-      : null;
+  let avatarName: string | null = null;
+
+  if ("first_name" in user && "last_name" in user) {
+    avatarName =
+      user.first_name && user.last_name
+        ? user.first_name[0] + user.last_name[0]
+        : null;
+  }
+
+  if ("user_info" in user && user.user_info !== null) {
+    const userInfo: User["user_info"] = user.user_info;
+    avatarName =
+      userInfo.first_name && userInfo.last_name
+        ? userInfo.first_name[0] + userInfo.last_name[0]
+        : null;
+  }
 
   return (
     <Box
@@ -57,9 +69,7 @@ function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
         {avatarName}
       </StyledAvatar>
       <Box sx={{ overflow: "hidden" }}>
-        <Typography {...typographyProps}>
-          {user.email}
-        </Typography>
+        <Typography {...typographyProps}>{user.email}</Typography>
       </Box>
     </Box>
   );

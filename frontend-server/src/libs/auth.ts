@@ -56,7 +56,7 @@ export class AuthUtility {
     if (
       userData &&
       userData.is_staff &&
-      userData.groups.includes(GROUPS.manager)
+      userData.groups.includes(GROUPS["manager"])
     ) {
       return true;
     }
