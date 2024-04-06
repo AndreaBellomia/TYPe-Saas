@@ -1,13 +1,76 @@
-import { Paper, Box, Grid, Chip, TextField, Button } from "@mui/material";
+"use client"
+import { useRouter } from "next/navigation";
+import { Paper, Box, Grid, Chip, Button } from "@mui/material";
 import Avatar from "@/components/Avatar";
 import { GROUPS_MAPS } from "@/constants";
 import { User } from "@/types";
+
+import TextField from "@/components/forms/TextField";
+
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { snack } from "@/libs/SnakClient";
+
+import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { useEffect } from "react";
+
+const API = new DjangoApi();
 
 export interface ProfileCardProps {
   user: User | null;
 }
 
 function ProfileCard({ user }: ProfileCardProps) {
+  const router = useRouter()
+
+  const formValidation = Yup.object().shape({
+    first_name: Yup.string()
+      .max(100, "Nome troppo lungo")
+      .required("Campo obbligatorio"),
+    last_name: Yup.string()
+      .max(100, "Nome troppo corto")
+      .required("Campo obbligatorio"),
+    phone_number: Yup.string(),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      first_name: "",
+      last_name: "",
+      phone_number: "",
+    },
+    validationSchema: formValidation,
+    onSubmit: (values, helpers) => {
+      API.put(
+        "/authentication/profile",
+        () => {
+          // helpers.resetForm();
+          snack.success("Informazioni cambiata correttamente!");
+          router.push("/user/profile")
+        },
+
+        (error) => {
+          const data = error.response.data;
+          Object.keys(data).forEach((key) => {
+            helpers.setFieldError(key, data[key]);
+          });
+          throw new FetchDispatchError("Errore, si prega di riprovare!");
+        },
+        {
+          user_info: { ...values },
+        },
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (user !== null && user.user_info !== null) {
+      Object.keys(user.user_info).forEach((key: string) => {
+        formik.setFieldValue(key, user.user_info[key]);
+      });
+    }
+  }, [user]);
+
   return (
     <>
       <Paper elevation={5} sx={{ width: "100%" }}>
@@ -37,35 +100,55 @@ function ProfileCard({ user }: ProfileCardProps) {
                   <Chip label={GROUPS_MAPS[e]} color="secondary" key={i} />
                 ))}
             </Grid>
+
             <Grid item xs={12}>
               <TextField
                 required
                 label="Nome"
-                variant="outlined"
-                sx={{ width: "100%" }}
-                value={(user && user.user_info?.first_name) || ""}
+                name="first_name"
+                type="text"
+                errors={formik.errors}
+                touched={formik.touched}
+                values={formik.values}
+                handleBlur={formik.handleBlur}
+                handleChange={formik.handleChange}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 required
                 label="Cognome"
-                variant="outlined"
-                sx={{ width: "100%" }}
-                value={(user && user.user_info?.last_name) || ""}
+                name="last_name"
+                type="text"
+                errors={formik.errors}
+                touched={formik.touched}
+                values={formik.values}
+                handleBlur={formik.handleBlur}
+                handleChange={formik.handleChange}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 required
                 label="Numero di telefono"
-                variant="outlined"
-                sx={{ width: "100%" }}
-                value={(user && user.user_info?.phone_number) || ""}
+                name="phone_number"
+                type="text"
+                errors={formik.errors}
+                touched={formik.touched}
+                values={formik.values}
+                handleBlur={formik.handleBlur}
+                handleChange={formik.handleChange}
               />
             </Grid>
             <Grid item xs={12} textAlign="end">
-              <Button variant="contained"> Aggiorna </Button>
+              {/* @ts-ignore */}
+              <Button
+                variant="contained"
+                disabled={!(formik.isValid && formik.dirty)}
+                onClick={formik.handleSubmit}
+              >
+                Aggiorna
+              </Button>
             </Grid>
           </Grid>
         </Box>
