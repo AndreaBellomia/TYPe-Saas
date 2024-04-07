@@ -145,7 +145,7 @@ class BoardAdminAPI(views.APIView):
         }
 
         return response.Response(resp)
-    
+
     def put(self, request, *args, **kwargs):
         data = request.data
         instance = Ticket.objects.get(id=data["id"])

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useRouter } from "next/navigation";
 import { Paper, Box, Grid, Chip, Button } from "@mui/material";
 import Avatar from "@/components/Avatar";
@@ -21,7 +21,7 @@ export interface ProfileCardProps {
 }
 
 function ProfileCard({ user }: ProfileCardProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const formValidation = Yup.object().shape({
     first_name: Yup.string()
@@ -46,7 +46,7 @@ function ProfileCard({ user }: ProfileCardProps) {
         () => {
           // helpers.resetForm();
           snack.success("Informazioni cambiata correttamente!");
-          router.push("/user/profile")
+          router.push("/user/profile");
         },
 
         (error) => {

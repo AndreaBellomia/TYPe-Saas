@@ -21,7 +21,6 @@ from myapp.authentication.serializers import (
     AuthSerializer,
     ChangePasswordSerializer,
     UserProfileSerializer,
-    UserSerializer,
 )
 from myapp.authentication.models import CustomUser
 
@@ -88,7 +87,7 @@ class ChangePasswordView(GenericAPIView):
 
 class UserAuthenticated(APIView):
 
-    serializer_class = UserSerializer
+    serializer_class = UserProfileSerializer
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
@@ -102,24 +101,26 @@ class UserAuthenticated(APIView):
             {"detail": "You must be logged in to see this page"},
             status.HTTP_401_UNAUTHORIZED,
         )
-
-
-class ProfileUserView(RetrieveUpdateAPIView):
+        
+        
+class UserViewMixin(RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
+
+class ProfileUserView(UserViewMixin):
 
     def get_object(self):
         user = self.request.user
         return get_object_or_404(CustomUser, pk=user.id)
 
 
-class UserDetailView(ProfileUserView):
+class UserDetailView(UserViewMixin):
 
     def get_object(self):
         return get_object_or_404(CustomUser, pk=self.kwargs["id"])
 
 
 class UsersSmallListView(ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserProfileSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
