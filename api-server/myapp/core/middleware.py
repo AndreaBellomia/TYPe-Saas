@@ -22,10 +22,15 @@ class DatabaseLoggingMiddleware:
 
     def process_response(self, request, response):
         view = resolve(request.path_info)
+
+        view_name = (
+            view.func.view_class.__name__ if hasattr(view.func, "view_class") else None
+        )
+
         log.debug(
             "Database queries: %s.%s [ %s ]",
             view.namespace,
-            view.func.view_class.__name__,
+            view_name,
             len(connection.queries),
         )
         return response
