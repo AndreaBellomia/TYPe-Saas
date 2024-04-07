@@ -31,7 +31,12 @@ class LogoutView(GenericAPIView):
 
     def post(self, request):
         logout(request)
-        return Response({"message": "Logout successful"})
+        
+        response = Response({"message": "Logout successful"})
+        response.delete_cookie(settings.AUTH_COOKIE_NAME)
+        response.delete_cookie("user")
+        response.delete_cookie("csrftoken")
+        return response
 
 
 class LoginView(KnoxLoginView):

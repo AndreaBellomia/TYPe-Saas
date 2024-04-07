@@ -51,6 +51,23 @@ export class AuthUtility {
     return resp;
   }
 
+  static async logoutUser() {
+    const resp = await fetch(URLS.API_SERVER + "/authentication/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include"
+    });
+
+    if (!resp.ok) {
+      snack.error("Logout non eseguito");
+    }
+
+    return resp;
+  }
+
+
   public static isManager() {
     const userData = this.getUserData();
     if (
