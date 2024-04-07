@@ -20,7 +20,7 @@ export class AuthUtility {
     }
   
     if (cookiesUser !== undefined) {
-      return JSON.parse(cookiesUser);
+      return undefined;
     }
   
     return undefined;

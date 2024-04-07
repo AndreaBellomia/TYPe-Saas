@@ -1,60 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { URLS } from "@/libs/fetch";
-import { JWT_TOKEN, USER_INFO_TOKEN } from "@/libs/auth";
+import { USER_INFO_TOKEN } from "@/libs/auth";
 
 export async function middleware(request: NextRequest) {
-  //@ts-ignore
-  Date.prototype.addHours = function (h: number) {
-    this.setHours(this.getHours() + h);
-    return this;
-  };
-
   const response = NextResponse.next();
 
-  const tokenJWT: string | undefined = request.cookies.get(JWT_TOKEN)?.value;
-
-  const userData: string | undefined =
+  const unescapedUserData: string | undefined =
     request.cookies.get(USER_INFO_TOKEN)?.value;
 
-  if (
-    typeof tokenJWT === "undefined" &&
-    !request.nextUrl.pathname.startsWith("/authentication/login")
-  ) {
+  if (typeof unescapedUserData === "undefined") {
+    console.warn("no cookies for user");
     return Response.redirect(new URL("/authentication/login", request.url));
   }
 
-  if (typeof userData === "undefined") {
-    const url: string = URLS.API_SERVER + "/authentication/authenticated";
+  const userData = JSON.parse(
+    JSON.parse(unescapedUserData.replace(/\\054/g, ",")),
+  );
 
-    try {
-      const userRequest = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: JWT_TOKEN + "=" + tokenJWT,
-        },
-        credentials: "include",
-      });
-
-      if (userRequest.ok) {
-        const data = await userRequest.json();
-
-        response.cookies.set({
-          name: USER_INFO_TOKEN,
-          value: JSON.stringify(data),
-          httpOnly: false,
-          secure: true,
-          //@ts-ignore
-          expires: new Date().addHours(2),
-        });
-      } else {
-        const data = await userRequest.json();
-        !request.nextUrl.pathname.startsWith("/authentication/login") &&
-          console.error(data);
-      }
-    } catch {
-      console.error("Middleware error during fetch auth server.");
-    }
+  if (
+    !userData["is_staff"] &&
+    !request.nextUrl.pathname.startsWith("/admin/")
+  ) {
+    return Response.redirect(new URL("/user/ticket", request.url));
   }
 
   return response;
