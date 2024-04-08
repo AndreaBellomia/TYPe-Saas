@@ -12,15 +12,7 @@ log = logging.getLogger(__name__)
 
 def generate_new_cookie(user):
     groups_list = list(user.groups.values_list("name", flat=True))
-    updated_at_str = user.updated_at.strftime("%Y-%m-%d %H:%M:%S")
-
-    cookie_data = {
-        "is_staff": user.is_active,
-        "is_superuser": user.is_superuser,
-        "groups": groups_list,
-        "id": user.id,
-        "updated_at": updated_at_str,
-    }
+    updated_at_str = user.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
     return json.dumps(dict({
         "is_staff": user.is_active,

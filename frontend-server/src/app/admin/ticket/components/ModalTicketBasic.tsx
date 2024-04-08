@@ -12,13 +12,15 @@ import {
   IconButton,
 } from "@mui/material";
 
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 
 import Modal from "@/components/Modal";
 import { AuthUtility } from "@/libs/auth";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 
 import ModalTicketForm from "@/app/admin/ticket/components/ModalTicketForm";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const API = new DjangoApi();
 
@@ -90,7 +92,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
   const [open, setOpen] = modalStatus;
   const [data, setData] = useState<{ [key: string]: any } | null>(null);
   const [editable, setEditable] = useState(false);
-  const isManager = useRef(AuthUtility.isManager());
+  const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
     if (detailId) {
@@ -120,7 +122,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
         <>
           {editable ? (
             <ModalTicketForm
-              partial={isManager.current}
+              partial={AuthUtility.isManager(user)}
               setModal={setOpen}
               setEditable={setEditable}
               objectData={data}
@@ -140,7 +142,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
                     {data.id}
                   </Typography>
                   <IconButton onClick={() => setEditable(!editable)}>
-                    <EditIcon/>
+                    <EditIcon />
                   </IconButton>
                 </Box>
 
@@ -157,19 +159,22 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
 
                     <Box my={2} />
 
-
                     <Typography variant="subtitle1" color="text.secondary">
                       Descrizione
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                      {data.description || "nessuna descrizione"} 
+                      {data.description || "nessuna descrizione"}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} lg={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Categoria
                     </Typography>
-                    <Chip label={data.type.name} variant="filled" color="primary" />
+                    <Chip
+                      label={data.type.name}
+                      variant="filled"
+                      color="primary"
+                    />
 
                     <Box my={2} />
                     <Typography variant="subtitle2" color="text.secondary">

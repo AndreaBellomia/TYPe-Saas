@@ -17,11 +17,13 @@ import {
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { UserType, SmallUser } from "@/types";
+import { User } from "@/types";
 
 import { StyledAvatar } from "@/components/Avatar";
 
 import { AuthUtility } from "@/libs/auth";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.neutral.dark,
@@ -30,13 +32,8 @@ const CustomToolbar = styled(Toolbar)(({ theme }) => ({
   padding: "0 !important",
 }));
 
-function NavBar({
-  children,
-  user,
-}: {
-  children: React.ReactNode;
-  user: UserType | undefined;
-}) {
+function NavBar({ children }: { children: React.ReactNode }) {
+  const user: User | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

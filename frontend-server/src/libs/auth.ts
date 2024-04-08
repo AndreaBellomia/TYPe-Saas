@@ -1,10 +1,8 @@
 // @ts-ignore
-import Cookies from "js-cookie";
 import { snack } from "@/libs/SnakClient";
 import { GROUPS } from "@/constants";
-import { cookies } from "next/headers";
 
-import { UserType } from "@/types";
+import { User } from "@/types";
 import { URLS } from "@/libs/fetch";
 
 export const JWT_TOKEN = "token";
@@ -12,25 +10,6 @@ export const JWT_TOKEN = "token";
 export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
-  public static getUserData(): UserType | undefined {
-    let cookiesUser = undefined;
-
-    if (typeof window !== 'undefined') {
-      cookiesUser = Cookies.get(USER_INFO_TOKEN);
-    }
-  
-    if (cookiesUser !== undefined) {
-      return undefined;
-    }
-  
-    return undefined;
-  
-  }
-
-  static getAuthData(): string {
-    return Cookies.get(JWT_TOKEN);
-  }
-
   static async loginUser(email: string, password: string) {
     const resp = await fetch(URLS.API_SERVER + "/authentication/login", {
       method: "POST",
@@ -41,7 +20,7 @@ export class AuthUtility {
         email: email,
         password: password,
       }),
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!resp.ok) {
@@ -57,7 +36,7 @@ export class AuthUtility {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!resp.ok) {
@@ -67,13 +46,10 @@ export class AuthUtility {
     return resp;
   }
 
-
-  public static isManager() {
-    const userData = this.getUserData();
+  public static isManager(user: User | null) {
     if (
-      userData &&
-      userData.is_staff &&
-      userData.groups.includes(GROUPS["manager"])
+      user &&
+      user.groups.find((x) => x === GROUPS["manager"]) !== undefined
     ) {
       return true;
     }
@@ -81,13 +57,11 @@ export class AuthUtility {
     return false;
   }
 
-  public static parseServerSideJson<T>(
-    data: string,
-  ): T | undefined {
+  public static getUserDataFromCookies(cookies: string): User | null {
     try {
-      return JSON.parse(data);
+      return JSON.parse(cookies.replace(/\\054/g, ",").replace(/\\/g, ""));
     } catch (e) {
-      return undefined;
+      return null;
     }
   }
 }

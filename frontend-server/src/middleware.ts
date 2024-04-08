@@ -10,6 +10,10 @@ export async function middleware(request: NextRequest) {
 
   if (typeof unescapedUserData === "undefined") {
     console.warn("no cookies for user");
+
+    if (request.nextUrl.pathname.startsWith("/authentication/login")) {
+      return response
+    }
     return Response.redirect(new URL("/authentication/login", request.url));
   }
 

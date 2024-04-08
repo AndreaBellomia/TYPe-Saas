@@ -47,6 +47,7 @@ export interface UserType {
   email: string;
   groups: Array<number>;
   user_permissions: Array<any>;
+  updated_at: Date;
 }
 
 export interface User extends UserType {

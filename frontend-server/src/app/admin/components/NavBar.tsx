@@ -1,10 +1,10 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 
-import { UserType } from "@/types";
-import { RootState } from "@/redux/store"
+import { User } from "@/types";
+import { RootState } from "@/redux/store";
 
 import { styled } from "@mui/material/styles";
 
@@ -25,10 +25,9 @@ import {
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
-import AssignmentIndRoundedIcon from '@mui/icons-material/AssignmentIndRounded';
-
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import StickyNote2RoundedIcon from "@mui/icons-material/StickyNote2Rounded";
+import AssignmentIndRoundedIcon from "@mui/icons-material/AssignmentIndRounded";
 
 const drawerWidth = 240;
 
@@ -81,7 +80,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   paddingRight: theme.spacing(1),
   ...theme.mixins.toolbar,
   justifyContent: "space-between",
-  backgroundColor: theme.palette.neutral.dark
+  backgroundColor: theme.palette.neutral.dark,
 }));
 
 const navBarUrl = [
@@ -104,22 +103,20 @@ const navBarUrl = [
 
 export default function _({
   children,
-  user,
 }: Readonly<{
   children: React.ReactNode;
-  user: UserType | undefined;
 }>) {
-
-
   const collapsed = useSelector((state: RootState) => state.navbar.collapsed);
+  const user: User | null = useSelector((state: RootState) => state.user.user);
+
   const dispatch = useDispatch();
 
   const handleDrawerOpen = () => {
-    dispatch({type: "OPEN"})
+    dispatch({ type: "OPEN" });
   };
 
   const handleDrawerClose = () => {
-    dispatch({type: "CLOSE"})
+    dispatch({ type: "CLOSE" });
   };
 
   return (
@@ -183,13 +180,13 @@ export default function _({
           anchor="left"
           open={collapsed}
           PaperProps={{
-            sx: {border: 0},
-            elevation: 5
+            sx: { border: 0 },
+            elevation: 5,
           }}
         >
           <DrawerHeader>
             <Typography variant="h6" noWrap color="white">
-                Admin
+              Admin
             </Typography>
             <IconButton onClick={handleDrawerClose} color="primary">
               <ChevronLeftIcon />
@@ -201,7 +198,7 @@ export default function _({
               navBarUrl.map((e, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemButton href={e.url}>
-                    <ListItemIcon >{e.icon}</ListItemIcon>
+                    <ListItemIcon>{e.icon}</ListItemIcon>
                     <ListItemText primary={e.name} />
                   </ListItemButton>
                 </ListItem>
