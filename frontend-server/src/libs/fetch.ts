@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { snack } from "@/libs/SnakClient"
 
 type ParamsList = Array<{ param: string; value: string }>;
-type GenericObject = { [key: string]: string };
+type GenericObject = { [key: string]: any };
 type CallbackFunction = (response: any) => void;
 type CallbackErrorFunction = (error: any) => void;
 enum AxiosMethods {

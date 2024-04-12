@@ -46,8 +46,8 @@ class ChangePasswordSerializer(serializers.Serializer):
             )
         return value
 
-    def validate(self, data):
-        if data["new_password"] != data["confirm_new_password"]:
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["confirm_new_password"]:
             raise serializers.ValidationError(
                 {
                     "new_password": "Le nuove password non corrispondono.",
@@ -56,13 +56,13 @@ class ChangePasswordSerializer(serializers.Serializer):
             )
 
         try:
-            validate_password(data["new_password"], self.context["user"])
+            validate_password(attrs["new_password"], self.context["user"])
         except ValidationError as e:
             raise serializers.ValidationError({"new_password": e})
 
-        return data
+        return attrs
 
-    def save(self):
+    def save(self, **kwargs):
         user = self.context["user"]
         user.set_password(self.validated_data["new_password"])
         user.save()
@@ -109,7 +109,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
-        user_info: UserInfo = instance.user_info
+        user_info: UserInfo | None = getattr(instance, "user_info", None)
+
+        if user_info is None:
+            user_info = UserInfo.objects.create(user=instance)
 
         user_info.first_name = validated_data["user_info"]["first_name"]
         user_info.last_name = validated_data["user_info"]["last_name"]

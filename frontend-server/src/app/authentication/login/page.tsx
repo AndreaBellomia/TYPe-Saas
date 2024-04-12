@@ -72,11 +72,7 @@ export default function _() {
               label="Email"
               name="email"
               type="email"
-              errors={formik.errors}
-              touched={formik.touched}
-              values={formik.values}
-              handleBlur={formik.handleBlur}
-              handleChange={formik.handleChange}
+              formik={formik}
             />
 
             <Box sx={{ my: 2 }} />
@@ -86,11 +82,7 @@ export default function _() {
               label="Password"
               name="password"
               type="password"
-              errors={formik.errors}
-              touched={formik.touched}
-              values={formik.values}
-              handleBlur={formik.handleBlur}
-              handleChange={formik.handleChange}
+              formik={formik}
             />
 
             <Box sx={{ my: 2 }} />

@@ -66,6 +66,7 @@ function ProfileCard({ user }: ProfileCardProps) {
   useEffect(() => {
     if (user !== null && user.user_info !== null) {
       Object.keys(user.user_info).forEach((key: string) => {
+        // @ts-ignore
         formik.setFieldValue(key, user.user_info[key]);
       });
     }
@@ -107,11 +108,7 @@ function ProfileCard({ user }: ProfileCardProps) {
                 label="Nome"
                 name="first_name"
                 type="text"
-                errors={formik.errors}
-                touched={formik.touched}
-                values={formik.values}
-                handleBlur={formik.handleBlur}
-                handleChange={formik.handleChange}
+                formik={formik}
               />
             </Grid>
             <Grid item xs={12}>
@@ -120,11 +117,7 @@ function ProfileCard({ user }: ProfileCardProps) {
                 label="Cognome"
                 name="last_name"
                 type="text"
-                errors={formik.errors}
-                touched={formik.touched}
-                values={formik.values}
-                handleBlur={formik.handleBlur}
-                handleChange={formik.handleChange}
+                formik={formik}
               />
             </Grid>
             <Grid item xs={12}>
@@ -133,11 +126,7 @@ function ProfileCard({ user }: ProfileCardProps) {
                 label="Numero di telefono"
                 name="phone_number"
                 type="text"
-                errors={formik.errors}
-                touched={formik.touched}
-                values={formik.values}
-                handleBlur={formik.handleBlur}
-                handleChange={formik.handleChange}
+                formik={formik}
               />
             </Grid>
             <Grid item xs={12} textAlign="end">

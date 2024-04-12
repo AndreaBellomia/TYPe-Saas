@@ -210,11 +210,7 @@ export default function _({
         name="label"
         type="text"
         label="Tipo"
-        values={formik.values}
-        errors={formik.errors}
-        touched={formik.touched}
-        handleChange={formik.handleChange}
-        handleBlur={formik.handleBlur}
+        formik={formik}
       />
 
       <Box sx={{ my: 2 }} />
@@ -223,12 +219,8 @@ export default function _({
         name="description"
         type="text"
         label="Descrizione"
-        values={formik.values}
-        errors={formik.errors}
-        touched={formik.touched}
+        formik={formik}
         maxRows={10}
-        handleChange={formik.handleChange}
-        handleBlur={formik.handleBlur}
       />
 
       <Box sx={{ my: 2 }} />
