@@ -1,30 +1,15 @@
-# django imports
+from http import HTTPMethod
 
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth import login, logout
-from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
 
-from rest_framework import permissions, status, filters
-from rest_framework.views import APIView
-from rest_framework.generics import (
-    GenericAPIView,
-    RetrieveUpdateAPIView,
-    ListAPIView,
-    CreateAPIView,
-)
+from rest_framework import permissions, status, filters, mixins, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from http import HTTPMethod
-
-from rest_framework import mixins, viewsets, status
-from rest_framework.decorators import action
-
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-
 from myapp.core.paginations import BasicPaginationController
-from myapp.core.permissions import GroupPermission
 
 from knox.views import LoginView as KnoxLoginView
 from knox.models import AuthToken
@@ -73,7 +58,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             )
 
         serializer = AuthSerializer(data=request.data).is_valid(raise_exception=True)
-        user = serializer.validated_data["user"] # type: ignore
+        user = serializer.validated_data["user"]  # type: ignore
         login(request, user)
 
         token_limit_per_user = self.get_token_limit_per_user()
@@ -86,7 +71,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
         token_ttl = self.get_token_ttl()
-        instance, token = AuthToken.objects.create(request.user, token_ttl) # type: ignore
+        instance, token = AuthToken.objects.create(request.user, token_ttl)  # type: ignore
         user_logged_in.send(
             sender=request.user.__class__, request=request, user=request.user
         )

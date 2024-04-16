@@ -35,7 +35,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
-LIBRARY_APP = ["rest_framework", "knox", "django_filters", "corsheaders"]
+LIBRARY_APP = ["rest_framework", "knox", "django_filters", "corsheaders", "drf_yasg"]
 
 INTERNAL_APP = ["myapp.authentication", "myapp.core", "myapp.ticket"]
 
