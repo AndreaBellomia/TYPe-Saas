@@ -1,11 +1,19 @@
+import secrets
+
+
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.hashers import (
+    make_password,
+)
 
 from rest_framework import serializers
 
+
 from myapp.authentication.models import CustomUser, UserInfo
+from myapp.core.email import send_html_email
 
 
 class AuthSerializer(serializers.Serializer):
@@ -120,3 +128,40 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user_info.save()
 
         return instance
+
+
+class CreateUserSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Questo indirizzo è gia registrato!")
+
+        return value
+
+    def save(self, **kwargs):
+        validated_data = {**self.validated_data, **kwargs}
+
+        password = secrets.token_urlsafe(10)
+
+        user = CustomUser.objects.create(
+            email=validated_data["email"], password=make_password(password), is_active=True
+        )
+
+        html_content = f"""
+        Attiva il tuo account ticket crm 
+        email: {user.email}
+        password: {password}
+        sito: http://localhost:3000
+        dopo il login reimposta la password dalla sezione profilo
+        """
+
+        send_html_email(
+            "Registrazione a TicketCRM",
+            html_content,
+            from_email="noreply@ticketCRM.it",
+            to=[user.email],
+        )
+
+        return user

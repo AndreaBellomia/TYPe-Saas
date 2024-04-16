@@ -8,11 +8,23 @@ from django.utils import timezone as tz
 
 from rest_framework import permissions, status, filters
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, ListAPIView
+from rest_framework.generics import (
+    GenericAPIView,
+    RetrieveUpdateAPIView,
+    ListAPIView,
+    CreateAPIView,
+)
 from rest_framework.response import Response
+
+from http import HTTPMethod
+
+from rest_framework import mixins, viewsets, status
+from rest_framework.decorators import action
+
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from myapp.core.paginations import BasicPaginationController
+from myapp.core.permissions import GroupPermission
 
 from knox.views import LoginView as KnoxLoginView
 from knox.models import AuthToken
@@ -20,32 +32,48 @@ from knox.models import AuthToken
 from myapp.authentication.serializers import (
     AuthSerializer,
     ChangePasswordSerializer,
+    CreateUserSerializer,
     UserProfileSerializer,
 )
 from myapp.authentication.models import CustomUser
 
 
-class LogoutView(GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
+    queryset = CustomUser.objects.all().prefetch_related("user_info")
+    serializer_class = UserProfileSerializer
 
-    def post(self, request):
-        logout(request)
-        
-        response = Response({"message": "Logout successful"})
-        response.delete_cookie(settings.AUTH_COOKIE_NAME)
-        response.delete_cookie("user")
-        response.delete_cookie("csrftoken")
-        return response
+    @action(
+        detail=False,
+        methods=[
+            HTTPMethod.GET,
+        ],
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def profile(self, request):
+        user: CustomUser = request.user
 
+        if user:
+            return Response(self.serializer_class(user).data)
 
-class LoginView(KnoxLoginView):
-    serializer_class = AuthSerializer
-    permission_classes = (permissions.AllowAny,)
+        return Response(
+            {"detail": "User not found in request"}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    def post(self, request, format=None):
-        serializer = AuthSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.AllowAny],
+    )
+    def login(self, request):
+        user: CustomUser = request.user
+
+        if user:
+            return Response(
+                {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = AuthSerializer(data=request.data).is_valid(raise_exception=True)
+        user = serializer.validated_data["user"] # type: ignore
         login(request, user)
 
         token_limit_per_user = self.get_token_limit_per_user()
@@ -58,7 +86,7 @@ class LoginView(KnoxLoginView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
         token_ttl = self.get_token_ttl()
-        instance, token = AuthToken.objects.create(request.user, token_ttl)
+        instance, token = AuthToken.objects.create(request.user, token_ttl) # type: ignore
         user_logged_in.send(
             sender=request.user.__class__, request=request, user=request.user
         )
@@ -72,75 +100,46 @@ class LoginView(KnoxLoginView):
         )
         return response
 
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def logout(self, request):
+        logout(request)
 
-class ChangePasswordView(GenericAPIView):
-    serializer_class = ChangePasswordSerializer
+        response = Response({"message": "Logout successful"})
+        response.delete_cookie(settings.AUTH_COOKIE_NAME)
+        response.delete_cookie("user")
+        response.delete_cookie("csrftoken")
+        return response
 
-    def post(self, request):
-        user = self.request.user
+    def password_change(self, request):
+        user: CustomUser = request.user
 
-        serializer = self.serializer_class(data=request.data, context={"user": user})
+        if not user:
+            return Response(
+                {"detail": "User not found in request"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"message": "success"})
-
-
-class UserAuthenticated(APIView):
-
-    serializer_class = UserProfileSerializer
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        user = getattr(request, "user", None)
-
-        if user.is_authenticated:
-            serializer = self.serializer_class(user)
-            return Response(serializer.data, status.HTTP_200_OK)
 
         return Response(
-            {"detail": "You must be logged in to see this page"},
-            status.HTTP_401_UNAUTHORIZED,
+            {"detail": "Password changed correctly"}, status=status.HTTP_200_OK
         )
-        
-        
-class UserViewMixin(RetrieveUpdateAPIView):
-    serializer_class = UserProfileSerializer
-
-class ProfileUserView(UserViewMixin):
-
-    def get_object(self):
-        user = self.request.user
-        return get_object_or_404(CustomUser, pk=user.id)
 
 
-class UserDetailView(UserViewMixin):
-
-    def get_object(self):
-        return get_object_or_404(CustomUser, pk=self.kwargs["id"])
-
-
-class UsersSmallListView(ListAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        admin_only = self.request.GET.get("admin_only")
-
-        queryset = CustomUser.objects.filter(is_active=True)
-
-        if admin_only and admin_only.lower() == "true":
-            queryset = queryset.filter(is_staff=True)
-
-        return queryset
-
-
-class UsersListView(ListAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
-    filter_backends = [filters.SearchFilter]
+class AdminUserViewset(viewsets.ModelViewSet, mixins.ListModelMixin):
     queryset = CustomUser.objects.all().prefetch_related("user_info")
+    serializer_class = UserProfileSerializer
+    filter_backends = [filters.SearchFilter]
 
     pagination_class = BasicPaginationController
+
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
     search_fields = [
         "email",
@@ -149,4 +148,11 @@ class UsersListView(ListAPIView):
         "user_info__last_name",
     ]
 
-
+    def create(self, request, *args, **kwargs):
+        serializer = CreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )

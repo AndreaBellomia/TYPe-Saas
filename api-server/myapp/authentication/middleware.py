@@ -17,6 +17,7 @@ def generate_new_cookie(user):
     return json.dumps(dict({
         "is_staff": user.is_active,
         "is_superuser": user.is_superuser,
+        "is_active": user.is_active,
         "id": user.id,
         "groups": groups_list,
         "updated_at": updated_at_str,
@@ -39,6 +40,9 @@ class UserDataCookies:
     def process_response(self, request, response):
         resp = response
         user = request.user
+        
+        if user.is_anonymous:
+            return resp
 
         current_cookie = request.COOKIES.get("user")
 
