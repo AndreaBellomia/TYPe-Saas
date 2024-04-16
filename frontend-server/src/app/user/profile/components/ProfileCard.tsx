@@ -42,7 +42,7 @@ function ProfileCard({ user }: ProfileCardProps) {
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
       API.put(
-        "/authentication/profile",
+        "/authentication/update_profile/",
         () => {
           // helpers.resetForm();
           snack.success("Informazioni cambiata correttamente!");

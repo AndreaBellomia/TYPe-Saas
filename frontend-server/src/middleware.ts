@@ -21,9 +21,18 @@ export async function middleware(request: NextRequest) {
     JSON.parse(unescapedUserData.replace(/\\054/g, ",")),
   );
 
+  console.log(request.nextUrl.pathname)
+  
+  // if (
+  //   !userData["is_active"] &&
+  //   request.nextUrl.pathname !== "/user/profile"
+  // ) {
+  //   return Response.redirect(new URL("/user/profile/", request.url));
+  // }
+
   if (
     !userData["is_staff"] &&
-    !request.nextUrl.pathname.startsWith("/admin/")
+    !request.nextUrl.pathname.startsWith("/admin")
   ) {
     return Response.redirect(new URL("/user/ticket", request.url));
   }

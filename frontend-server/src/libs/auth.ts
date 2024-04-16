@@ -11,7 +11,7 @@ export const USER_INFO_TOKEN = "user";
 
 export class AuthUtility {
   static async loginUser(email: string, password: string) {
-    const resp = await fetch(URLS.API_SERVER + "/authentication/login", {
+    const resp = await fetch(URLS.API_SERVER + "/authentication/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

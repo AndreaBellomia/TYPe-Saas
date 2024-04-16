@@ -17,7 +17,7 @@ export default function _() {
 
   useEffect(() => {
     API.get(
-      "/authentication/profile",
+      "/authentication/profile/",
       (response) => {
         setUser(response.data);
         console.log(response.data);

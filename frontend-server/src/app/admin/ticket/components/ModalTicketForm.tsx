@@ -106,7 +106,7 @@ export default function _({
     onSubmit: (values, helpers) => {
       if (objectData) {
         API.put(
-          `/ticket/admin/tickets/update/${objectData.id}`,
+          `/ticket/admin/${objectData.id}/`,
           (response) => {
             helpers.resetForm();
             snack.success(`Ticket numero ${objectData.id} è stato aggiornato`);
@@ -122,7 +122,7 @@ export default function _({
         );
       } else {
         API.post(
-          "/ticket/admin/tickets/list",
+          "/ticket/admin/",
           (response) => {
             helpers.resetForm();
             snack.success("Nuovo ticket creato");
@@ -155,7 +155,7 @@ export default function _({
     );
 
     API.get(
-      "authentication/users/list/small",
+      "authentication/users/small/",
       (response) => {
         const data: Array<any> = response.data;
         setUsers(data.map((e) => ({ label: e.email, id: e.id })));
@@ -169,14 +169,15 @@ export default function _({
 
     if (partial) {
       API.get(
-        DjangoApi.buildURLparams("authentication/users/list/small", [
+        DjangoApi.buildURLparams("authentication/users/small/", [
           { param: "admin_only", value: "true" },
         ]),
         (response) => {
           const data: Array<any> = response.data;
+          console.log(data)
           setAdmins(data.map((e) => ({ label: e.email, id: e.id })));
         },
-        () => {
+        (e) => {
           throw new FetchDispatchError(
             "Errore durante il recupero degli amministratori, riprova più tardi.",
           );

@@ -26,7 +26,7 @@ export default function _() {
   const [modalTicketDetail, setModalTicketDetail] = useState<null | string>(null)
 
   useEffect(() => {
-    const url: string = DjangoApi.buildURLparams("/ticket/admin/tickets/list", [
+    const url: string = DjangoApi.buildURLparams("/ticket/admin/", [
       { param: "ordering", value: tableOrder },
       { param: "search", value: search },
       { param: "statuses", value: state },

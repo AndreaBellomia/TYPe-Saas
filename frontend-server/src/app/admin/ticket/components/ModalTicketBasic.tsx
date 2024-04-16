@@ -97,7 +97,7 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
   useEffect(() => {
     if (detailId) {
       API.get(
-        `/ticket/admin/tickets/update/${detailId}`,
+        `/ticket/admin/${detailId}/`,
         (response) => {
           const data: { [key: string]: any } = response.data;
 

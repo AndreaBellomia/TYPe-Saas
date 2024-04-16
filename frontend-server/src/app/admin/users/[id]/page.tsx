@@ -18,7 +18,7 @@ export default function MyComponent() {
   const [user, setUser] = useState<null | User>(null)
 
   useEffect(() => {
-    API.get(`authentication/users/${params.id}`, (response) => {
+    API.get(`authentication/users/${params.id}/`, (response) => {
       setUser(response.data)
     },
     (e) => {

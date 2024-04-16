@@ -29,7 +29,7 @@ export default function _() {
 
   useEffect(() => {
     API.get(
-      "ticket/tickets/list",
+      "ticket/",
       (response) => {
         setData(response.data.results);
         setPageCount(response.data.num_pages)

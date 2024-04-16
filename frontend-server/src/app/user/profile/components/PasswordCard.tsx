@@ -31,7 +31,7 @@ export function PasswordCard() {
     onSubmit: (values, helpers) => {
       console.log("data", values);
       API.post(
-        "/authentication/user/change_password",
+        "/authentication/change_password/",
         () => {
           helpers.resetForm();
           snack.success("Password cambiata correttamente!");

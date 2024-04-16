@@ -8,6 +8,7 @@ from django.utils import timezone as tz
 from rest_framework import permissions, status, filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from yaml import serialize
 
 from myapp.core.paginations import BasicPaginationController
 
@@ -19,6 +20,7 @@ from myapp.authentication.serializers import (
     ChangePasswordSerializer,
     CreateUserSerializer,
     UserProfileSerializer,
+    UserInfoSmallSerializer
 )
 from myapp.authentication.models import CustomUser
 
@@ -31,6 +33,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         detail=False,
         methods=[
             HTTPMethod.GET,
+            HTTPMethod.PUT,
         ],
         permission_classes=[permissions.IsAuthenticated],
     )
@@ -46,18 +49,35 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
 
     @action(
         detail=False,
+        methods=[
+            HTTPMethod.PUT,
+        ],
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def update_profile(self, request):
+        user: CustomUser = request.user
+
+        serializer = self.serializer_class(data=request.data, instance=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({"detail": "User updated"}, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
         methods=[HTTPMethod.POST],
         permission_classes=[permissions.AllowAny],
     )
     def login(self, request):
         user: CustomUser = request.user
 
-        if user:
-            return Response(
-                {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
-            )
+        # if user:
+        #     return Response(
+        #         {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
+        #     )
 
-        serializer = AuthSerializer(data=request.data).is_valid(raise_exception=True)
+        serializer = AuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]  # type: ignore
         login(request, user)
 
@@ -84,6 +104,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             httponly=True,
         )
         return response
+        # return  Response()
 
     @action(
         detail=False,
@@ -99,6 +120,11 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         response.delete_cookie("csrftoken")
         return response
 
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.IsAuthenticated],
+    )
     def password_change(self, request):
         user: CustomUser = request.user
 
@@ -117,7 +143,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         )
 
 
-class AdminUserViewset(viewsets.ModelViewSet, mixins.ListModelMixin):
+class AdminUserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().prefetch_related("user_info")
     serializer_class = UserProfileSerializer
     filter_backends = [filters.SearchFilter]
@@ -141,3 +167,16 @@ class AdminUserViewset(viewsets.ModelViewSet, mixins.ListModelMixin):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def get_queryset(self):
+        admin_only = self.request.GET.get("admin_only")
+        queryset = super().get_queryset()
+
+        if admin_only and admin_only == "true":
+            queryset = queryset.filter(is_staff=True)
+
+        return queryset
+
+    @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
+    def small(self, request):
+        return Response(UserInfoSmallSerializer(self.get_queryset(), many=True).data)

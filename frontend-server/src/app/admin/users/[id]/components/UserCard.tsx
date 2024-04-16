@@ -1,54 +1,142 @@
-import { Typography, Box, Paper, Divider, Grid, Chip } from "@mui/material";
+import { useEffect } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+import { Button, Box, Paper, Grid, Chip } from "@mui/material";
 
 import Avatar from "@/components/Avatar";
+import TextField from "@/components/forms/TextField";
+import { GROUPS_MAPS } from "@/constants";
+import { User } from "@/types";
 
-import { GROUPS_MAPS } from "@/constants"
+import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 
-import { User, SmallUser } from "@/types";
+const API = new DjangoApi()
 
-function UserCardComponent ({ user }:{ user: User }) {
-  const avatarUser: SmallUser = {
-    email: user.email,
-    id: user.id ,
-    first_name: user.user_info?.first_name || null,
-    last_name: user.user_info?.first_name || null,
-  };
+function UserCardComponent({ user }: { user: User }) {
+  const formValidation = Yup.object().shape({
+    first_name: Yup.string()
+      .max(100, "Nome troppo lungo")
+      .required("Campo obbligatorio"),
+    last_name: Yup.string()
+      .max(100, "Nome troppo corto")
+      .required("Campo obbligatorio"),
+    phone_number: Yup.string(),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      first_name: "",
+      last_name: "",
+      phone_number: "",
+    },
+    validationSchema: formValidation,
+    onSubmit: (values, helpers) => {
+      API.put(
+        `/authentication/users/${user.id}`,
+        () => {
+          // helpers.resetForm();
+
+
+          
+          // snack.success("Informazioni cambiata correttamente!");
+          // router.push("/user/profile");
+        },
+        (error) => {
+          const data = error.response.data;
+          Object.keys(data).forEach((key) => {
+            helpers.setFieldError(key, data[key]);
+          });
+          throw new FetchDispatchError("Errore, si prega di riprovare!");
+        },
+        {
+          user_info: { ...values },
+        },
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (user !== null && user.user_info !== null) {
+      Object.keys(user.user_info).forEach((key: string) => {
+        // @ts-ignore
+        formik.setFieldValue(key, user.user_info[key]);
+      });
+    }
+  }, [user]);
 
   return (
     <>
-      <Paper elevation={5}>
-        <Box sx={{ p:2 }}>
-          <Grid container>
-            <Grid item xs={10}>
-              <Avatar user={avatarUser} dimension={50} typographyProps={{ variant: "h5" }}/>
+      <Paper elevation={5} sx={{ width: "100%" }}>
+        <Box sx={{ p: 2 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={6}>
+              {user && (
+                <Avatar
+                  user={user}
+                  dimension={60}
+                  typographyProps={{ variant: "h4" }}
+                />
+              )}
             </Grid>
-            <Grid item xs={2} textAlign="end">
-              <Chip
-                label={user.is_active ? "Attivo" : "Non attivo"}
-                color={user.is_active ? "primary" : "error"}
+            <Grid item xs={6} textAlign="end" alignSelf="center">
+              {user &&
+                (user.is_active ? (
+                  <Chip label="Attivo" color="success" />
+                ) : (
+                  <Chip label="Non attivo" color="warning" />
+                ))}
+
+              {user && user.is_staff && <Chip label="Staff" color="info" />}
+
+              {user &&
+                user.groups.map((e, i) => (
+                  <Chip label={GROUPS_MAPS[e]} color="secondary" key={i} />
+                ))}
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Nome"
+                name="first_name"
+                type="text"
+                formik={formik}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Cognome"
+                name="last_name"
+                type="text"
+                formik={formik}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Numero di telefono"
+                name="phone_number"
+                type="text"
+                formik={formik}
+              />
+            </Grid>
+            <Grid item xs={12} textAlign="end">
+              {/* @ts-ignore */}
+              <Button
+                variant="contained"
+                disabled={!(formik.isValid && formik.dirty)}
+                onClick={formik.handleSubmit}
+              >
+                Aggiorna
+              </Button>
+            </Grid>
           </Grid>
-          
-
-          <Divider sx={{ my: 2 }}/>
-
-          <Typography variant="subtitle1" color="initial">Nome: {user.user_info && user.user_info.first_name}</Typography>
-          <Typography variant="subtitle1" color="initial">Cognome: {user.user_info && user.user_info.last_name}</Typography>
-
-          <Box sx={{ my: 2 }}></Box>
-          {
-            user && user.groups.map((element) => <Chip
-            label={GROUPS_MAPS[element]}
-            color="secondary"
-            key={element}
-          />)
-          }
-          
         </Box>
       </Paper>
     </>
-  )
+  );
 }
 
-export default UserCardComponent
+export default UserCardComponent;

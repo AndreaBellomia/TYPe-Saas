@@ -15,6 +15,8 @@ const ModalBox = styled(Box)(({ theme }) => ({
   transform: "translate(-50%, -50%)",
   width: "100%",
   maxWidth: "60rem",
+  maxHeight: "100vh",
+  overflowY: "auto",
   backgroundColor: theme.palette.background.paper,
   padding: "1.5rem",
   borderRadius: "1rem",

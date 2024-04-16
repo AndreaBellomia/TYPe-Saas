@@ -10,7 +10,11 @@ class StatusFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         status_field = self.get_status_field(view)
-        _request = getattr(request, request.method)
+        _request = getattr(request, request.method, None)
+        
+        if _request is None:
+            return queryset
+        
         status = _request.get(self.status_params)
 
         if not status:

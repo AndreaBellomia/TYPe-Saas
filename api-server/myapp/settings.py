@@ -28,14 +28,14 @@ SECRET_KEY = "django-insecure-@+*tyqwzro&@k%jnt4-yd)1&kbi(4!9@lb@$fc)$i=g1@8ei2b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
 
-LIBRARY_APP = ["rest_framework", "knox", "django_filters", "corsheaders", "drf_yasg"]
+LIBRARY_APP = ["rest_framework", "knox", "django_filters", "drf_yasg", "corsheaders"]
 
 INTERNAL_APP = ["myapp.authentication", "myapp.core", "myapp.ticket"]
 

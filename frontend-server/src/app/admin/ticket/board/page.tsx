@@ -17,7 +17,7 @@ function handlerMoveCard(data: any) {
 
   if (oldStatus !== newStatus) {
     API.put(
-      "/ticket/admin/tickets/board",
+      "/ticket/admin/update_board/",
       (response) => {
         data.targetData.node.data.value.status = newStatus
       },
@@ -44,7 +44,7 @@ export default function _() {
 
   useEffect(() => {
     API.get(
-      "/ticket/admin/tickets/board",
+      "/ticket/admin/board/",
       (response) => {
         // console.log(response)
         setBoardItems(response.data);
