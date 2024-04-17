@@ -65,7 +65,7 @@ export default function _() {
       
       {data &&
         data.map((e, index) => (
-          <Box key={index} sx={{ mb: 2 }}>
+          <Box key={index} sx={{ mb: 2 }} onClick={() => {router.push(`/user/ticket/${e.id}`)}}>
             <TicketCard
               label={e.label}
               description={e.description}
