@@ -164,15 +164,17 @@ class TicketUserViewset(
     )
     def message(self, request, pk=None):
         if request.method == HTTPMethod.GET:
+            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by("-created_at")
+            
             serializer = self.serializer_class(
-                TicketMsg.objects.filter(ticket_id=pk), many=True
+                queryset, many=True
             )
             return Response(serializer.data)
 
         if request.method == HTTPMethod.POST:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save(author=request.user, ticket=pk)
+            serializer.save(author=request.user, ticket_id=pk)
 
             return Response(serializer.data)
 

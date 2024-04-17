@@ -10,9 +10,13 @@ import {
   Avatar,
   Divider,
   IconButton,
+  Paper,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
+import SendIcon from "@mui/icons-material/Send";
 
 import Modal from "@/components/Modal";
 import { AuthUtility } from "@/libs/auth";
@@ -21,6 +25,7 @@ import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import ModalTicketForm from "@/app/admin/ticket/components/ModalTicketForm";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { Message } from "@/models/ticket";
 
 const API = new DjangoApi();
 
@@ -91,6 +96,8 @@ function dateParser(date: string): string {
 export default function _({ modalStatus, detailId }: ComponentProps) {
   const [open, setOpen] = modalStatus;
   const [data, setData] = useState<{ [key: string]: any } | null>(null);
+  const [messages, setMessages] = useState<Message[] | null>(null);
+  const [inputMessage, setInputMessage] = useState<string>("");
   const [editable, setEditable] = useState(false);
   const user = useSelector((state: RootState) => state.user.user);
 
@@ -111,10 +118,47 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
       );
     } else {
       setData(null);
+      setMessages(null);
     }
 
     setEditable(detailId === null);
   }, [detailId]);
+
+  useEffect(() => {
+    if (detailId) {
+      API.get(
+        `/ticket/${detailId}/message/`,
+        (response) => {
+          const data: any[] = response.data;
+
+          setMessages(data);
+        },
+        () => {
+          throw new FetchDispatchError(
+            "Errore durante il recupero dei dati, riprova più tardi.",
+          );
+        },
+      );
+    }
+  }, [messages, detailId]);
+
+  const handlerMessageSubmit = () => {
+    API.post(
+      `/ticket/${detailId}/message/`,
+      (response) => {
+        setInputMessage("");
+        setMessages(null);
+      },
+      () => {
+        throw new FetchDispatchError(
+          "Errore durante l'inserimento del messaggio",
+        );
+      },
+      {
+        message: inputMessage,
+      },
+    );
+  };
 
   return (
     <>
@@ -222,6 +266,60 @@ export default function _({ modalStatus, detailId }: ComponentProps) {
               </>
             )
           )}
+
+          <Typography variant="h6" color="initial">
+            Messaggi
+          </Typography>
+
+          <Divider sx={{ my: 2 }} />
+
+          <TextField
+            label="Messaggio"
+            id=""
+            value={inputMessage}
+            onChange={(e) => {
+              setInputMessage(e.target.value);
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handlerMessageSubmit}>
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            fullWidth
+          />
+
+          <Box sx={{ overflow: "auto", maxHeight: "50vh" }}>
+            {messages &&
+              messages.map((msg) => (
+                <Paper elevation={2} key={msg.id} sx={{ mt: 2 }}>
+                  <Box p={2}>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography variant="subtitle2" color="initial">
+                        {msg.author.first_name + " " + msg.author.last_name}
+                      </Typography>
+                      <Typography variant="subtitle2" color="initial">
+                        {msg.author.email}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="initial">
+                      {msg.message}
+                    </Typography>
+
+                    <Box sx={{ textAlign: "end" }}>
+                      <Typography variant="caption" color="initial">
+                        {new Date(msg.updated_at).toLocaleString()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              ))}
+          </Box>
         </>
       </Modal>
     </>

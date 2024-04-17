@@ -64,6 +64,8 @@ class AdminTicketSerializer(serializers.ModelSerializer):
 
 
 class TicketMsgSerializer(serializers.ModelSerializer):
+    
+    author = UserInfoSmallSerializer(read_only=True)
 
     class Meta:
         model = TicketMsg
