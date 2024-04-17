@@ -11,6 +11,7 @@ class TicketType(AbstractModel):
     def __str__(self):
         return self.name.upper()
 
+
 class Ticket(AbstractModel):
 
     class Status(models.TextChoices):
@@ -46,3 +47,10 @@ class Ticket(AbstractModel):
         choices=Status.choices, max_length=8, default=Status.BACKLOG
     )
 
+
+class TicketMsg(AbstractModel):
+    ticket = models.ForeignKey(
+        Ticket, on_delete=models.CASCADE, related_name="messages"
+    )
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="+")
+    message = models.CharField(max_length=1000)

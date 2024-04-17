@@ -1,3 +1,5 @@
+from email import message
+from gc import get_objects
 import logging
 from http import HTTPMethod
 
@@ -8,7 +10,7 @@ from rest_framework.generics import (
     ListCreateAPIView,
 )
 
-from rest_framework import permissions, status, filters, mixins, viewsets
+from rest_framework import permissions, status, filters, mixins, viewsets, exceptions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -18,10 +20,11 @@ from myapp.core.permissions import UserReadOnly, GroupPermission
 from myapp.core.filters import StatusFilter
 from myapp.ticket.serializers import (
     AdminTicketSerializer,
+    TicketMsgSerializer,
     TicketTypeSerializer,
     UserTicketSerializer,
 )
-from myapp.ticket.models import TicketType, Ticket
+from myapp.ticket.models import TicketMsg, TicketType, Ticket
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +78,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             instance.assigned_to = user
             instance.save()
 
-    @action(
-        detail=False, methods=[HTTPMethod.GET], pagination_class=None
-    )
+    @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
     def board(self, request):
 
         queryset = self.get_queryset()
@@ -147,7 +148,7 @@ class TicketUserViewset(
     def get_queryset(self):  # type: ignore
         user = self.request.user
 
-        queryset = Ticket.objects.filter(created_by_id=user.id).prefetch_related( # type: ignore
+        queryset = Ticket.objects.filter(created_by_id=user.id).prefetch_related(  # type: ignore
             "created_by", "created_by__user_info"
         )
         return queryset
@@ -155,3 +156,24 @@ class TicketUserViewset(
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(created_by=user)
+
+    @action(
+        detail=True,
+        methods=[HTTPMethod.GET, HTTPMethod.POST],
+        serializer_class=TicketMsgSerializer,
+    )
+    def message(self, request, pk=None):
+        if request.method == HTTPMethod.GET:
+            serializer = self.serializer_class(
+                TicketMsg.objects.filter(ticket_id=pk), many=True
+            )
+            return Response(serializer.data)
+
+        if request.method == HTTPMethod.POST:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(author=request.user, ticket=pk)
+
+            return Response(serializer.data)
+
+        raise exceptions.MethodNotAllowed(request.method)

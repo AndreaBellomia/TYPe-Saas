@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from myapp.authentication.models import CustomUser
 from myapp.authentication.serializers import UserInfoSmallSerializer
-from myapp.ticket.models import TicketType, Ticket
+from myapp.ticket.models import TicketMsg, TicketType, Ticket
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
@@ -32,29 +32,40 @@ class UserTicketSerializer(serializers.ModelSerializer):
 
 
 class AdminTicketSerializer(serializers.ModelSerializer):
-    
+
     type = TicketTypeSerializer(read_only=True)
     type_id = serializers.IntegerField()
-    
+
     assigned_to = UserInfoSmallSerializer(read_only=True)
     assigned_to_id = serializers.IntegerField(required=False)
-    
+
     created_by = UserInfoSmallSerializer(read_only=True)
     created_by_id = serializers.IntegerField()
 
-
     def validate(self, attrs):
         assigned_to_id = attrs.get("assigned_to_id")
-        if assigned_to_id :
+        if assigned_to_id:
             try:
                 user = CustomUser.objects.get(id=assigned_to_id)
             except CustomUser.DoesNotExist:
-                raise serializers.ValidationError({"assigned_to_id": f"User with id {assigned_to_id} not found"})
-            
+                raise serializers.ValidationError(
+                    {"assigned_to_id": f"User with id {assigned_to_id} not found"}
+                )
+
             if not user.is_staff:
-                raise serializers.ValidationError({"assigned_to_id": f"Must be a staff user!"})
+                raise serializers.ValidationError(
+                    {"assigned_to_id": f"Must be a staff user!"}
+                )
         return super().validate(attrs)
 
     class Meta:
         model = Ticket
         fields = "__all__"
+
+
+class TicketMsgSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TicketMsg
+        fields = "__all__"
+        read_only_fields = ("author", "ticket", "id")
