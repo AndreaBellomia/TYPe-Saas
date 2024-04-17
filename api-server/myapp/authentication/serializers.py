@@ -108,24 +108,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "email",
             "user_permissions",
-            "groups",
             "is_superuser",
-            "is_staff",
             "is_active",
             "date_joined",
             "last_login",
         )
 
     def update(self, instance, validated_data):
-        user_info: UserInfo | None = getattr(instance, "user_info", None)
+        inst = super().update(instance, validated_data)
+        user_info: UserInfo | None = getattr(inst, "user_info", None)
 
         if user_info is None:
-            user_info = UserInfo.objects.create(user=instance)
+            user_info = UserInfo.objects.get_or_create(user=instance)[0]
 
-        user_info.first_name = validated_data["user_info"]["first_name"]
-        user_info.last_name = validated_data["user_info"]["last_name"]
-        user_info.phone_number = validated_data["user_info"]["phone_number"]
-        user_info.save()
+        if "user_info" in validated_data:
+            user_info_data = validated_data["user_info"]
+            user_info.first_name = user_info_data.get("first_name", user_info.first_name)
+            user_info.last_name = user_info_data.get("last_name", user_info.last_name)
+            user_info.phone_number = user_info_data.get("phone_number", user_info.phone_number)
+            user_info.save()
 
         return instance
 

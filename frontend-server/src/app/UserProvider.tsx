@@ -21,7 +21,7 @@ export default function CustomUserProvider({
 
   const getUser = () => {
     API.get(
-      "/authentication/profile",
+      "/authentication/profile/",
       (response) => {
         dispatch({ type: "USER_SET", payload: response.data });
       },

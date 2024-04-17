@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation'
 
 import { Typography, Box, Paper, Chip, Grid } from "@mui/material";
 
-import UserCard from "./components/UserCard"
+import UserCard from "@/app/admin/users/[id]/components/UserCard"
+import AdministrationCard from "@/app/admin/users/[id]/components/AdministrationCard"
 
 import { User } from "@/types";
 
@@ -29,12 +30,17 @@ export default function MyComponent() {
 
   return (
     <>
-      <Grid container>
-        <Grid item xs={6}>
+      <Grid container spacing={4}>
+        <Grid item xs={12} xl={6}>
           {
             user && <UserCard user={user} />
           }
           
+        </Grid>
+        <Grid item xs={6}>
+          {
+            user && <AdministrationCard user={user} />
+          }
         </Grid>
       </Grid>
     </>

@@ -20,7 +20,7 @@ from myapp.authentication.serializers import (
     ChangePasswordSerializer,
     CreateUserSerializer,
     UserProfileSerializer,
-    UserInfoSmallSerializer
+    UserInfoSmallSerializer,
 )
 from myapp.authentication.models import CustomUser
 
@@ -145,7 +145,6 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
 
 class AdminUserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().prefetch_related("user_info")
-    serializer_class = UserProfileSerializer
     filter_backends = [filters.SearchFilter]
 
     pagination_class = BasicPaginationController
@@ -158,6 +157,17 @@ class AdminUserViewset(viewsets.ModelViewSet):
         "user_info__first_name",
         "user_info__last_name",
     ]
+
+    def get_serializer_class(self):  # type: ignore
+        user: CustomUser = self.request.user  # type: ignore
+        serializer_class = UserProfileSerializer
+
+        if not user.is_manager:
+            serializer_class.Meta.read_only_fields = ( # type: ignore
+                "groups",
+                "is_staff",
+            )  # type: ignore
+        return serializer_class
 
     def create(self, request, *args, **kwargs):
         serializer = CreateUserSerializer(data=request.data)
