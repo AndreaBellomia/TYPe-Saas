@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useReducer } from "react";
 
 import { Pagination, Grid, Button, Box } from "@mui/material";
 
@@ -8,43 +8,91 @@ import { snack } from "@/libs/SnakClient";
 import Table, { TableHeaderMixin } from "@/components/Tables";
 import { InputField, StatusField } from "@/components/filters";
 
-import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket"
+import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
-import { TICKET_STATUSES } from "@/constants"
+import { TICKET_STATUSES } from "@/constants";
 
 const API = new DjangoApi();
 
-export default function _() {
-  const [tableData, setTableData] = useState([]);
-  const [tableOrder, setTableOrder] = useState("");
-  const [tablePage, setTablePage] = useState(1);
-  const [tablePageCount, setTablePageCount] = useState(1);
-  const [search, setSearch] = useState("");
-  const [state, setState] = useState(Object.values(TICKET_STATUSES).filter(e => e !== TICKET_STATUSES.DONE).reduce((acc, key) => acc + "," + key));
+interface TableState {
+  page: number;
+  pageCount: number;
+  order: string;
+  search: string;
+  state: string;
+}
 
-  const [drawerTicket, setDrawerTicket] = useState(false)
-  const drawerTicketID = useRef<string | null>(null)
+interface TableAction {
+  type: string;
+  payload?: any;
+}
+
+function tableReducer(state: TableState, action: TableAction) {
+  switch (action.type) {
+    case "SET_PAGE":
+      return {
+        ...state,
+        page: action.payload,
+      };
+    case "SET_ORDER":
+      return {
+        ...state,
+        order: action.payload,
+      };
+    case "SET_COUNT":
+      return {
+        ...state,
+        pageCount: action.payload,
+      };
+    case "SET_SEARCH":
+      return {
+        ...state,
+        search: action.payload,
+      };
+    case "SET_STATE":
+      return {
+        ...state,
+        state: action.payload,
+      };
+    default:
+      throw state;
+  }
+}
+
+export default function _() {
+  const [tableState, tableDispatch] = useReducer(tableReducer, {
+    page: 1,
+    pageCount: 1,
+    order: "",
+    search: "",
+    state: Object.values(TICKET_STATUSES)
+      .filter((e) => e !== TICKET_STATUSES.DONE)
+      .reduce((acc, key) => acc + "," + key),
+  });
+  const [tableData, setTableData] = useState([]);
+  const [drawerTicket, setDrawerTicket] = useState(false);
+  const drawerTicketID = useRef<string | null>(null);
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/", [
-      { param: "ordering", value: tableOrder },
-      { param: "search", value: search },
-      { param: "statuses", value: state },
-      { param: "page", value: String(tablePage) },
+      { param: "ordering", value: tableState.order },
+      { param: "search", value: tableState.search },
+      { param: "statuses", value: tableState.state },
+      { param: "page", value: String(tableState.page) },
     ]);
 
     API.get(
       url,
       (response) => {
+        tableDispatch({ type: "SET_COUNT", payload: response.data.num_pages });
         setTableData(response.data.results);
-        setTablePageCount(response.data.num_pages);
       },
       (error) => {
         snack.error("Errore interno del server");
         console.error(error);
       },
     );
-  }, [tableOrder, tablePage, search, state]);
+  }, [tableState.order, tableState.page, tableState.search, tableState.state]);
 
   const tableHeaders = [
     new TableHeaderMixin({
@@ -61,51 +109,76 @@ export default function _() {
       accessor: "id",
       label: "",
       align: "right",
-      render: (value, row) => <Button variant="outlined" onClick={() => handlerOpenModal(value)}>dettaglio</Button>
-
+      render: (value, row) => (
+        <Button variant="outlined" onClick={() => handlerOpenModal(value)}>
+          dettaglio
+        </Button>
+      ),
     }),
   ];
 
   const handlerOpenModal = (id: string | null): void => {
-    drawerTicketID.current = null
+    drawerTicketID.current = null;
     if (id) {
-      drawerTicketID.current = id
-    } 
-    setDrawerTicket(true)
-  }
+      drawerTicketID.current = id;
+    }
+    setDrawerTicket(true);
+  };
 
   return (
     <>
-      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current}/>
+      <DrawerTicket
+        open={drawerTicket}
+        onClose={() => setDrawerTicket(false)}
+        id={drawerTicketID.current}
+      />
       <Box sx={{ display: "flex", justifyContent: "end", mb: 2 }}>
-        <Button variant="contained" onClick={() => handlerOpenModal(null)}>Crea un ticket</Button>
+        <Button variant="contained" onClick={() => handlerOpenModal(null)}>
+          Crea un ticket
+        </Button>
       </Box>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
-          <InputField setterValue={setSearch} placeholder="Cerca" />
+          <InputField
+            setterValue={(value) => {
+              tableDispatch({ type: "SET_SEARCH", payload: value });
+            }}
+            placeholder="Cerca"
+          />
         </Grid>
         <Grid item xs={12} md={6}>
-          <StatusField state={[state, setState]} />
+          <StatusField
+            state={[
+              tableState.state,
+              (value) => {
+                tableDispatch({ type: "SET_STATE", payload: value });
+              },
+            ]}
+          />
         </Grid>
         <Grid item xs={12}>
           <Table
             data={tableData}
             headers={tableHeaders}
-            orderBy={[tableOrder, setTableOrder]}
+            orderBy={[
+              tableState.order,
+              (value) => {
+                tableDispatch({ type: "SET_ORDER", payload: value });
+              },
+            ]}
           />
         </Grid>
         <Grid item xs={12}>
           <Pagination
-            count={Number(tablePageCount)}
+            count={Number(tableState.pageCount)}
             shape="rounded"
             color="primary"
             onChange={(e, page) => {
-              setTablePage(page);
+              tableDispatch({ type: "SET_PAGE", payload: page });
             }}
           />
         </Grid>
       </Grid>
     </>
-      
   );
 }

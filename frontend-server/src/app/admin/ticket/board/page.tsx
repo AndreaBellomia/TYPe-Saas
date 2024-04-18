@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Paper, Typography, Box, Grid } from "@mui/material";
+import { Paper, Typography, Box, Grid, Button } from "@mui/material";
 
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
 import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket"
@@ -75,9 +75,12 @@ export default function _() {
           boxSizing: "border-box",
         }}
       >
-        <Typography variant="h4" color="initial">
-          
-        </Typography>
+        <Box display="flex" justifyContent="space-between" mb={2} >
+          <Typography variant="h4" color="initial">
+            Board
+          </Typography>
+          <Button variant="contained" onClick={() => {handlerOpenModal(null)}}>Crea ticket</Button>
+        </Box>
         <Grid container spacing={1} sx={{ height: "100%" }}>
           <Grid item xs={3}>
             <ColumnBoard

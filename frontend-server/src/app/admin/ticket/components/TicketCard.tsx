@@ -3,26 +3,39 @@ import { Paper, Typography, Box } from "@mui/material";
 
 import Avatar from "@/components/Avatar";
 
-interface ComponentsProps {
+export interface TicketCardProps {
   title: string;
   user: any;
   description: string;
 }
 
-export default function _({ title, user, description }: ComponentsProps) {
+export function TicketCard({ title, user, description }: TicketCardProps) {
   const formattedDesc =
-    description.length >= 40 ? description.slice(0, 48) + "..." : description;
+    description.length >= 250 ? description.slice(0, 247) + "..." : description;
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: 2, cursor: "pointer", overflow: "hidden" }}>
-        <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, cursor: "pointer", overflow: "hidden" }}
+      >
+        <Typography
+          gutterBottom
+          variant="h6"
+          sx={{ textTransform: "capitalize" }}
+        >
           {title}
         </Typography>
         <Typography variant="body2">{formattedDesc}</Typography>
         <Box sx={{ my: 2 }}></Box>
-        <Avatar user={user} dimension={30} typographyProps={{ variant: "body1" }}/>
+        <Avatar
+          user={user}
+          dimension={24}
+          typographyProps={{ variant: "body1" }}
+        />
       </Paper>
     </>
   );
 }
+
+export default TicketCard;
