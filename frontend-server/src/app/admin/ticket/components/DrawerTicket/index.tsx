@@ -6,6 +6,7 @@ import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { Message } from "@/models/Ticket";
 
 import Form from "@/app/admin/ticket/components/DrawerTicket/From";
+import Messages from "@/app/admin/ticket/components/DrawerTicket/Messages";
 
 const API = new DjangoApi();
 
@@ -48,6 +49,7 @@ export function DrawerTicket({ open, onClose, id }: DrawerTicketProps) {
       PaperProps={{ sx: { width: "100%", maxWidth: "65rem" } }}
     >
       <Form handlerCloseDrawer={onClose} id={id} />
+      <Messages id={id} />
     </Drawer>
   );
 }

@@ -3,7 +3,7 @@ import * as Yup from "yup";
 
 import { TextField } from "@/components/forms";
 import Modal from "@/components/Modal";
-import { Typography, Button } from '@mui/material'
+import { Typography, Button, Box } from '@mui/material'
 
 import { DjangoApi } from "@/libs/fetch";
 
@@ -45,7 +45,12 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
     <>
       <Modal state={state}>
         <>
-          <Typography variant="h3">Crea un nuovo utente</Typography>
+          <Typography gutterBottom variant="h4">Crea un nuovo utente</Typography>
+
+          <Typography variant="body2">Verrà inviata una email all&apos;indirizzo specificato. L&apos;utente potrà utilizzare la password comunicata via email per entrare nell&apos;app. </Typography>
+          <Typography variant="body2">E consigliabile aggiornare la password una volta effettuato il login dalla sezione profilo.</Typography>
+
+          <Box my={2}/>
 
           <TextField
             type="email"
@@ -55,7 +60,9 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
             formik={formik}
           />
 
-          <Button onClick={formik.handleSubmit}>Crea</Button>
+          <Box my={2}/>
+
+          <Button onClick={formik.handleSubmit} variant="contained">Crea</Button>
         </>
       </Modal>
     </>

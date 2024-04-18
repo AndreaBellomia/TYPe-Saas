@@ -163,12 +163,18 @@ class TicketUserViewset(
         serializer_class=TicketMsgSerializer,
     )
     def message(self, request, pk=None):
+        if (
+            not Ticket.objects.filter(created_by_id=request.user.id, pk=pk).exists()
+            and not request.user.is_staff
+        ):
+            return Response(
+                {"detail": "ticket non trovato"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if request.method == HTTPMethod.GET:
             queryset = TicketMsg.objects.filter(ticket_id=pk).order_by("-created_at")
-            
-            serializer = self.serializer_class(
-                queryset, many=True
-            )
+
+            serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data)
 
         if request.method == HTTPMethod.POST:

@@ -44,12 +44,12 @@ function UserCard({ user }: { user: User }) {
       >
         <Grid container spacing={2} overflow="hidden">
           <Grid item md={6}>
-            <Avatar user={avatarUser} dimension={30} typographyProps={{ variant: "body1" }} />
+            <Avatar user={avatarUser} dimension={45} typographyProps={{ variant: "body1" }} collapsed />
           </Grid>
           <Grid item md={6} textAlign="end">
             <Chip
               label={user.is_active ? "Attivo" : "Non attivo"}
-              color={user.is_active ? "primary" : "error"}
+              color={user.is_active ? "primary" : "secondary"}
             />
           </Grid>
         </Grid>
@@ -63,10 +63,26 @@ function UserCard({ user }: { user: User }) {
             {(userInfo && userInfo.first_name) || "--"}{" "}
             {(userInfo && userInfo.last_name) || "--"}
           </Typography>
-        </Grid>
-        <Grid item md={12}>
-          <Typography variant="subtitle1" color="text.secondary">
-            Numero di telefono: {(userInfo && userInfo.phone_number) || "--"}
+          <Typography variant="caption" sx={{ position: "relative", top: "-8px"}}>
+            {user.is_staff ? "Staff" : "Utente"}
+          </Typography>
+
+          <Box my={1} />
+
+          <Typography variant="subtitle2">
+            Email
+          </Typography>
+          <Typography variant="body2">
+            {user.email}
+          </Typography>
+
+          <Box my={2} />
+  
+          <Typography variant="subtitle2">
+            Telefono
+          </Typography>
+          <Typography variant="body2">
+          {(userInfo && userInfo.phone_number) || "--"}
           </Typography>
         </Grid>
       </Grid>
