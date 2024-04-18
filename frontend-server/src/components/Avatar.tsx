@@ -25,9 +25,15 @@ export interface AvatarProps {
   user: SmallUser | User;
   dimension: number;
   typographyProps?: TypographyProps;
+  collapsed?: boolean;
 }
 
-function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
+function CustomAvatar({
+  user,
+  dimension,
+  typographyProps,
+  collapsed,
+}: AvatarProps) {
   if (!user) {
     return (
       <Typography variant="body2" color="text.secondary">
@@ -63,14 +69,16 @@ function CustomAvatar({ user, dimension, typographyProps }: AvatarProps) {
       <StyledAvatar
         dimension={dimension}
         sx={{
-          mr: 1,
+          mr: collapsed ? 0 : 1,
         }}
       >
         {avatarName}
       </StyledAvatar>
-      <Box sx={{ overflow: "hidden" }}>
-        <Typography {...typographyProps}>{user.email}</Typography>
-      </Box>
+      {!collapsed && (
+        <Box sx={{ overflow: "hidden" }}>
+          <Typography {...typographyProps}>{user.email}</Typography>
+        </Box>
+      )}
     </Box>
   );
 }

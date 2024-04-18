@@ -31,7 +31,7 @@ export class AuthUtility {
   }
 
   static async logoutUser() {
-    const resp = await fetch(URLS.API_SERVER + "/authentication/logout", {
+    const resp = await fetch(URLS.API_SERVER + "/authentication/logout/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

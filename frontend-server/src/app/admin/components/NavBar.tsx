@@ -1,35 +1,28 @@
 "use client";
-import React, { useEffect } from "react";
-
+import React, { useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { User } from "@/types";
 import { RootState } from "@/redux/store";
 
-import { styled } from "@mui/material/styles";
+import { styled, lighten } from "@mui/material/styles";
 
 import {
-  Typography,
   Box,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Drawer,
   CssBaseline,
   Toolbar,
   IconButton,
+  ButtonBase,
 } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
-import StickyNote2RoundedIcon from "@mui/icons-material/StickyNote2Rounded";
-import AssignmentIndRoundedIcon from "@mui/icons-material/AssignmentIndRounded";
+import SortIcon from "@mui/icons-material/Sort";
+import SettingsIcon from "@mui/icons-material/Settings";
 
-const drawerWidth = 240;
+import AsideNavbar from "@/app/admin/components/AsideNavbar";
+import ProfileMenu from "@/app/admin/components/ProfileMenu";
+
+import Avatar from "@/components/Avatar";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
@@ -41,19 +34,18 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: `-${drawerWidth}px`,
   ...(open && {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginLeft: 0,
   }),
 }));
 
 interface CustomAppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })<CustomAppBarProps>(({ theme, open }) => ({
@@ -63,60 +55,29 @@ const AppBar = styled(MuiAppBar, {
   }),
   backgroundColor: theme.palette.neutral.dark,
   color: "white",
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+  zIndex: 1000,
 }));
 
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 2),
-  paddingRight: theme.spacing(1),
-  ...theme.mixins.toolbar,
-  justifyContent: "space-between",
-  backgroundColor: theme.palette.neutral.dark,
+const ProfileButton = styled(ButtonBase)<CustomAppBarProps>(({ theme }) => ({
+  borderRadius: 1000,
+  backgroundColor: lighten(theme.palette.primary.light, 0.6),
+  padding: 5,
 }));
-
-const navBarUrl = [
-  {
-    name: "Utenti",
-    url: "/admin/users",
-    icon: <AssignmentIndRoundedIcon color="primary" />,
-  },
-  {
-    name: "Board",
-    url: "/admin/ticket/board",
-    icon: <DashboardRoundedIcon color="primary" />,
-  },
-  {
-    name: "Backlog",
-    url: "/admin/ticket/backlog",
-    icon: <StickyNote2RoundedIcon color="primary" />,
-  },
-];
 
 export default function _({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const dispatch = useDispatch();
   const collapsed = useSelector((state: RootState) => state.navbar.collapsed);
   const user: User | null = useSelector((state: RootState) => state.user.user);
 
-  const dispatch = useDispatch();
+  const [profileMenu, setProfileMenu] = React.useState(false);
+  const appBarRef = useRef(null);
 
-  const handleDrawerOpen = () => {
-    dispatch({ type: "OPEN" });
-  };
-
-  const handleDrawerClose = () => {
-    dispatch({ type: "CLOSE" });
+  const handlerSidebarToggle = () => {
+    dispatch({ type: "TOGGLE_NAVBAR" });
   };
 
   return (
@@ -124,7 +85,7 @@ export default function _({
       <Box sx={{ display: "flex", flexGrow: 1, height: "100%" }}>
         <CssBaseline />
 
-        <AppBar position="fixed" open={collapsed}>
+        <AppBar position="fixed" open={collapsed} ref={appBarRef}>
           <Toolbar
             sx={{
               display: "flex",
@@ -143,11 +104,11 @@ export default function _({
               <IconButton
                 color="primary"
                 aria-label="open drawer"
-                onClick={handleDrawerOpen}
+                onClick={handlerSidebarToggle}
                 edge="start"
-                sx={{ mr: 2, ...(collapsed && { display: "none" }) }}
+                sx={{ mr: 2 }}
               >
-                <MenuIcon />
+                {collapsed ? <SortIcon /> : <MenuIcon />}
               </IconButton>
             </Box>
 
@@ -159,52 +120,31 @@ export default function _({
               }}
             >
               <Box>
-                <Typography variant="h6" noWrap component="div">
-                  {user && user.email}
-                </Typography>
+                <ProfileButton
+                  onClick={() => {
+                    setProfileMenu(true);
+                  }}
+                >
+                  {user && (
+                    <Avatar user={user} dimension={24} collapsed></Avatar>
+                  )}
+
+                  <Box m={0.5} />
+
+                  <SettingsIcon color="primary" />
+                </ProfileButton>
               </Box>
             </Box>
           </Toolbar>
         </AppBar>
 
-        <Drawer
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-              boxSizing: "border-box",
-            },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={collapsed}
-          PaperProps={{
-            sx: { border: 0 },
-            elevation: 5,
-          }}
-        >
-          <DrawerHeader>
-            <Typography variant="h6" noWrap color="white">
-              Admin
-            </Typography>
-            <IconButton onClick={handleDrawerClose} color="primary">
-              <ChevronLeftIcon />
-            </IconButton>
-          </DrawerHeader>
+        <ProfileMenu
+          open={profileMenu}
+          handlerOpen={setProfileMenu}
+          anchorEl={appBarRef.current}
+        />
 
-          <List>
-            {navBarUrl &&
-              navBarUrl.map((e, index) => (
-                <ListItem key={index} disablePadding>
-                  <ListItemButton href={e.url}>
-                    <ListItemIcon>{e.icon}</ListItemIcon>
-                    <ListItemText primary={e.name} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-          </List>
-        </Drawer>
+        <AsideNavbar />
         <Main open={collapsed}>{children}</Main>
       </Box>
     </>
