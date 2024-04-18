@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Paper, Typography, Box, Grid } from "@mui/material";
 
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
-import ModalTicketBasic from "@/app/admin/ticket/components/ModalTicketBasic"
+import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket"
 
 import { TICKET_STATUSES } from "@/constants";
 
@@ -68,7 +68,8 @@ export default function _() {
 
   return (
     <>
-      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} />
+      <DrawerTicket open={modalTicket} onClose={() => setModalTicket(false)} id={modalTicketDetail}/>
+      {/* <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} /> */}
       <Box
         sx={{
           display: "flex",

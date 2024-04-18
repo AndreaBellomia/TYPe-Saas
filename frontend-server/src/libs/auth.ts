@@ -4,6 +4,7 @@ import { GROUPS } from "@/constants";
 
 import { User } from "@/types";
 import { URLS } from "@/libs/fetch";
+import { UserModel } from "@/models/User";
 
 export const JWT_TOKEN = "token";
 
@@ -46,7 +47,7 @@ export class AuthUtility {
     return resp;
   }
 
-  public static isManager(user: User | null) {
+  public static isManager(user: User| UserModel | null) {
     if (
       user &&
       user.groups.find((x) => x === GROUPS["manager"]) !== undefined
