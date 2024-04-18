@@ -107,7 +107,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
       if (id !== null) {
         API.put(
           `/ticket/admin/${id}/`,
-          (response) => {
+          () => {
             helpers.resetForm();
             snack.success(`Ticket numero ${id} è stato aggiornato`);
             handlerCloseDrawer;
@@ -122,7 +122,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
       } else {
         API.post(
           "/ticket/admin/",
-          (response) => {
+          () => {
             helpers.resetForm();
             snack.success("Nuovo ticket creato");
             handlerCloseDrawer;
@@ -203,6 +203,19 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
         },
       );
   }, [id]);
+
+  const handlerUndo = () => {
+    if (data !== null) {
+      Object.keys(formik.values).forEach((value: string) => {
+        formik.setFieldValue(
+          value as keyof Ticket,
+          data[value as keyof Ticket],
+        );
+      });
+    } else {
+      formik.resetForm()
+    }
+  }
 
   return (
     <Box>
@@ -309,7 +322,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
             </Grid>
           )}
           <Grid item xs={6}>
-            <IconButton onClick={() => {}} color="error">
+            <IconButton onClick={handlerUndo} color="error">
               <UTurnLeftRoundedIcon sx={{ transform: "rotate(90deg)" }} />
             </IconButton>
           </Grid>
@@ -320,13 +333,16 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
               </Button>
             </Grid>
           ) : (
-            <Button
-              variant="contained"
-              onClick={() => formik.handleSubmit()}
-              disabled={!(formik.isValid && formik.dirty)}
-            >
-              Crea
-            </Button>
+            <Grid item xs={6} textAlign="end">
+              <Button
+                variant="contained"
+                onClick={() => formik.handleSubmit()}
+                disabled={!(formik.isValid && formik.dirty)}
+              >
+                Crea
+              </Button>
+            </Grid>
+
           )}
         </Grid>
       </Box>

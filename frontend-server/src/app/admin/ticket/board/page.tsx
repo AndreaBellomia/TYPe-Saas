@@ -33,8 +33,8 @@ function handlerMoveCard(data: any) {
 }
 
 export default function _() {
-  const [modalTicket, setModalTicket] = useState(false)
-  const [modalTicketDetail, setModalTicketDetail] = useState<null | string>(null)
+  const [drawerTicket, setDrawerTicket] = useState(false)
+  const drawerTicketID = useRef<string | null>(null)
   const [boardItems, setBoardItems] = useState({
     todo: [],
     progress: [],
@@ -46,7 +46,6 @@ export default function _() {
     API.get(
       "/ticket/admin/board/",
       (response) => {
-        // console.log(response)
         setBoardItems(response.data);
       },
       (e) => {
@@ -57,19 +56,16 @@ export default function _() {
 
 
   const handlerOpenModal = (id: string | null): void => {
-    console.log(id)
+    drawerTicketID.current = null
     if (id) {
-      setModalTicketDetail(id)
-    } else {
-      setModalTicketDetail(null)
-    }
-    setModalTicket(true)
+      drawerTicketID.current = id
+    } 
+    setDrawerTicket(true)
   }
 
   return (
     <>
-      <DrawerTicket open={modalTicket} onClose={() => setModalTicket(false)} id={modalTicketDetail}/>
-      {/* <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} /> */}
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current}/>
       <Box
         sx={{
           display: "flex",

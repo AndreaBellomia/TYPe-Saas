@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Pagination, Grid, Button, Box } from "@mui/material";
 
@@ -8,7 +8,7 @@ import { snack } from "@/libs/SnakClient";
 import Table, { TableHeaderMixin } from "@/components/Tables";
 import { InputField, StatusField } from "@/components/filters";
 
-import ModalTicketBasic from "@/app/admin/ticket/components/ModalTicketBasic"
+import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket"
 
 import { TICKET_STATUSES } from "@/constants"
 
@@ -22,8 +22,8 @@ export default function _() {
   const [search, setSearch] = useState("");
   const [state, setState] = useState(Object.values(TICKET_STATUSES).filter(e => e !== TICKET_STATUSES.DONE).reduce((acc, key) => acc + "," + key));
 
-  const [modalTicket, setModalTicket] = useState(false)
-  const [modalTicketDetail, setModalTicketDetail] = useState<null | string>(null)
+  const [drawerTicket, setDrawerTicket] = useState(false)
+  const drawerTicketID = useRef<string | null>(null)
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/", [
@@ -44,7 +44,7 @@ export default function _() {
         console.error(error);
       },
     );
-  }, [tableOrder, tablePage, search, state, modalTicket]);
+  }, [tableOrder, tablePage, search, state]);
 
   const tableHeaders = [
     new TableHeaderMixin({
@@ -66,21 +66,20 @@ export default function _() {
     }),
   ];
 
-  const handlerOpenModal = (id: string | number | null): void => {
+  const handlerOpenModal = (id: string | null): void => {
+    drawerTicketID.current = null
     if (id) {
-      setModalTicketDetail(String(id))
-    } else {
-      setModalTicketDetail(null)
-    }
-    setModalTicket(true)
+      drawerTicketID.current = id
+    } 
+    setDrawerTicket(true)
   }
 
   return (
     <>
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current}/>
       <Box sx={{ display: "flex", justifyContent: "end", mb: 2 }}>
         <Button variant="contained" onClick={() => handlerOpenModal(null)}>Crea un ticket</Button>
       </Box>
-      <ModalTicketBasic modalStatus={[modalTicket, setModalTicket]} detailId={modalTicketDetail} />
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
           <InputField setterValue={setSearch} placeholder="Cerca" />
