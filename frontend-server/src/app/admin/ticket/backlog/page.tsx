@@ -1,63 +1,20 @@
 "use client";
 import React, { useEffect, useRef, useState, useReducer } from "react";
 
-import { Pagination, Grid, Button, Box } from "@mui/material";
+import { Pagination, Grid, Button, Box, Paper } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
-import Table, { TableHeaderMixin } from "@/components/Tables";
+import { ServerSideTable, tableReducer } from "@/components/ServerSideTable";
 import { InputField, StatusField } from "@/components/filters";
 
 import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
 import { TICKET_STATUSES } from "@/constants";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Ticket } from "@/models/Ticket";
 
 const API = new DjangoApi();
-
-interface TableState {
-  page: number;
-  pageCount: number;
-  order: string;
-  search: string;
-  state: string;
-}
-
-interface TableAction {
-  type: string;
-  payload?: any;
-}
-
-function tableReducer(state: TableState, action: TableAction) {
-  switch (action.type) {
-    case "SET_PAGE":
-      return {
-        ...state,
-        page: action.payload,
-      };
-    case "SET_ORDER":
-      return {
-        ...state,
-        order: action.payload,
-      };
-    case "SET_COUNT":
-      return {
-        ...state,
-        pageCount: action.payload,
-      };
-    case "SET_SEARCH":
-      return {
-        ...state,
-        search: action.payload,
-      };
-    case "SET_STATE":
-      return {
-        ...state,
-        state: action.payload,
-      };
-    default:
-      throw state;
-  }
-}
 
 export default function _() {
   const [tableState, tableDispatch] = useReducer(tableReducer, {
@@ -94,29 +51,6 @@ export default function _() {
     );
   }, [tableState.order, tableState.page, tableState.search, tableState.state]);
 
-  const tableHeaders = [
-    new TableHeaderMixin({
-      key: "id",
-      label: "ID",
-      orderable: true,
-    }),
-    new TableHeaderMixin({
-      key: "label",
-      label: "Titolo",
-    }),
-    new TableHeaderMixin({
-      key: "detail",
-      accessor: "id",
-      label: "",
-      align: "right",
-      render: (value, row) => (
-        <Button variant="outlined" onClick={() => handlerOpenModal(value)}>
-          dettaglio
-        </Button>
-      ),
-    }),
-  ];
-
   const handlerOpenModal = (id: string | null): void => {
     drawerTicketID.current = null;
     if (id) {
@@ -124,6 +58,33 @@ export default function _() {
     }
     setDrawerTicket(true);
   };
+
+  const columnHelper = createColumnHelper<Ticket>();
+  const columns = [
+    columnHelper.accessor("id", {
+      header: "ID",
+      cell: (info) => info.getValue(),
+      footer: (info) => info.column.id,
+      size: 1,
+    }),
+    columnHelper.accessor("label", {
+      header: "Titolo",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("id", {
+      header: "",
+      id: "detail",
+      enableSorting: false,
+      cell: (info) => (
+        <Button
+          variant="outlined"
+          onClick={() => handlerOpenModal(String(info.getValue()))}
+        >
+          dettaglio
+        </Button>
+      ),
+    }),
+  ];
 
   return (
     <>
@@ -156,27 +117,26 @@ export default function _() {
             ]}
           />
         </Grid>
+
         <Grid item xs={12}>
-          <Table
-            data={tableData}
-            headers={tableHeaders}
-            orderBy={[
-              tableState.order,
-              (value) => {
-                tableDispatch({ type: "SET_ORDER", payload: value });
-              },
-            ]}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Pagination
-            count={Number(tableState.pageCount)}
-            shape="rounded"
-            color="primary"
-            onChange={(e, page) => {
-              tableDispatch({ type: "SET_PAGE", payload: page });
-            }}
-          />
+          <Paper>
+            <ServerSideTable
+              data={tableData}
+              columns={columns}
+              setState={tableDispatch}
+            />
+
+            <Box p={2} display="flex" justifyContent="end">
+              <Pagination
+                count={Number(tableState.pageCount)}
+                shape="rounded"
+                color="primary"
+                onChange={(e, page) => {
+                  tableDispatch({ type: "SET_PAGE", payload: page });
+                }}
+              />
+            </Box>
+          </Paper>
         </Grid>
       </Grid>
     </>

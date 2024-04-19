@@ -17,6 +17,7 @@
     "@mui/material": "^5.15.13",
     "@mui/x-date-pickers": "^6.19.7",
     "@reduxjs/toolkit": "^2.2.3",
+    "@tanstack/react-table": "^8.16.0",
     "axios": "^1.6.7",
     "dayjs": "^1.11.10",
     "dayjs-ext": "^2.2.0",
