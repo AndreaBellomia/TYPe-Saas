@@ -11,7 +11,7 @@ export interface TicketCardProps {
 
 export function TicketCard({ title, user, description }: TicketCardProps) {
   const formattedDesc =
-    description.length >= 250 ? description.slice(0, 247) + "..." : description;
+  description && description.length >= 250 ? description.slice(0, 247) + "..." : description;
 
   return (
     <>
