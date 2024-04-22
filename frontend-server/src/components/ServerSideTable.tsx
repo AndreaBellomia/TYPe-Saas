@@ -98,6 +98,10 @@ export function ServerSideTable<T>({
     onSortingChange: setSorting,
   });
 
+  const logDebug = (value: any) => {
+    console.log(value);
+  };
+
   return (
     <>
       <Table>
@@ -108,8 +112,8 @@ export function ServerSideTable<T>({
                 <TableCell
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
-                  sx={{ width: header.getSize()  }}
-                  align={header.column.columnDef.align}
+                  sx={{ width: `${header.getSize()}px` }}
+                  align={header.column.columnDef.meta?.align}
                 >
                   {header.isPlaceholder ? null : header.column.getCanSort() ? (
                     <TableSortLabel
@@ -139,10 +143,16 @@ export function ServerSideTable<T>({
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} align={cell.column.columnDef.align}>
+                <TableCell
+                  key={cell.id}
+                  align={cell.column.columnDef.meta?.align}
+                  sx={{
+                    ...(cell.column.columnDef.meta?.padding && { p: 0 }),
+                    width: cell.column.getSize(),
+                  }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
-                
               ))}
             </TableRow>
           ))}

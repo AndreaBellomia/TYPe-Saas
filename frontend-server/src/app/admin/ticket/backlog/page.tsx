@@ -1,7 +1,18 @@
 "use client";
 import React, { useEffect, useRef, useState, useReducer } from "react";
 
-import { Pagination, Grid, Button, Box, Paper } from "@mui/material";
+import {
+  Pagination,
+  Grid,
+  Button,
+  Box,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText, Typography,
+} from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
@@ -10,9 +21,13 @@ import { InputField, StatusField } from "@/components/filters";
 
 import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
+import DragIndicatorRoundedIcon from "@mui/icons-material/DragIndicatorRounded";
+
 import { TICKET_STATUSES } from "@/constants";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Ticket } from "@/models/Ticket";
+
+import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeCol";
 
 const API = new DjangoApi();
 
@@ -59,30 +74,43 @@ export default function _() {
     setDrawerTicket(true);
   };
 
+  const logDebug = (value: any) => {
+    console.log(value);
+  };
+
   const columnHelper = createColumnHelper<Ticket>();
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
-      cell: (info) => info.getValue(),
-      footer: (info) => info.column.id,
       size: 1,
+      cell: (info) => <Box display="flex" flexDirection="column" alignItems="start">
+        <Typography variant="body1">{info.row.getValue("id")}</Typography>
+        <Typography variant="body1">{info.row.original.label}</Typography>
+      </Box>,
     }),
-    columnHelper.accessor("label", {
-      header: "Titolo",
-      cell: (info) => info.getValue(),
+    columnHelper.accessor("status", {
+      header: "Stato",
+      cell: (info) => <StatusChangeCol initialValue={info.getValue()} id={info.row.getValue("id")} />,
+      meta: {
+        padding: true,
+      },
+      size: 1,
     }),
     columnHelper.accessor("id", {
       header: "",
       id: "detail",
       enableSorting: false,
+      size: 2,
       cell: (info) => (
-        <Button
-          variant="outlined"
-          onClick={() => handlerOpenModal(String(info.getValue()))}
-        >
-          dettaglio
+        <Button onClick={() => handlerOpenModal(String(info.getValue()))}>
+          <Box display="flex" alignItems="center"></Box>
+          <DragIndicatorRoundedIcon />
         </Button>
       ),
+      meta: {
+        padding: true,
+        align: "right",
+      },
     }),
   ];
 
