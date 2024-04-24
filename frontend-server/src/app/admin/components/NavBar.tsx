@@ -53,7 +53,7 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  backgroundColor: theme.palette.neutral.dark,
+  backgroundColor: theme.palette.grey[800],
   color: "white",
   zIndex: 1000,
 }));

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -9,7 +9,6 @@ import {
   Button,
   AppBar,
   Toolbar,
-  IconButton,
   Box,
   Container,
   Menu,
@@ -25,8 +24,10 @@ import { AuthUtility } from "@/libs/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
+import ProfileMenu from "@/app/user/components/ProfileMenu";
+
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: theme.palette.neutral.dark,
+  backgroundColor: theme.palette.grey[800],
 }));
 const CustomToolbar = styled(Toolbar)(({ theme }) => ({
   padding: "0 !important",
@@ -36,13 +37,11 @@ function NavBar({ children }: { children: React.ReactNode }) {
   const user: User | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [profileMenu, setProfileMenu] = React.useState(false);
+  const appBarRef = useRef(null);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
+    setProfileMenu(true);
   };
 
   const handlerLogOut = async () => {
@@ -53,7 +52,7 @@ function NavBar({ children }: { children: React.ReactNode }) {
   return (
     <>
       <CustomAppBar position="static">
-        <Container>
+        <Container ref={appBarRef} >
           <CustomToolbar
             sx={{ display: "flex", justifyContent: "space-between" }}
           >
@@ -65,35 +64,11 @@ function NavBar({ children }: { children: React.ReactNode }) {
 
             <Box>
               <StyledAvatar onClick={handleClick}></StyledAvatar>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  "aria-labelledby": "basic-button",
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    router.push("/admin/ticket/board");
-                  }}
-                >
-                  Admin
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    router.push("/user/profile");
-                  }}
-                >
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handlerLogOut}>
-                  <Typography variant="body1" color="error">
-                    Logout
-                  </Typography>
-                </MenuItem>
-              </Menu>
+              <ProfileMenu
+                  open={profileMenu}
+                  handlerOpen={setProfileMenu}
+                  anchorEl={appBarRef.current}
+                />
             </Box>
           </CustomToolbar>
         </Container>

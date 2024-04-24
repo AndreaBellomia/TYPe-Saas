@@ -13,7 +13,7 @@ interface CustomAvatarProps extends MuiAvatarProps {
 export const StyledAvatar = styled(Avatar, {
   shouldForwardProp: (prop) => prop !== "dimension",
 })<CustomAvatarProps>(({ theme, dimension }) => ({
-  backgroundColor: theme.palette.primary.light,
+  backgroundColor: theme.palette.primary.main,
   ...(dimension && {
     height: dimension,
     width: dimension,

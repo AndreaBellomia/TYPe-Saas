@@ -7,11 +7,8 @@ import {
   Button,
   Box,
   Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText, Typography,
+  Typography,
+  IconButton,
 } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
@@ -32,6 +29,17 @@ import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeC
 const API = new DjangoApi();
 
 export default function _() {
+  const [drawerTicket, setDrawerTicket] = useState(false);
+  const drawerTicketID = useRef<string | null>(null);
+
+  const handlerOpenModal = (id: string | null): void => {
+    drawerTicketID.current = null;
+    if (id) {
+      drawerTicketID.current = id;
+    }
+    setDrawerTicket(true);
+  };
+
   const [tableState, tableDispatch] = useReducer(tableReducer, {
     page: 1,
     pageCount: 1,
@@ -42,8 +50,6 @@ export default function _() {
       .reduce((acc, key) => acc + "," + key),
   });
   const [tableData, setTableData] = useState([]);
-  const [drawerTicket, setDrawerTicket] = useState(false);
-  const drawerTicketID = useRef<string | null>(null);
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/", [
@@ -66,33 +72,28 @@ export default function _() {
     );
   }, [tableState.order, tableState.page, tableState.search, tableState.state]);
 
-  const handlerOpenModal = (id: string | null): void => {
-    drawerTicketID.current = null;
-    if (id) {
-      drawerTicketID.current = id;
-    }
-    setDrawerTicket(true);
-  };
-
-  const logDebug = (value: any) => {
-    console.log(value);
-  };
-
   const columnHelper = createColumnHelper<Ticket>();
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
       size: 1,
-      cell: (info) => <Box display="flex" flexDirection="column" alignItems="start">
-        <Typography variant="body1">{info.row.getValue("id")}</Typography>
-        <Typography variant="body1">{info.row.original.label}</Typography>
-      </Box>,
+      cell: (info) => (
+        <Box display="flex" flexDirection="column" alignItems="start">
+          <Typography variant="body1">{info.row.getValue("id")}</Typography>
+          <Typography variant="body1">{info.row.original.label}</Typography>
+        </Box>
+      ),
     }),
     columnHelper.accessor("status", {
       header: "Stato",
-      cell: (info) => <StatusChangeCol initialValue={info.getValue()} id={info.row.getValue("id")} />,
+      cell: (info) => (
+        <StatusChangeCol
+          initialValue={info.getValue()}
+          id={info.row.getValue("id")}
+        />
+      ),
       meta: {
-        padding: true,
+        padding: "none",
       },
       size: 1,
     }),
@@ -102,13 +103,11 @@ export default function _() {
       enableSorting: false,
       size: 2,
       cell: (info) => (
-        <Button onClick={() => handlerOpenModal(String(info.getValue()))}>
-          <Box display="flex" alignItems="center"></Box>
+        <IconButton onClick={() => handlerOpenModal(String(info.getValue()))}>
           <DragIndicatorRoundedIcon />
-        </Button>
+        </IconButton>
       ),
       meta: {
-        padding: true,
         align: "right",
       },
     }),
@@ -121,33 +120,34 @@ export default function _() {
         onClose={() => setDrawerTicket(false)}
         id={drawerTicketID.current}
       />
-      <Box sx={{ display: "flex", justifyContent: "end", mb: 2 }}>
-        <Button variant="contained" onClick={() => handlerOpenModal(null)}>
-          Crea un ticket
-        </Button>
-      </Box>
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <InputField
-            setterValue={(value) => {
-              tableDispatch({ type: "SET_SEARCH", payload: value });
-            }}
-            placeholder="Cerca"
-          />
+      <Grid container spacing={2}>
+        <Grid item xs={12} textAlign="end">
+          <Button variant="contained" onClick={() => handlerOpenModal(null)}>
+            Crea un ticket
+          </Button>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <StatusField
-            state={[
-              tableState.state,
-              (value) => {
-                tableDispatch({ type: "SET_STATE", payload: value });
-              },
-            ]}
-          />
-        </Grid>
-
         <Grid item xs={12}>
-          <Paper>
+          <Paper sx={{ boxSizing: "border-box" }}>
+            <Grid container>
+              <Grid item xs={12} md={6} padding={2}>
+                <InputField
+                  setterValue={(value) => {
+                    tableDispatch({ type: "SET_SEARCH", payload: value });
+                  }}
+                  placeholder="Cerca"
+                />
+              </Grid>
+              <Grid item xs={12} md={6} padding={2}>
+                <StatusField
+                  state={[
+                    tableState.state,
+                    (value) => {
+                      tableDispatch({ type: "SET_STATE", payload: value });
+                    },
+                  ]}
+                />
+              </Grid>
+            </Grid>
             <ServerSideTable
               data={tableData}
               columns={columns}

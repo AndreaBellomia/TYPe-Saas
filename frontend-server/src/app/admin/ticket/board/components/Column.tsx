@@ -52,7 +52,7 @@ export function BoardColumn({
       variant="outlined"
     >
       <Box sx={{ p: 1 }}>
-        <Typography variant="h5" color="secondary">
+        <Typography variant="h5" color="grey.600">
           {header}
         </Typography>
       </Box>

@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+
+import { styled, lighten } from "@mui/material/styles";
+
 import {
   ColumnDef,
   flexRender,
@@ -33,6 +36,13 @@ interface TableAction {
     | "GET_TABLE_SORT";
   payload?: any;
 }
+
+
+
+const CustomTableHeader = styled(TableHead)(({ theme }) => ({
+  backgroundColor: theme.palette.grey[300],
+}));
+
 
 export function tableReducer(state: TableState, action: TableAction) {
   switch (action.type) {
@@ -105,11 +115,12 @@ export function ServerSideTable<T>({
   return (
     <>
       <Table>
-        <TableHead>
+        <CustomTableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableCell
+                  variant="head"
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
                   sx={{ width: `${header.getSize()}px` }}
@@ -137,7 +148,7 @@ export function ServerSideTable<T>({
               ))}
             </TableRow>
           ))}
-        </TableHead>
+        </CustomTableHeader>
 
         <TableBody>
           {table.getRowModel().rows.map((row) => (
@@ -147,9 +158,10 @@ export function ServerSideTable<T>({
                   key={cell.id}
                   align={cell.column.columnDef.meta?.align}
                   sx={{
-                    ...(cell.column.columnDef.meta?.padding && { p: 0 }),
                     width: cell.column.getSize(),
                   }}
+
+                  padding={cell.column.columnDef.meta?.padding || "normal"}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

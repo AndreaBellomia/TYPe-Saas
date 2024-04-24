@@ -15,7 +15,8 @@ import {
 
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+
 import { AuthUtility } from "@/libs/auth";
 
 export interface ProfileMenuProps {
@@ -28,8 +29,9 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   const user: User | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
 
-  const handlerUser = () => {
-    router.push("/user/ticket");
+
+  const handlerAdmin = () => {
+    router.push("/admin/ticket/board");
     handlerOpen(false);
   };
 
@@ -57,6 +59,11 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
           vertical: "bottom",
           horizontal: "right",
         }}
+
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
         anchorEl={anchorEl}
       >
         <Box p={2}>
@@ -76,11 +83,11 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
 
           <Button
             fullWidth
-            onClick={handlerUser}
+            onClick={handlerAdmin}
             sx={{ justifyContent: "start", mb: 1 }}
           >
-            <SupervisedUserCircleIcon sx={{ mr: 2 }} />
-            Utente
+            <AdminPanelSettingsIcon sx={{ mr: 2 }} />
+            Admin
           </Button>
           <Button
             fullWidth
