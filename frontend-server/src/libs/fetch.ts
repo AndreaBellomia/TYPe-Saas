@@ -14,7 +14,7 @@ enum AxiosMethods {
 }
 
 export const URLS: GenericObject = {
-  API_SERVER: "http://localhost:8000",
+  API_SERVER: process.env.FRONTEND_API_URL,
 };
 
 export class FetchDispatchError extends Error {

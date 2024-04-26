@@ -1,6 +1,7 @@
 start_django() {
     echo "Starting Django server..."
-    poetry run ./api-server/manage.py "$@"
+    cd ./api-server
+    poetry run ./manage.py "$@"
 }
 
 start_nextjs() {

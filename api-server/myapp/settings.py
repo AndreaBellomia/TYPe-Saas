@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+from environs import Env
 
 from datetime import timedelta
 from rest_framework.settings import api_settings
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,13 +27,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@+*tyqwzro&@k%jnt4-yd)1&kbi(4!9@lb@$fc)$i=g1@8ei2b"
+SECRET_KEY = env("API_SECRET_KEY", "api_secret_key")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("API_DEBUG_MODE", False)
 
-ALLOWED_HOSTS = ['*']
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+ALLOWED_HOSTS = env.list("API_ALLOWED_HOSTS", ["*"])
+CORS_ALLOWED_ORIGINS = env.list(
+    "API_CORS_ALLOWED_ORIGINS", ["http://localhost:3000", "http://127.0.0.1:3000"]
+)
 CORS_ALLOW_CREDENTIALS = True
 
 
@@ -138,11 +145,11 @@ AUTH_COOKIE_NAME = "token"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "django",
-        "USER": os.environ.get("DB_USER", "django"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "django123"),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+        "NAME": env("DATABASE_NAME", "django"),
+        "USER": env("DATABASE_USER", "django"),
+        "PASSWORD": env("DATABASE_PASSWORD", "django"),
+        "HOST": env("DATABASE_HOST", "localhost"),
+        "PORT": env("DATABASE_PORT", "5432"),
     }
 }
 
@@ -205,4 +212,4 @@ LOGGING = {
 }
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
