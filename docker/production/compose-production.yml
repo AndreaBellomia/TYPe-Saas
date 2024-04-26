@@ -26,39 +26,28 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/production/Dockerfile-api
+    env_file:
+      - ".env.production"
     command: poetry run ./manage.py migrate
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - DEBUG=True
-      - DB_USER=django
-      - DB_PASSWORD=django123
-      - DB_HOST=db
-      - DB_PORT=5432
     networks:
       - app-network
-    env_file:
-      - ".env.production"
 
   api:
     image: api-server
     build:
       context: ../../
       dockerfile: ./docker/production/Dockerfile-api
-    container_name: api-server-gunicorn
+      args:
+        COLLECTSTATIC: "true"
+    env_file:
+      - ".env.production"
     restart: always
-    command: poetry run ./manage.py runserver 0.0.0.0:8000
-    environment:
-      - DEBUG=True
-      - DB_USER=django
-      - DB_PASSWORD=django123
-      - DB_HOST=db
-      - DB_PORT=5432
+    command: poetry run gunicorn myapp.wsgi:application -b 0.0.0.0:8000 --workers 4 --timeout 120 --log-level info
     ports:
       - 8000:8000
-    # env_file:
-    #   - ./.env.dev
     depends_on:
       db:
         condition: service_healthy
@@ -66,22 +55,21 @@ services:
         condition: service_completed_successfully
     networks:
       - app-network
-    env_file:
-      - ".env.production"
+    volumes:
+      - static:/app/static
 
   frontend:
     image: frontend-server
     build:
       context: ../../
       dockerfile: ./docker/production/Dockerfile-frontend
-    container_name: frontend-server
+    env_file:
+      - ".env.production"
     restart: always
     ports:
       - 3000:3000
     networks:
       - app-network
-    env_file:
-      - ".env.production"
 
   nginx:
     image: nginx
@@ -89,18 +77,21 @@ services:
       context: ../../
       dockerfile: ./docker/production/Dockerfile-nginx
     restart: always
-    container_name: nginx
     ports:
       - "80:80"
       # - "443:443"
-    depends_on:
-      - api
-      - frontend
+    # depends_on:
+    #   - api
+    #   - frontend
     networks:
       - app-network
+    volumes:
+      - static:/api/static
 
 volumes:
   db:
+    driver: local
+  static:
     driver: local
 
 networks:
