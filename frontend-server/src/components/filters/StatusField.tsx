@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 
 import MenuItem from '@mui/material/MenuItem';
+import { SelectChangeEvent } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
@@ -57,11 +58,12 @@ function getRenderValue(selected: Array<string>) {
 export default function _({ state }: ComponentProps) {
   const [value, setValue] = state;
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: SelectChangeEvent<string[]>) => {
     const {
       target: { value },
     } = event;
     
+    // @ts-ignore
     setValue(value.join(','));
   };
 
@@ -75,14 +77,14 @@ export default function _({ state }: ComponentProps) {
         <Select
           multiple
           value={getValues()}
-          onChange={handleChange}
+          onChange={(event) => handleChange(event)}
           input={<OutlinedInput placeholder="" />}
           renderValue={getRenderValue}
           MenuProps={MenuProps}
         >
           {names.map((onj) => (
             <MenuItem key={onj.key} value={onj.key}>
-              {getValues().includes(onj.key) ? <CheckIcon fontSize="10" sx={{ mr: 2 }} /> : <Box sx={{ width: 32 }} />}
+              {getValues().includes(onj.key) ? <CheckIcon sx={{ mr: 2, fontSize: 10 }} /> : <Box sx={{ width: 32 }} />}
               <ListItemText primary={onj.label} />
             </MenuItem>
           ))}

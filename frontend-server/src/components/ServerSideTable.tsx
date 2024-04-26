@@ -38,7 +38,6 @@ interface TableAction {
 }
 
 
-
 const CustomTableHeader = styled(TableHead)(({ theme }) => ({
   backgroundColor: theme.palette.grey[300],
 }));
@@ -124,6 +123,7 @@ export function ServerSideTable<T>({
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
                   sx={{ width: `${header.getSize()}px` }}
+                  // @ts-ignore
                   align={header.column.columnDef.meta?.align}
                 >
                   {header.isPlaceholder ? null : header.column.getCanSort() ? (
@@ -156,11 +156,13 @@ export function ServerSideTable<T>({
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
+                  // @ts-ignore
                   align={cell.column.columnDef.meta?.align}
                   sx={{
                     width: cell.column.getSize(),
                   }}
-
+                  
+                  // @ts-ignore
                   padding={cell.column.columnDef.meta?.padding || "normal"}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

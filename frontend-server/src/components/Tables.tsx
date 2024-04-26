@@ -21,7 +21,7 @@ interface TablesMixinProps {
 interface RenderTableHeaderProps {
   headers: TableHeaderMixin[];
   orderingKey: string | null;
-  ordering: string | undefined;
+  ordering: "desc" | "asc" | undefined;
   setOrderBy: any;
 }
 

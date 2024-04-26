@@ -62,7 +62,7 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
 
           <Box my={2}/>
 
-          <Button onClick={formik.handleSubmit} variant="contained">Crea</Button>
+          <Button onClick={() => formik.handleSubmit()} variant="contained">Crea</Button>
         </>
       </Modal>
     </>

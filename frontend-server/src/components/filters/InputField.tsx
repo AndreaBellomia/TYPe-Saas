@@ -26,7 +26,7 @@ export default function InputSearch({ setterValue, placeholder = 'Cerca...' }: C
       id="outlined-basic"
       placeholder={placeholder}
       variant="outlined"
-      onInput={(value) => setDebouncedInput(value.target.value)}
+      onInput={(event: React.ChangeEvent<HTMLInputElement>) => setDebouncedInput(event.target.value)}
       sx={{ width: '100%' }}
       InputProps={{
         startAdornment: <SearchIcon />,

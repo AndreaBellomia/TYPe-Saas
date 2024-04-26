@@ -28,6 +28,7 @@ export default function RootLayout({
           margin: 0,
           top: 0,
           position: "absolute",
+          backgroundColor: "#fbfbfb"
         }}
       >
         <StoreProvider>

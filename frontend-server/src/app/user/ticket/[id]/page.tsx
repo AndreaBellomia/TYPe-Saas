@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import dayjs from "dayjs";
@@ -14,10 +14,12 @@ import {
   Paper,
   TextField,
   InputAdornment,
+  Button,
+  Link
 } from "@mui/material";
 
 import SendIcon from "@mui/icons-material/Send";
-
+import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import Avatar from "@/components/Avatar";
 
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
@@ -38,8 +40,9 @@ function dateParser(date: string): string {
   });
 }
 
-export function TicketDetail() {
+function TicketDetail() {
   const params = useParams();
+  const router = useRouter();
   const [data, setData] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<any[] | null>(null);
   const [inputMessage, setInputMessage] = useState<string>("");
@@ -97,6 +100,13 @@ export function TicketDetail() {
     <>
       {data && (
         <>
+          <Link href="/user/ticket" underline="none" variant="body2" alignItems="center" display="flex">
+            <ArrowBackIosNewRoundedIcon sx={{ fontSize: 16 }}/>
+            Indietro
+          </Link>
+
+          <Box marginY={2} />
+
           <Box
             sx={{
               display: "flex",
@@ -106,6 +116,8 @@ export function TicketDetail() {
           >
             <Typography variant="h6" color="text.secondary">
               <Chip label={data.status} variant="filled" sx={{ mr: 2 }} />
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
               {data.id}
             </Typography>
           </Box>
@@ -117,7 +129,7 @@ export function TicketDetail() {
               <Typography variant="subtitle1" color="text.secondary">
                 Titolo
               </Typography>
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="h6">
                 {data.label}
               </Typography>
 
@@ -126,7 +138,7 @@ export function TicketDetail() {
               <Typography variant="subtitle1" color="text.secondary">
                 Descrizione
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1">
                 {data.description || "nessuna descrizione"}
               </Typography>
             </Grid>
@@ -138,14 +150,14 @@ export function TicketDetail() {
 
               <Box my={2} />
               <Typography variant="subtitle2" color="text.secondary">
-                Data di consegna
+                Data di consegna richiesta
               </Typography>
               <Chip label={dateParser(data.expiring_date)} variant="outlined" />
 
               <Box my={2} />
 
               <Typography variant="subtitle2" color="text.secondary">
-                Assegnato a
+                Responsabile
               </Typography>
               {data.assigned_to ? (
                 <Avatar user={data.assigned_to} dimension={24} />
@@ -167,6 +179,8 @@ export function TicketDetail() {
           </Grid>
         </>
       )}
+
+      <Box mt={2}/>
 
       <Typography variant="h6" color="initial">
         Messaggi
@@ -196,7 +210,7 @@ export function TicketDetail() {
       <Box sx={{ overflow: "auto", maxHeight: "50vh" }}>
             {messages &&
               messages.map((msg) => (
-                <Paper elevation={2} key={msg.id} sx={{ mt: 2 }}>
+                <Paper elevation={0} key={msg.id} sx={{ mt: 2 }}>
                   <Box p={2}>
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}

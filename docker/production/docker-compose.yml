@@ -1,0 +1,17 @@
+version: "1"
+
+services:
+  frontend-production:
+    build:
+      context: ../../
+      dockerfile: docker/production/DockerfileFrontend
+    image: frontend
+    ports:
+      - "3003:3000"
+  api-production:
+    build:
+      context: ../../
+      dockerfile: docker/production/DockerfileAPI
+    image: api
+    ports:
+      - "3003:3000"

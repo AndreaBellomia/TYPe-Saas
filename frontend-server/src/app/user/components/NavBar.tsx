@@ -11,6 +11,7 @@ import {
   Toolbar,
   Box,
   Container,
+  ButtonBase,
   Menu,
   MenuItem,
 } from "@mui/material";
@@ -40,7 +41,7 @@ function NavBar({ children }: { children: React.ReactNode }) {
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = () => {
     setProfileMenu(true);
   };
 
@@ -63,7 +64,9 @@ function NavBar({ children }: { children: React.ReactNode }) {
             </Box>
 
             <Box>
-              <StyledAvatar onClick={handleClick}></StyledAvatar>
+              <ButtonBase onClick={() => handleClick()} sx={{ borderRadius: 100 }}>
+                <StyledAvatar></StyledAvatar>
+              </ButtonBase>
               <ProfileMenu
                   open={profileMenu}
                   handlerOpen={setProfileMenu}
