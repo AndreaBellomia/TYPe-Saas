@@ -38,6 +38,8 @@ services:
       - DB_PORT=5432
     networks:
       - app-network
+    env_file:
+      - ".env.production"
 
   api:
     image: api-server
@@ -64,6 +66,8 @@ services:
         condition: service_completed_successfully
     networks:
       - app-network
+    env_file:
+      - ".env.production"
 
   frontend:
     image: frontend-server
@@ -76,6 +80,8 @@ services:
       - 3000:3000
     networks:
       - app-network
+    env_file:
+      - ".env.production"
 
   nginx:
     image: nginx
@@ -85,7 +91,8 @@ services:
     restart: always
     container_name: nginx
     ports:
-      - 1337:80
+      - "80:80"
+      # - "443:443"
     depends_on:
       - api
       - frontend

@@ -51,3 +51,5 @@ urlpatterns = [
     path("ticket/", include("myapp.ticket.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
 ]
+
+urlpatterns = [path('api/', include(urlpatterns))]

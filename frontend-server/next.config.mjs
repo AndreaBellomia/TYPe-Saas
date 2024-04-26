@@ -3,7 +3,7 @@
 import dotenv from "dotenv";
 
 const { parsed: myEnv } = dotenv.config({
-  path: "../.env",
+  path: ".env",
 });
 
 const nextConfig = {
