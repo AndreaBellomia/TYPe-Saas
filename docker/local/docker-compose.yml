@@ -1,10 +1,10 @@
 version: "3.9"
-name: ticket-crm-prod
+name: ticket-crm-local
 
 services:
   db:
     image: postgres
-    container_name: postgres-ticketcrm-prod
+    container_name: postgres-ticketcrm-local
     restart: always
     environment:
       - POSTGRES_USER=django
@@ -22,12 +22,12 @@ services:
       - app-network
 
   migrations:
-    image: api-server-migration
+    image: api-server
     build:
       context: ../../
-      dockerfile: ./docker/production/Dockerfile-api
+      dockerfile: ./docker/docker/api.Dockerfile
     env_file:
-      - ".env.production"
+      - ".env.local"
     command: poetry run ./manage.py migrate
     depends_on:
       db:
@@ -39,11 +39,11 @@ services:
     image: api-server
     build:
       context: ../../
-      dockerfile: ./docker/production/Dockerfile-api
+      dockerfile: ./docker/docker/api.Dockerfile
       args:
         COLLECTSTATIC: "true"
     env_file:
-      - ".env.production"
+      - ".env.local"
     restart: always
     command: poetry run gunicorn myapp.wsgi:application -b 0.0.0.0:8000 --workers 4 --timeout 120 --log-level info
     ports:
@@ -62,9 +62,9 @@ services:
     image: frontend-server
     build:
       context: ../../
-      dockerfile: ./docker/production/Dockerfile-frontend
+      dockerfile: ./docker/docker/frontend.Dockerfile
     env_file:
-      - ".env.production"
+      - ".env.local"
     restart: always
     ports:
       - 3000:3000
@@ -75,14 +75,16 @@ services:
     image: nginx
     build:
       context: ../../
-      dockerfile: ./docker/production/Dockerfile-nginx
+      dockerfile: ./docker/docker/nginx.Dockerfile
+      args:
+        CONFNAME: "nginx-local"
     restart: always
     ports:
       - "80:80"
       # - "443:443"
-    # depends_on:
-    #   - api
-    #   - frontend
+    depends_on:
+      - api
+      - frontend
     networks:
       - app-network
     volumes:

@@ -1,6 +1,7 @@
 FROM python:3.11.3-slim-buster AS production_build
 
 ARG DJANGO_ENV
+ARG COLLECTSTATIC
 
 ENV DJANGO_ENV=${DJANGO_ENV} \
     # python:
