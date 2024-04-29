@@ -21,13 +21,13 @@ import { TextField } from "@/components/forms";
 
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
 
-const apiService = new DjangoApi();
 
 export default function _() {
+  const API = new DjangoApi();
   const [type, setType] = useState<{ label: string; id: number }[]>([]);
 
   useEffect(() => {
-    apiService.get(
+    API.get(
       "ticket/types/list",
       (response) => {
         const data: Array<any> = response.data;
@@ -55,7 +55,7 @@ export default function _() {
     },
     validationSchema: validationSchema,
     onSubmit: (values, helpers) => {
-      apiService.post(
+      API.post(
         "/ticket/",
         (response) => {
           helpers.resetForm();

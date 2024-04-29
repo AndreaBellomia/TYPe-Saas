@@ -63,7 +63,7 @@ function ProfileCard({ user }: ProfileCardProps) {
   });
 
   useEffect(() => {
-    if (user !== null && typeof user.user_info === "object") {
+    if (user !== null && typeof user.user_info === "object" && user.user_info !== null) {
       // @ts-ignore
       Object.keys(user.user_info).forEach((key: string) => {
         // @ts-ignore

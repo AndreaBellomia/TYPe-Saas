@@ -24,8 +24,6 @@ services:
       - ".env.production"
     restart: always
     command: poetry run gunicorn myapp.wsgi:application -b 0.0.0.0:8000 --workers 4 --timeout 120 --log-level info
-    ports:
-      - 8000:8000
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -42,8 +40,6 @@ services:
     env_file:
       - ".env.production"
     restart: always
-    ports:
-      - 3000:3000
     networks:
       - app-network
 
