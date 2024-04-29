@@ -81,14 +81,16 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
 
           <Divider sx={{ my: 2 }} />
 
-          <Button
-            fullWidth
-            onClick={handlerAdmin}
-            sx={{ justifyContent: "start", mb: 1 }}
-          >
-            <AdminPanelSettingsIcon sx={{ mr: 2 }} />
-            Admin
-          </Button>
+          {user?.is_staff && (
+            <Button
+              fullWidth
+              onClick={handlerAdmin}
+              sx={{ justifyContent: "start", mb: 1 }}
+            >
+              <AdminPanelSettingsIcon sx={{ mr: 2 }} />
+              Admin
+            </Button>
+          )}
           <Button
             fullWidth
             onClick={handlerSettings}

@@ -52,7 +52,7 @@ function NavBar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <CustomAppBar position="static">
+      <CustomAppBar position="fixed">
         <Container ref={appBarRef} >
           <CustomToolbar
             sx={{ display: "flex", justifyContent: "space-between" }}
@@ -76,7 +76,7 @@ function NavBar({ children }: { children: React.ReactNode }) {
           </CustomToolbar>
         </Container>
       </CustomAppBar>
-      <Box sx={{ my: 2 }} />
+      <Box sx={{ mt: 10 }} />
 
       <Container>{children}</Container>
     </>

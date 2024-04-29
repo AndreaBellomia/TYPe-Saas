@@ -29,7 +29,7 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
     },
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
-      API.post("authentication/register", 
+      API.post("authentication/users/", 
       (response) => {
         setOpen(false)
       }, 

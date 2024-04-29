@@ -29,6 +29,9 @@ const AsideNavBar = styled(MuiDrawer, {
   whiteSpace: "nowrap",
   boxSizing: "border-box",
   overflowX: "hidden",
+  position: "fixed",
+  top: 0,
+  bottom: 0,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.easeOut,
     duration: theme.transitions.duration.enteringScreen,

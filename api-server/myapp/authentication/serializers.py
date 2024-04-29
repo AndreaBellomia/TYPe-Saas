@@ -115,20 +115,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
+        user_info: UserInfo | None = getattr(instance, "user_info", None)
+        user_info_data = validated_data.pop("user_info", None)
         inst = super().update(instance, validated_data)
-        user_info: UserInfo | None = getattr(inst, "user_info", None)
 
         if user_info is None:
             user_info = UserInfo.objects.get_or_create(user=instance)[0]
 
-        if "user_info" in validated_data:
-            user_info_data = validated_data["user_info"]
-            user_info.first_name = user_info_data.get("first_name", user_info.first_name)
+        if user_info_data:
+            user_info.first_name = user_info_data.get(
+                "first_name", user_info.first_name
+            )
             user_info.last_name = user_info_data.get("last_name", user_info.last_name)
-            user_info.phone_number = user_info_data.get("phone_number", user_info.phone_number)
+            user_info.phone_number = user_info_data.get(
+                "phone_number", user_info.phone_number
+            )
             user_info.save()
 
-        return instance
+        return inst
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -147,7 +151,9 @@ class CreateUserSerializer(serializers.Serializer):
         password = secrets.token_urlsafe(10)
 
         user = CustomUser.objects.create(
-            email=validated_data["email"], password=make_password(password), is_active=True
+            email=validated_data["email"],
+            password=make_password(password),
+            is_active=True,
         )
 
         html_content = f"""

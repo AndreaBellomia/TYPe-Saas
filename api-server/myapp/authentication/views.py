@@ -162,7 +162,7 @@ class AdminUserViewset(viewsets.ModelViewSet):
         user: CustomUser = self.request.user  # type: ignore
         serializer_class = UserProfileSerializer
 
-        if not user.is_manager:
+        if not getattr(user, "is_manager", False):
             serializer_class.Meta.read_only_fields = ( # type: ignore
                 "groups",
                 "is_staff",

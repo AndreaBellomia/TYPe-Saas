@@ -15,7 +15,7 @@ def generate_new_cookie(user):
     updated_at_str = user.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
     return json.dumps(dict({
-        "is_staff": user.is_active,
+        "is_staff": user.is_staff,
         "is_superuser": user.is_superuser,
         "is_active": user.is_active,
         "id": user.id,

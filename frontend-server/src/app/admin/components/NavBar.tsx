@@ -24,6 +24,9 @@ import ProfileMenu from "@/app/admin/components/ProfileMenu";
 
 import Avatar from "@/components/Avatar";
 
+const drawerWidth = 240;
+const drawerMinWidth = 62;
+
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => ({
@@ -34,11 +37,13 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  marginLeft: drawerMinWidth,
   ...(open && {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    marginLeft: drawerWidth,
   }),
 }));
 

@@ -37,4 +37,4 @@ RUN poetry install
 
 COPY api-server .
 
-RUN if [ "$COLLECTSTATIC" = "true" ]; then poetry run ./manage.py collectstatic; fi
+RUN if [ "${COLLECTSTATIC}" = "true" ]; then poetry run ./manage.py collectstatic; fi

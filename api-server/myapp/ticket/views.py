@@ -53,7 +53,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         user: CustomUser = self.request.user  # type: ignore
         serializer = AdminTicketSerializer
 
-        if user.is_employer:
+        if getattr(user, "is_employer", False):
             serializer.Meta.read_only_fields = ("assigned_to_id",)  # type: ignore
 
         return serializer
@@ -65,7 +65,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):  # type: ignore
         user: CustomUser = self.request.user  # type: ignore
-        if user.is_manager:
+        if getattr(user, "is_manager", False):
             return Ticket.objects.all()
 
         return self.query_employer()
@@ -74,7 +74,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         user: CustomUser = self.request.user  # type: ignore
 
         instance = serializer.save()
-        if user.is_employer:
+        if getattr(user, "is_employer", False):
             instance.assigned_to = user
             instance.save()
 

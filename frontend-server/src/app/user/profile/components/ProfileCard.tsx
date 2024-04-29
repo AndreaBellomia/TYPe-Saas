@@ -64,7 +64,8 @@ function ProfileCard({ user }: ProfileCardProps) {
   });
 
   useEffect(() => {
-    if (user !== null && user.user_info !== null) {
+    if (user !== null && typeof user.user_info === "object") {
+      // @ts-ignore
       Object.keys(user.user_info).forEach((key: string) => {
         // @ts-ignore
         formik.setFieldValue(key, user.user_info[key]);
