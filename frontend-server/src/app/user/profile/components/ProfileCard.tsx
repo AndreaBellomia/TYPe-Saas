@@ -14,13 +14,12 @@ import { snack } from "@/libs/SnakClient";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { useEffect } from "react";
 
-const API = new DjangoApi();
-
 export interface ProfileCardProps {
   user: User | null;
 }
 
 function ProfileCard({ user }: ProfileCardProps) {
+  const API = new DjangoApi();
   const router = useRouter();
 
   const formValidation = Yup.object().shape({

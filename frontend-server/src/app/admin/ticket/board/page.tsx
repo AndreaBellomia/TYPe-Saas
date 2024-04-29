@@ -9,30 +9,30 @@ import { TICKET_STATUSES } from "@/constants";
 
 import { DjangoApi } from "@/libs/fetch";
 
-const API = new DjangoApi();
-
-function handlerMoveCard(data: any) {
-  const oldStatus = data.targetData.node.data.value.status;
-  const newStatus = data.targetData.parent.data.config.name;
-
-  if (oldStatus !== newStatus) {
-    API.put(
-      "/ticket/admin/update_board/",
-      (response) => {
-        data.targetData.node.data.value.status = newStatus
-      },
-      (e) => {
-        console.error(e);
-      },
-      {
-        id: data.targetData.node.data.value.id,
-        status: newStatus,
-      },
-    );
-  }
-}
-
 export default function _() {
+  const API = new DjangoApi();
+
+  function handlerMoveCard(data: any) {
+    const oldStatus = data.targetData.node.data.value.status;
+    const newStatus = data.targetData.parent.data.config.name;
+  
+    if (oldStatus !== newStatus) {
+      API.put(
+        "/ticket/admin/update_board/",
+        (response) => {
+          data.targetData.node.data.value.status = newStatus
+        },
+        (e) => {
+          console.error(e);
+        },
+        {
+          id: data.targetData.node.data.value.id,
+          status: newStatus,
+        },
+      );
+    }
+  }
+
   const [drawerTicket, setDrawerTicket] = useState(false)
   const drawerTicketID = useRef<string | null>(null)
   const [boardItems, setBoardItems] = useState({

@@ -10,9 +10,9 @@ import { InputField } from "@/components/filters";
 
 import CreateUserModal from "@/app/admin/users/components/CreateUserModal";
 
-const API = new DjangoApi();
 
 export default function _() {
+  const API = new DjangoApi();
   const [createUser, setCreateUser] = useState(false);
   const [userList, setUserList] = useState<[any]>([{}]);
   const [page, setPage] = useState(1);

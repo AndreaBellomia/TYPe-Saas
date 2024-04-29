@@ -1,3 +1,5 @@
+"use client"
+
 import {
   FormControl,
   InputLabel,
@@ -11,14 +13,14 @@ import { TICKET_STATUSES } from "@/constants";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { useState } from "react";
 
-const API = new DjangoApi();
-
 export interface StatusChangeCol {
   initialValue: StatusesType;
   id: string;
 }
 
 export function StatusChangeCol({ initialValue, id }: StatusChangeCol) {
+  const API = new DjangoApi();
+
   const [value, setValue] = useState(initialValue);
 
   const handlerChange = (event: SelectChangeEvent) => {

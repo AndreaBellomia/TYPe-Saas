@@ -8,8 +8,6 @@ import { Message } from "@/models/Ticket";
 import Form from "@/app/admin/ticket/components/DrawerTicket/From";
 import Messages from "@/app/admin/ticket/components/DrawerTicket/Messages";
 
-const API = new DjangoApi();
-
 export interface DrawerTicketProps {
   open: boolean;
   onClose: () => void;
@@ -17,6 +15,7 @@ export interface DrawerTicketProps {
 }
 
 export function DrawerTicket({ open, onClose, id }: DrawerTicketProps) {
+  const API = new DjangoApi();
   const [messages, setMessages] = useState<Message[] | null>(null);
 
   useEffect(() => {

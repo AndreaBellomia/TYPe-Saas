@@ -8,7 +8,6 @@ from django.utils import timezone as tz
 from rest_framework import permissions, status, filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from yaml import serialize
 
 from myapp.core.paginations import BasicPaginationController
 
@@ -67,14 +66,15 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         detail=False,
         methods=[HTTPMethod.POST],
         permission_classes=[permissions.AllowAny],
+        serializer_class=AuthSerializer
     )
     def login(self, request):
         user: CustomUser = request.user
 
-        # if user:
-        #     return Response(
-        #         {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
-        #     )
+        if user.is_authenticated:
+            return Response(
+                {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
+            )
 
         serializer = AuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -96,15 +96,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             sender=request.user.__class__, request=request, user=request.user
         )
         data = self.get_post_response_data(request, token, instance)
-        response = Response(data)
-        response.set_cookie(
-            settings.AUTH_COOKIE_NAME,
-            data["token"],
-            expires=instance.expiry,
-            httponly=True,
-        )
-        return response
-        # return  Response()
+        return  Response(data)
 
     @action(
         detail=False,
@@ -113,12 +105,9 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
     )
     def logout(self, request):
         logout(request)
+        request._auth.delete()
 
-        response = Response({"message": "Logout successful"})
-        response.delete_cookie(settings.AUTH_COOKIE_NAME)
-        response.delete_cookie("user")
-        response.delete_cookie("csrftoken")
-        return response
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,

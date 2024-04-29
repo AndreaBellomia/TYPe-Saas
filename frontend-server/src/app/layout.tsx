@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Snackbar, { SnackProvider } from "@/components/Snackbar";
 import ThemeProvider from '@/app/ThemeProvider';
 import StoreProvider from "@/app/StoreProvider";
-import UserProvider from "@/app/UserProvider"
+import PermissionRout from "@/app/PermissionRout"
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -32,14 +32,14 @@ export default function RootLayout({
         }}
       >
         <StoreProvider>
-          <UserProvider>
+          <PermissionRout>
             <ThemeProvider>
               <Snackbar>
                 <SnackProvider />
                 {children}
               </Snackbar>
             </ThemeProvider>
-          </UserProvider>
+          </PermissionRout>
         </StoreProvider>
       </body>
     </html>

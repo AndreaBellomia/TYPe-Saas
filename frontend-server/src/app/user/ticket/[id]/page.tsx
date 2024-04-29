@@ -24,7 +24,6 @@ import Avatar from "@/components/Avatar";
 
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { Ticket } from "@/models/Ticket";
-const API = new DjangoApi();
 
 function dateTimeParser(date: string): string {
   // @ts-ignore
@@ -41,6 +40,8 @@ function dateParser(date: string): string {
 }
 
 function TicketDetail() {
+  const API = new DjangoApi();
+  
   const params = useParams();
   const router = useRouter();
   const [data, setData] = useState<Ticket | null>(null);

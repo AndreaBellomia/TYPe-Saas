@@ -68,7 +68,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "myapp.core.middleware.DatabaseLoggingMiddleware",
-    "myapp.authentication.middleware.UserDataCookies",
+    # "myapp.authentication.middleware.UserDataCookies",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -96,9 +96,9 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 # Rest framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "myapp.authentication.auth.CookieTokenAuthentication",
-        # "knox.auth.TokenAuthentication",
-        # "rest_framework.authentication.SessionAuthentication",
+        # "myapp.authentication.auth.CookieTokenAuthentication",
+        "knox.auth.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

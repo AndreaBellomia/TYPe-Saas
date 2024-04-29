@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { snack } from "@/libs/SnakClient"
+import { AuthUtility } from "./auth";
 
 type ParamsList = Array<{ param: string; value: string }>;
 type GenericObject = { [key: string]: any };
@@ -27,8 +28,8 @@ export class FetchDispatchError extends Error {
 export class Axios {
   protected axiosClient: AxiosInstance;
 
-  constructor() {
-    const headers: { [key: string]: string } = {};
+  constructor(headers = {}) {
+    // const headers: { [key: string]: string } = {};
 
     this.axiosClient = axios.create({
       headers: {
@@ -125,7 +126,10 @@ export class Axios {
 
 export class DjangoApi extends Axios {
   constructor() {
-    super();
+    
+    super({
+      "Authorization" : `Token ${AuthUtility.getToken()}`
+    });
 
     this.axiosClient.defaults.baseURL = URLS.API_SERVER;
     this.axiosClient.defaults.withCredentials = true;

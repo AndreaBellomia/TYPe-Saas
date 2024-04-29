@@ -10,9 +10,8 @@ import { User } from "@/types";
 import PasswordCard from "./components/PasswordCard";
 import ProfileCard from "./components/ProfileCard";
 
-const API = new DjangoApi();
-
 export default function _() {
+  const API = new DjangoApi();
   const [user, setUser] = useState<null | User>(null);
 
   useEffect(() => {
@@ -20,7 +19,6 @@ export default function _() {
       "/authentication/profile/",
       (response) => {
         setUser(response.data);
-        console.log(response.data);
       },
       (error) => {
         throw new FetchDispatchError(error.detail);

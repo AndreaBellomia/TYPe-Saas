@@ -1,3 +1,4 @@
+"use client"
 import { Paper, Typography, Box, Grid, Button } from "@mui/material";
 
 import TextField from "@/components/forms/TextField";
@@ -7,9 +8,10 @@ import * as Yup from "yup";
 import { snack } from "@/libs/SnakClient";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 
-const API = new DjangoApi();
 
 export function PasswordCard() {
+  const API = new DjangoApi();
+
   const validationSchema = Yup.object().shape({
     old_password: Yup.string().required("Campo obbligatorio"),
     new_password: Yup.string()

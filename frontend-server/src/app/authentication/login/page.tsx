@@ -1,13 +1,20 @@
 "use client";
+// @ts-ignore
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+
 import { useFormik } from "formik";
-import { AuthUtility } from "@/libs/auth";
+import { AuthUtility, JWT_EXPIRE, JWT_TOKEN } from "@/libs/auth";
 
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { Button, Paper, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { User } from "@/types";
+
 import TextField from "@/components/forms/TextField";
+import { snack } from "@/libs/SnakClient";
 
 const CenterCard = styled(Box)(({ theme }) => ({
   top: "50%",
@@ -21,6 +28,8 @@ const CenterCard = styled(Box)(({ theme }) => ({
 
 export default function _() {
   const router = useRouter();
+  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch();
 
   const formValidation = Yup.object().shape({
     password: Yup.string()
@@ -40,12 +49,19 @@ export default function _() {
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
       AuthUtility.loginUser(values.email, values.password).then(
-        (response: Response) => {
+        async (response) => {
           if (response.ok) {
+            const data = await response.json();
+            sessionStorage.setItem(JWT_TOKEN, data.token);
+            sessionStorage.setItem(JWT_EXPIRE, data.expiry);
+            dispatch({ type: "USER_SET", payload: data.user });
             router.push("/user/ticket");
-          } else {
-            helpers.setFieldError("password", response.statusText);
+            return;
           }
+          helpers.setFieldError(
+            "password",
+            "Email o password non sono corretti",
+          );
         },
       );
     },

@@ -33,7 +33,6 @@ import { AuthUtility } from "@/libs/auth";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { TICKET_STATUSES } from "@/constants";
 
-const API = new DjangoApi();
 
 function errorsHandler(
   helpers: FormikHelpers<any>,
@@ -50,6 +49,8 @@ export interface DrawerFormProps {
 }
 
 export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
+  const API = new DjangoApi();
+  
   const user: UserModel | null = useSelector(
     (state: RootState) => state.user.user,
   );

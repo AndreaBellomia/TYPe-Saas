@@ -21,8 +21,6 @@ import {
 import { Message } from "@/models/Ticket";
 import { timeElapsed } from "@/libs/utils";
 
-const API = new DjangoApi();
-
 const MsgPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: lighten(theme.palette.primary.main, 0.95),
   padding: 8,
@@ -33,6 +31,7 @@ export interface DrawerMessagesProps {
 }
 
 export function Messages({ id }: DrawerMessagesProps) {
+  const API = new DjangoApi();
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [inputMessage, setInputMessage] = useState<string>("");
 

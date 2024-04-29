@@ -11,9 +11,9 @@ import { DjangoApi } from "@/libs/fetch";
 
 import { Ticket } from "@/types";
 
-const API = new DjangoApi();
-
 export default function _() {
+  const API = new DjangoApi();
+  
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState(0);
@@ -26,7 +26,6 @@ export default function _() {
       (response) => {
         setData(response.data.results);
         setPageCount(response.data.num_pages);
-        console.log(response.data);
       },
       (e) => {
         console.error(e);

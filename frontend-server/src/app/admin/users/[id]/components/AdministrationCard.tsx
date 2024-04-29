@@ -20,13 +20,13 @@ import { GROUPS_MAPS, RAW_GROUPS } from "@/constants";
 
 import { DjangoApi } from "@/libs/fetch";
 
-const API = new DjangoApi();
 
 export interface AdministrationCardProps {
   user: User;
 }
 
 export function AdministrationCard({ user }: AdministrationCardProps) {
+  const API = new DjangoApi();
   const [groups, setGroups] = useState<number[]>([...user.groups]);
   const [active, setActive] = useState<boolean>(user.is_active);
   const [staff, setStaff] = useState<boolean>(user.is_staff);

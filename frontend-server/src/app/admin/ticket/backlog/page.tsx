@@ -26,9 +26,10 @@ import { Ticket } from "@/models/Ticket";
 
 import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeCol";
 
-const API = new DjangoApi();
 
 export default function _() {
+  const API = new DjangoApi();
+  
   const [drawerTicket, setDrawerTicket] = useState(false);
   const drawerTicketID = useRef<string | null>(null);
 
