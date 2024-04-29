@@ -53,52 +53,54 @@ export function PasswordCard() {
 
   return (
     <Paper elevation={5} sx={{ width: "100%" }}>
-      <Box sx={{ p: 2 }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12}>
-            <Typography variant="h4" color="initial">
-              Password
-            </Typography>
+      <form>
+        <Box sx={{ p: 2 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <Typography variant="h4" color="initial">
+                Password
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Password attuale"
+                name="old_password"
+                type="password"
+                formik={formik}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Nuova password"
+                name="new_password"
+                type="password"
+                formik={formik}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Ripeti nuova password"
+                name="confirm_new_password"
+                type="password"
+                formik={formik}
+              />
+            </Grid>
+            <Grid item xs={12} textAlign="end">
+              {/* @ts-ignore */}
+              <Button
+                variant="contained"
+                disabled={!(formik.isValid && formik.dirty)}
+                onClick={formik.handleSubmit}
+              >
+                Aggiorna
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              label="Password attuale"
-              name="old_password"
-              type="password"
-              formik={formik}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              label="Nuova password"
-              name="new_password"
-              type="password"
-              formik={formik}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              label="Ripeti nuova password"
-              name="confirm_new_password"
-              type="password"
-              formik={formik}
-            />
-          </Grid>
-          <Grid item xs={12} textAlign="end">
-            {/* @ts-ignore */}
-            <Button
-              variant="contained"
-              disabled={!(formik.isValid && formik.dirty)}
-              onClick={formik.handleSubmit}
-            >
-              Aggiorna
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      </form>
     </Paper>
   );
 }

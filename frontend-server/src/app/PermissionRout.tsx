@@ -1,36 +1,36 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
-import { DjangoApi } from "@/libs/fetch";
-import { AuthUtility } from "@/libs/auth";
+import { AuthUtility, JWT_TOKEN } from "@/libs/auth";
 import { User } from "@/types";
-import { snack } from "@/libs/SnakClient";
-
-
-const ADMIN_PATH = [
-  ""
-]
 
 export default function CustomUserProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
+  const pathname = usePathname();
   const user: User | null = useSelector((state: RootState) => state.user.user);
 
-  if (user === null) {
-    AuthUtility.logoutUser()
-    router.push("/authentication/login")
-    return
+  if (
+    sessionStorage.getItem(JWT_TOKEN) == null &&
+    !pathname.startsWith("/authentication/login")
+  ) {
+    window.location.href = "/authentication/login";
+    return null;
   }
 
-  if (pathname.startsWith("/admin") && !user.is_staff) {
-    router.push("/user/ticket")
-    snack.warning("Permesso negato")
+  if (user === null && !pathname.startsWith("/authentication/login")) {
+    AuthUtility.logoutUser();
+    window.location.href = "/authentication/login";
+    return null;
+  }
+
+  if (pathname.startsWith("/admin") && !user!.is_staff) {
+    window.location.href = "/user/ticket";
+    return null;
   }
 
   return <>{children}</>;

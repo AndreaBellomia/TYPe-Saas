@@ -29,7 +29,6 @@ export class Axios {
   protected axiosClient: AxiosInstance;
 
   constructor(headers = {}) {
-    // const headers: { [key: string]: string } = {};
 
     this.axiosClient = axios.create({
       headers: {
@@ -126,12 +125,15 @@ export class Axios {
 
 export class DjangoApi extends Axios {
   constructor() {
-    
-    super({
-      "Authorization" : `Token ${AuthUtility.getToken()}`
-    });
-
-    this.axiosClient.defaults.baseURL = URLS.API_SERVER;
-    this.axiosClient.defaults.withCredentials = true;
+    try {
+      super({
+        "Authorization" : `Token ${AuthUtility.getToken()}`
+      });
+  
+      this.axiosClient.defaults.baseURL = URLS.API_SERVER;
+      this.axiosClient.defaults.withCredentials = true;
+    } catch (error) {
+      console.log("DjangoAPI work only in client side", error);
+    }
   }
 }

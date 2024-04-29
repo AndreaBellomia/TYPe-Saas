@@ -30,7 +30,7 @@ export default function _({
       options={options}
       onChange={(_, value: { id: number; label: string } | null) => {
         value === null
-          ? setFieldValue(name, "")
+          ? setFieldValue(name, null)
           : setFieldValue(name, value.id);
       }}
       value={filedValue || null}

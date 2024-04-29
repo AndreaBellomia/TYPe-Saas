@@ -37,7 +37,7 @@ class AdminTicketSerializer(serializers.ModelSerializer):
     type_id = serializers.IntegerField()
 
     assigned_to = UserInfoSmallSerializer(read_only=True)
-    assigned_to_id = serializers.IntegerField(required=False)
+    assigned_to_id = serializers.IntegerField(required=False, allow_null=True)
 
     created_by = UserInfoSmallSerializer(read_only=True)
     created_by_id = serializers.IntegerField()
@@ -64,7 +64,7 @@ class AdminTicketSerializer(serializers.ModelSerializer):
 
 
 class TicketMsgSerializer(serializers.ModelSerializer):
-    
+
     author = UserInfoSmallSerializer(read_only=True)
 
     class Meta:

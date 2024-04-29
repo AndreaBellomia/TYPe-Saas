@@ -60,7 +60,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
     def query_employer(self):
         return Ticket.objects.filter(
-            Q(assigned_to=self.request.user) | Q(created_by=self.request.user)
+            Q(created_by=self.request.user)
         )
 
     def get_queryset(self):  # type: ignore
@@ -85,22 +85,22 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
         resp = {
             "todo": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.TODO),
+                instance=queryset.filter(status=Ticket.Status.TODO).order_by("assigned_to_id"),
                 many=True,
             ).data,
             "progress": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.PROGRESS),
+                instance=queryset.filter(status=Ticket.Status.PROGRESS).order_by("assigned_to_id"),
                 many=True,
             ).data,
             "blocked": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.BLOCKED),
+                instance=queryset.filter(status=Ticket.Status.BLOCKED).order_by("assigned_to_id"),
                 many=True,
             ).data,
             "done": AdminTicketSerializer(
                 instance=queryset.filter(
                     status=Ticket.Status.DONE,
                     updated_at__gt=tz.now() - tz.timedelta(days=2),
-                ),
+                ).order_by("assigned_to_id"),
                 many=True,
             ).data,
         }

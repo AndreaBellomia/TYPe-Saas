@@ -33,7 +33,6 @@ import { AuthUtility } from "@/libs/auth";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { TICKET_STATUSES } from "@/constants";
 
-
 function errorsHandler(
   helpers: FormikHelpers<any>,
   errors: { [key: string]: string },
@@ -50,7 +49,7 @@ export interface DrawerFormProps {
 
 export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   const API = new DjangoApi();
-  
+
   const user: UserModel | null = useSelector(
     (state: RootState) => state.user.user,
   );
@@ -83,11 +82,11 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
       .required("Campo obbligatorio"),
     ...(partial && {
       assigned_to_id: Yup.mixed()
+        .nullable()
         .oneOf(
           admins.map((admin) => admin.id),
           "Il valore inserito non è valido!",
-        )
-        .required("Campo obbligatorio"),
+        ),
     }),
   });
 
@@ -105,6 +104,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
     initialValues: formFields,
     validationSchema: validation,
     onSubmit: (values, helpers) => {
+      console.log(values);
       if (id !== null) {
         API.put(
           `/ticket/admin/${id}/`,
@@ -214,9 +214,9 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
         );
       });
     } else {
-      formik.resetForm()
+      formik.resetForm();
     }
-  }
+  };
 
   return (
     <Box>
@@ -321,7 +321,9 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
                 setFieldTouched={formik.setFieldTouched}
               />
             </Grid>
-          ): <Grid xs={12} md={6}></Grid>}
+          ) : (
+            <Grid xs={12} md={6}></Grid>
+          )}
           <Grid item xs={6}>
             <IconButton onClick={handlerUndo} color="error">
               <UTurnLeftRoundedIcon sx={{ transform: "rotate(90deg)" }} />
@@ -343,7 +345,6 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
                 Crea
               </Button>
             </Grid>
-
           )}
         </Grid>
       </Box>

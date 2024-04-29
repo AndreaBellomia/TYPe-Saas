@@ -7,14 +7,12 @@ import { Typography, Button, Box } from '@mui/material'
 
 import { DjangoApi } from "@/libs/fetch";
 
-const API = new DjangoApi()
-
 export interface CreateUserModalProps {
   state: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 }
 
 export function CreateUserModal({ state }: CreateUserModalProps) {
-
+  const API = new DjangoApi()
   const [open, setOpen] = state
 
   const formValidation = Yup.object().shape({
