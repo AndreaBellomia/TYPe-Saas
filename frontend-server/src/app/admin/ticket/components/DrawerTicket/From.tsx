@@ -307,7 +307,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
               setFieldTouched={formik.setFieldTouched}
             />
           </Grid>
-          {partial && (
+          {partial ? (
             <Grid item xs={12} md={6}>
               <Autocomplete
                 name="assigned_to_id"
@@ -320,7 +320,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
                 setFieldTouched={formik.setFieldTouched}
               />
             </Grid>
-          )}
+          ): <Grid xs={12} md={6}></Grid>}
           <Grid item xs={6}>
             <IconButton onClick={handlerUndo} color="error">
               <UTurnLeftRoundedIcon sx={{ transform: "rotate(90deg)" }} />

@@ -46,7 +46,7 @@ export default function _() {
     order: "",
     search: "",
     state: Object.values(TICKET_STATUSES)
-      .filter((e) => e !== TICKET_STATUSES.DONE)
+      .filter((e) => e === TICKET_STATUSES.BACKLOG)
       .reduce((acc, key) => acc + "," + key),
   });
   const [tableData, setTableData] = useState([]);

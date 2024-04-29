@@ -95,11 +95,11 @@ function ProfileCard({ user }: ProfileCardProps) {
                   <Chip label="Non attivo" color="warning" />
                 ))}
 
-              {user && user.is_staff && <Chip label="Staff" color="info" />}
+              {user && user.is_staff && <Chip label="Staff" color="info" sx={{ ml: 1 }} />}
 
               {user &&
                 user.groups.map((e, i) => (
-                  <Chip label={GROUPS_MAPS[e]} color="secondary" key={i} />
+                  <Chip sx={{ ml: 1 }} label={GROUPS_MAPS[e]} color="secondary" key={i} />
                 ))}
             </Grid>
 
