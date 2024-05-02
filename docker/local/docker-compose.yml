@@ -46,8 +46,6 @@ services:
       - ".env.local"
     restart: always
     command: poetry run gunicorn myapp.wsgi:application -b 0.0.0.0:8000 --workers 4 --timeout 120 --log-level info
-    ports:
-      - 8000:8000
     depends_on:
       db:
         condition: service_healthy
@@ -66,8 +64,6 @@ services:
     env_file:
       - ".env.local"
     restart: always
-    ports:
-      - 3000:3000
     networks:
       - app-network
 

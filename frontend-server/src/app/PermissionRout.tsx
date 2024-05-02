@@ -3,27 +3,20 @@ import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
-import { AuthUtility, JWT_TOKEN } from "@/libs/auth";
-import { User } from "@/types";
+import { JWT_TOKEN, logoutUser } from "@/libs/auth";
+import { UserModel } from "@/models/User";
 
-export default function CustomUserProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function CustomUserProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
 
-  if (
-    sessionStorage.getItem(JWT_TOKEN) == null &&
-    !pathname.startsWith("/authentication/login")
-  ) {
+  if (sessionStorage.getItem(JWT_TOKEN) == null && !pathname.startsWith("/authentication/login")) {
     window.location.href = "/authentication/login";
     return null;
   }
 
   if (user === null && !pathname.startsWith("/authentication/login")) {
-    AuthUtility.logoutUser();
+    logoutUser();
     window.location.href = "/authentication/login";
     return null;
   }

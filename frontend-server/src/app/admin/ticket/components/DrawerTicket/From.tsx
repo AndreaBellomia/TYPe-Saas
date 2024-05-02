@@ -26,17 +26,14 @@ import DatePicker, { parseDateValue } from "@/components/DatePicker";
 import { Autocomplete, TextField } from "@/components/forms";
 
 import { Ticket } from "@/models/Ticket";
-import { UserModel } from "@/models/User";
+import { UserModel, PermissionGroup } from "@/models/User";
 
 import { snack } from "@/libs/SnakClient";
-import { AuthUtility } from "@/libs/auth";
+import { hasGroupPermission } from "@/libs/auth";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { TICKET_STATUSES } from "@/constants";
 
-function errorsHandler(
-  helpers: FormikHelpers<any>,
-  errors: { [key: string]: string },
-): void {
+function errorsHandler(helpers: FormikHelpers<any>, errors: { [key: string]: string }): void {
   Object.keys(errors).forEach((key) => {
     helpers.setFieldError(key, errors[key]);
   });
@@ -50,21 +47,16 @@ export interface DrawerFormProps {
 export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   const API = new DjangoApi();
 
-  const user: UserModel | null = useSelector(
-    (state: RootState) => state.user.user,
-  );
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
 
-  const partial = AuthUtility.isManager(user);
+  const partial = hasGroupPermission(user, PermissionGroup.MANAGER);
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);
   const [users, setUsers] = useState<{ label: string; id: number }[]>([]);
   const [admins, setAdmins] = useState<{ label: string; id: number }[]>([]);
   const [data, setData] = useState<Ticket | null>(null);
 
   const validation = Yup.object().shape({
-    label: Yup.string()
-      .min(10, "Troppo breve!")
-      .max(100, "Troppo lunga")
-      .required("Campo obbligatorio"),
+    label: Yup.string().min(10, "Troppo breve!").max(100, "Troppo lunga").required("Campo obbligatorio"),
     expiring_date: Yup.date().required("Campo obbligatorio"),
     description: Yup.string().max(5000, "Descrizione troppo lunga"),
     status: Yup.mixed().oneOf(Object.values(TICKET_STATUSES)),
@@ -147,16 +139,11 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
           const data: Ticket = response.data;
           setData(data);
           Object.keys(formik.values).forEach((value: string) => {
-            formik.setFieldValue(
-              value as keyof Ticket,
-              data[value as keyof Ticket],
-            );
+            formik.setFieldValue(value as keyof Ticket, data[value as keyof Ticket]);
           });
         },
         () => {
-          throw new FetchDispatchError(
-            "Errore durante il recupero dei dati, riprova più tardi.",
-          );
+          throw new FetchDispatchError("Errore durante il recupero dei dati, riprova più tardi.");
         },
       );
   }, [id]);
@@ -169,9 +156,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
         setTypes(data.map((e) => ({ label: e.name, id: e.id })));
       },
       (e) => {
-        throw new FetchDispatchError(
-          "Errore durante il recupero dei tipo, riprova più tardi.",
-        );
+        throw new FetchDispatchError("Errore durante il recupero dei tipo, riprova più tardi.");
       },
     );
 
@@ -182,25 +167,19 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
         setUsers(data.map((e) => ({ label: e.email, id: e.id })));
       },
       () => {
-        throw new FetchDispatchError(
-          "Errore durante il recupero degli utenti, riprova più tardi.",
-        );
+        throw new FetchDispatchError("Errore durante il recupero degli utenti, riprova più tardi.");
       },
     );
 
     partial &&
       API.get(
-        DjangoApi.buildURLparams("authentication/users/small/", [
-          { param: "admin_only", value: "true" },
-        ]),
+        DjangoApi.buildURLparams("authentication/users/small/", [{ param: "admin_only", value: "true" }]),
         (response) => {
           const data: Array<any> = response.data;
           setAdmins(data.map((e) => ({ label: e.email, id: e.id })));
         },
         (e) => {
-          throw new FetchDispatchError(
-            "Errore durante il recupero degli amministratori, riprova più tardi.",
-          );
+          throw new FetchDispatchError("Errore durante il recupero degli amministratori, riprova più tardi.");
         },
       );
   }, [id]);
@@ -208,10 +187,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   const handlerUndo = () => {
     if (data !== null) {
       Object.keys(formik.values).forEach((value: string) => {
-        formik.setFieldValue(
-          value as keyof Ticket,
-          data[value as keyof Ticket],
-        );
+        formik.setFieldValue(value as keyof Ticket, data[value as keyof Ticket]);
       });
     } else {
       formik.resetForm();
@@ -221,9 +197,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" px={4} pt={2}>
-        <Typography variant="h4">
-          {data ? data.label : "Nuovo Ticket"}
-        </Typography>
+        <Typography variant="h4">{data ? data.label : "Nuovo Ticket"}</Typography>
 
         <IconButton onClick={() => {}} color="error">
           <DeleteRoundedIcon />
@@ -238,13 +212,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
             <TextField name="label" type="text" label="Tipo" formik={formik} />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              name="description"
-              type="text"
-              label="Descrizione"
-              formik={formik}
-              maxRows={10}
-            />
+            <TextField name="description" type="text" label="Descrizione" formik={formik} maxRows={10} />
           </Grid>
           <Grid item xs={12}>
             <FormControl sx={{ width: "100%" }}>
@@ -259,9 +227,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
               >
                 <MenuItem value={TICKET_STATUSES.BACKLOG}>Backlog</MenuItem>
                 <MenuItem value={TICKET_STATUSES.TODO}>Da fare</MenuItem>
-                <MenuItem value={TICKET_STATUSES.PROGRESS}>
-                  In lavorazione
-                </MenuItem>
+                <MenuItem value={TICKET_STATUSES.PROGRESS}>In lavorazione</MenuItem>
                 <MenuItem value={TICKET_STATUSES.BLOCKED}>Bloccato</MenuItem>
                 <MenuItem value={TICKET_STATUSES.DONE}>Completato</MenuItem>
               </Select>
@@ -273,12 +239,8 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
               onChange={(e: any) => {
                 formik.setFieldValue("expiring_date", parseDateValue(e));
               }}
-              error={
-                !!(formik.errors.expiring_date && formik.touched.expiring_date)
-              }
-              helperText={
-                formik.touched.expiring_date && formik.errors.expiring_date
-              }
+              error={!!(formik.errors.expiring_date && formik.touched.expiring_date)}
+              helperText={formik.touched.expiring_date && formik.errors.expiring_date}
               onBlur={() => formik.setFieldTouched("expiring_date", true)}
               name="expiring_date"
               value={formik.values.expiring_date}

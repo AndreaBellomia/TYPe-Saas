@@ -1,12 +1,6 @@
-"use client"
+"use client";
 
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 
 import { StatusesType } from "@/models/Ticket";
 import { TICKET_STATUSES } from "@/constants";

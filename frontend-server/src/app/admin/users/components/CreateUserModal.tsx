@@ -3,7 +3,7 @@ import * as Yup from "yup";
 
 import { TextField } from "@/components/forms";
 import Modal from "@/components/Modal";
-import { Typography, Button, Box } from '@mui/material'
+import { Typography, Button, Box } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 
@@ -12,13 +12,11 @@ export interface CreateUserModalProps {
 }
 
 export function CreateUserModal({ state }: CreateUserModalProps) {
-  const API = new DjangoApi()
-  const [open, setOpen] = state
+  const API = new DjangoApi();
+  const [open, setOpen] = state;
 
   const formValidation = Yup.object().shape({
-    email: Yup.string()
-      .email("Email non valida")
-      .required("Campo obbligatorio"),
+    email: Yup.string().email("Email non valida").required("Campo obbligatorio"),
   });
 
   const formik = useFormik({
@@ -27,15 +25,16 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
     },
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
-      API.post("authentication/users/", 
-      (response) => {
-        setOpen(false)
-      }, 
-      () => {
-
-      }, {
-        ...values
-      })
+      API.post(
+        "authentication/users/",
+        (response) => {
+          setOpen(false);
+        },
+        () => {},
+        {
+          ...values,
+        },
+      );
     },
   });
 
@@ -43,24 +42,27 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
     <>
       <Modal state={state}>
         <>
-          <Typography gutterBottom variant="h4">Crea un nuovo utente</Typography>
+          <Typography gutterBottom variant="h4">
+            Crea un nuovo utente
+          </Typography>
 
-          <Typography variant="body2">Verrà inviata una email all&apos;indirizzo specificato. L&apos;utente potrà utilizzare la password comunicata via email per entrare nell&apos;app. </Typography>
-          <Typography variant="body2">E consigliabile aggiornare la password una volta effettuato il login dalla sezione profilo.</Typography>
+          <Typography variant="body2">
+            Verrà inviata una email all&apos;indirizzo specificato. L&apos;utente potrà utilizzare la password
+            comunicata via email per entrare nell&apos;app.{" "}
+          </Typography>
+          <Typography variant="body2">
+            E consigliabile aggiornare la password una volta effettuato il login dalla sezione profilo.
+          </Typography>
 
-          <Box my={2}/>
+          <Box my={2} />
 
-          <TextField
-            type="email"
-            name="email"
-            label="Email"
-            required
-            formik={formik}
-          />
+          <TextField type="email" name="email" label="Email" required formik={formik} />
 
-          <Box my={2}/>
+          <Box my={2} />
 
-          <Button onClick={() => formik.handleSubmit()} variant="contained">Crea</Button>
+          <Button onClick={() => formik.handleSubmit()} variant="contained">
+            Crea
+          </Button>
         </>
       </Modal>
     </>

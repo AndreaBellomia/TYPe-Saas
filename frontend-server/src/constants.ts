@@ -19,12 +19,7 @@ const RAW_GROUPS = [
   },
 ];
 
-const [GROUPS, GROUPS_MAPS] = ((): [
-  { [key: string]: number },
-  { [key: number]: string },
-] => {
-
-
+const [GROUPS, GROUPS_MAPS] = ((): [{ [key: string]: number }, { [key: number]: string }] => {
   const keysToNumbers: { [key: string]: number } = {};
   const numbersToLabels: { [key: number]: string } = {};
 
@@ -34,5 +29,5 @@ const [GROUPS, GROUPS_MAPS] = ((): [
   });
 
   return [keysToNumbers, numbersToLabels];
-})()
+})();
 export { GROUPS, GROUPS_MAPS, RAW_GROUPS };

@@ -33,20 +33,13 @@ export function DrawerTicket({ open, onClose, id }: DrawerTicketProps) {
         setMessages(data);
       },
       () => {
-        throw new FetchDispatchError(
-          "Errore durante il recupero dei dati, riprova più tardi.",
-        );
+        throw new FetchDispatchError("Errore durante il recupero dei dati, riprova più tardi.");
       },
     );
   };
 
   return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      anchor={"right"}
-      PaperProps={{ sx: { width: "100%", maxWidth: "65rem" } }}
-    >
+    <Drawer open={open} onClose={onClose} anchor={"right"} PaperProps={{ sx: { width: "100%", maxWidth: "65rem" } }}>
       <Form handlerCloseDrawer={onClose} id={id} />
       <Messages id={id} />
     </Drawer>

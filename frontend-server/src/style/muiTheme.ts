@@ -1,7 +1,7 @@
 import { createTheme, PaletteColor } from "@mui/material/styles";
 
-import { palette } from "./palette"
-import { typography } from "./typography"
+import { palette } from "./palette";
+import { typography } from "./typography";
 
 // declare module "@mui/material/styles/createPalette" {
 //   interface Palette {
@@ -21,7 +21,7 @@ const theme = createTheme({
   },
 
   //  @ts-ignore
-  typography: {...typography},
+  typography: { ...typography },
 
   components: {
     MuiButton: {

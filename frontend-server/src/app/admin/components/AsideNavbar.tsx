@@ -127,11 +127,7 @@ export function AsideNavbar() {
         {navBarUrl &&
           navBarUrl.map((e, index) => (
             <ListItem key={index} sx={{ padding: "4px 10px" }}>
-              <AsideButton
-                href={e.url}
-                open={collapsed}
-                active={pathname === e.url}
-              >
+              <AsideButton href={e.url} open={collapsed} active={pathname === e.url}>
                 {e.icon}
                 <Typography variant="subtitle2" color="primary.dark">
                   {e.name}

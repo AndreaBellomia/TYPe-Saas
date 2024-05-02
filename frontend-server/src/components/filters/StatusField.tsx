@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import React, { useState, useEffect } from "react";
+import OutlinedInput from "@mui/material/OutlinedInput";
 
-import MenuItem from '@mui/material/MenuItem';
-import { SelectChangeEvent } from '@mui/material';
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import ListItemText from '@mui/material/ListItemText';
-import Select from '@mui/material/Select';
+import MenuItem from "@mui/material/MenuItem";
+import { SelectChangeEvent } from "@mui/material";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import ListItemText from "@mui/material/ListItemText";
+import Select from "@mui/material/Select";
 
-import CheckIcon from '@mui/icons-material/Check';
+import CheckIcon from "@mui/icons-material/Check";
 
-import { TICKET_STATUSES } from "@/constants"
+import { TICKET_STATUSES } from "@/constants";
 
 interface ComponentProps {
-    state: [string, React.Dispatch<React.SetStateAction<string>>]
+  state: [string, React.Dispatch<React.SetStateAction<string>>];
 }
-
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -28,31 +27,31 @@ const MenuProps = {
   },
 };
 
-const names: { label: string, key: string }[] = [
+const names: { label: string; key: string }[] = [
   {
-    label: 'Backlog',
+    label: "Backlog",
     key: TICKET_STATUSES.BACKLOG,
   },
   {
-    label: 'Da fare',
+    label: "Da fare",
     key: TICKET_STATUSES.TODO,
   },
   {
-    label: 'In lavorazione',
+    label: "In lavorazione",
     key: TICKET_STATUSES.PROGRESS,
   },
   {
-    label: 'Bloccato',
+    label: "Bloccato",
     key: TICKET_STATUSES.BLOCKED,
   },
   {
-    label: 'Completo',
+    label: "Completo",
     key: TICKET_STATUSES.DONE,
   },
 ];
 
 function getRenderValue(selected: Array<string>) {
-  return selected.map((key) => names.find((obj) => obj.key === key)?.label).join(', ');
+  return selected.map((key) => names.find((obj) => obj.key === key)?.label).join(", ");
 }
 
 export default function _({ state }: ComponentProps) {
@@ -62,18 +61,18 @@ export default function _({ state }: ComponentProps) {
     const {
       target: { value },
     } = event;
-    
+
     // @ts-ignore
-    setValue(value.join(','));
+    setValue(value.join(","));
   };
 
   const getValues = () => {
-    return value ? value.split(',') : [];
+    return value ? value.split(",") : [];
   };
 
   return (
     <div>
-      <FormControl sx={{ width: '100%' }}>
+      <FormControl sx={{ width: "100%" }}>
         <Select
           multiple
           value={getValues()}

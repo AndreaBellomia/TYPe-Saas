@@ -1,5 +1,3 @@
 export default function _() {
-    return <>
-    account non attivo cambia prima password 
-    </>
+  return <>account non attivo cambia prima password</>;
 }

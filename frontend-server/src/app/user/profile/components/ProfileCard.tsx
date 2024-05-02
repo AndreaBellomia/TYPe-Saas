@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Paper, Box, Grid, Chip, Button } from "@mui/material";
 import Avatar from "@/components/Avatar";
 import { GROUPS_MAPS } from "@/constants";
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 
 import TextField from "@/components/forms/TextField";
 
@@ -15,7 +15,7 @@ import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { useEffect } from "react";
 
 export interface ProfileCardProps {
-  user: User | null;
+  user: UserModel | null;
 }
 
 function ProfileCard({ user }: ProfileCardProps) {
@@ -23,12 +23,8 @@ function ProfileCard({ user }: ProfileCardProps) {
   const router = useRouter();
 
   const formValidation = Yup.object().shape({
-    first_name: Yup.string()
-      .max(100, "Nome troppo lungo")
-      .required("Campo obbligatorio"),
-    last_name: Yup.string()
-      .max(100, "Nome troppo corto")
-      .required("Campo obbligatorio"),
+    first_name: Yup.string().max(100, "Nome troppo lungo").required("Campo obbligatorio"),
+    last_name: Yup.string().max(100, "Nome troppo corto").required("Campo obbligatorio"),
     phone_number: Yup.string(),
   });
 
@@ -78,13 +74,7 @@ function ProfileCard({ user }: ProfileCardProps) {
         <Box sx={{ p: 2 }}>
           <Grid container spacing={4}>
             <Grid item xs={6}>
-              {user && (
-                <Avatar
-                  user={user}
-                  dimension={60}
-                  typographyProps={{ variant: "h4" }}
-                />
-              )}
+              {user && <Avatar user={user} dimension={60} typographyProps={{ variant: "h4" }} />}
             </Grid>
             <Grid item xs={6} textAlign="end" alignSelf="center">
               {user &&
@@ -97,45 +87,21 @@ function ProfileCard({ user }: ProfileCardProps) {
               {user && user.is_staff && <Chip label="Staff" color="info" sx={{ ml: 1 }} />}
 
               {user &&
-                user.groups.map((e, i) => (
-                  <Chip sx={{ ml: 1 }} label={GROUPS_MAPS[e]} color="secondary" key={i} />
-                ))}
+                user.groups.map((e, i) => <Chip sx={{ ml: 1 }} label={GROUPS_MAPS[e]} color="secondary" key={i} />)}
             </Grid>
 
             <Grid item xs={12}>
-              <TextField
-                required
-                label="Nome"
-                name="first_name"
-                type="text"
-                formik={formik}
-              />
+              <TextField required label="Nome" name="first_name" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                required
-                label="Cognome"
-                name="last_name"
-                type="text"
-                formik={formik}
-              />
+              <TextField required label="Cognome" name="last_name" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                required
-                label="Numero di telefono"
-                name="phone_number"
-                type="text"
-                formik={formik}
-              />
+              <TextField required label="Numero di telefono" name="phone_number" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12} textAlign="end">
               {/* @ts-ignore */}
-              <Button
-                variant="contained"
-                disabled={!(formik.isValid && formik.dirty)}
-                onClick={formik.handleSubmit}
-              >
+              <Button variant="contained" disabled={!(formik.isValid && formik.dirty)} onClick={formik.handleSubmit}>
                 Aggiorna
               </Button>
             </Grid>

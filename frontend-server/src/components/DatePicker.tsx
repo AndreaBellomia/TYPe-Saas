@@ -5,12 +5,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 
-
 function CustomTextField(props: FilledTextFieldProps): React.ReactElement {
   const { error, ...other } = props;
-  return (
-    <TextField {...other} sx={{ width: "100%" }} error={error ?? props.error} />
-  );
+  return <TextField {...other} sx={{ width: "100%" }} error={error ?? props.error} />;
 }
 
 export default function CustomDatePicker(props: any) {
@@ -30,7 +27,7 @@ export default function CustomDatePicker(props: any) {
             error: otherProps.error,
             helperText: otherProps.helperText,
             label: otherProps.label,
-            onBlur: otherProps.onBlur
+            onBlur: otherProps.onBlur,
           },
           actionBar: { actions: ["clear"] },
         }}

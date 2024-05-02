@@ -5,7 +5,6 @@ import storage from "redux-persist/lib/storage";
 import navbarReducer from "./reducers/navbarReducer";
 import userReducer from "./reducers/userReducer";
 
-
 const persistConfig = {
   key: "root",
   storage,
@@ -15,7 +14,6 @@ const rootReducer = combineReducers({
   navbar: persistReducer(persistConfig, navbarReducer),
   user: persistReducer(persistConfig, userReducer),
 });
-
 
 export const store = configureStore({
   reducer: rootReducer,

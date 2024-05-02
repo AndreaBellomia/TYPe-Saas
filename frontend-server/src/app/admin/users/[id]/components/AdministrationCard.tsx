@@ -9,20 +9,17 @@ import {
   FormControlLabel,
   FormHelperText,
   FormGroup,
-  Switch
+  Switch,
 } from "@mui/material";
 
-import ClearIcon from "@mui/icons-material/Clear";
+import { UserModel } from "@/models/User";
 
-import { User } from "@/types";
-
-import { GROUPS_MAPS, RAW_GROUPS } from "@/constants";
+import { RAW_GROUPS } from "@/constants";
 
 import { DjangoApi } from "@/libs/fetch";
 
-
 export interface AdministrationCardProps {
-  user: User;
+  user: UserModel;
 }
 
 export function AdministrationCard({ user }: AdministrationCardProps) {
@@ -31,10 +28,7 @@ export function AdministrationCard({ user }: AdministrationCardProps) {
   const [active, setActive] = useState<boolean>(user.is_active);
   const [staff, setStaff] = useState<boolean>(user.is_staff);
 
-  const handlerCheck = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    checked: boolean,
-  ) => {
+  const handlerCheck = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const value = parseInt(event.target.value);
     if (checked) {
       setGroups((prevGroups) => [...prevGroups, value]);
@@ -61,32 +55,27 @@ export function AdministrationCard({ user }: AdministrationCardProps) {
   return (
     <>
       <Paper elevation={5} sx={{ height: "100%" }}>
-        <Box
-          p={2}
-          sx={{ height: "100%", display: "flex", flexDirection: "column" }}
-        >
+        <Box p={2} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
           <Typography variant="h6">Amministrazione</Typography>
 
           <FormGroup>
             <FormControlLabel
-              control={
-                <Switch
-                  checked={active}
-                  onChange={() => setActive(!active)}
-                />
-              }
+              control={<Switch checked={active} onChange={() => setActive(!active)} />}
               label="Attivo"
             />
-            <FormHelperText>L&lsquo;utente potra accedere all&lsquo;applicazione ma non potrà utilizzare utilizzarla</FormHelperText>
+            <FormHelperText>
+              L&lsquo;utente potra accedere all&lsquo;applicazione ma non potrà utilizzare utilizzarla
+            </FormHelperText>
 
             <FormControlLabel
-              control={
-                <Switch checked={staff} onChange={() => setStaff(!staff)} />
-              }
+              control={<Switch checked={staff} onChange={() => setStaff(!staff)} />}
               label="Staff user"
             />
 
-            <FormHelperText>L&lsquo;utente avrà accesso alla pagina amministrazione, bisogna aggiungere i permessi specifici per l&lsquo;utente</FormHelperText>
+            <FormHelperText>
+              L&lsquo;utente avrà accesso alla pagina amministrazione, bisogna aggiungere i permessi specifici per
+              l&lsquo;utente
+            </FormHelperText>
           </FormGroup>
 
           {staff && (

@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import { InputBase, TextField, InputAdornment } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import React, { useEffect, useState } from "react";
+import { styled, alpha } from "@mui/material/styles";
+import { InputBase, TextField, InputAdornment } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 interface ComponentsProp {
-    setterValue: React.Dispatch<string>;
-    placeholder: string
+  setterValue: React.Dispatch<string>;
+  placeholder: string;
 }
 
-export default function InputSearch({ setterValue, placeholder = 'Cerca...' }: ComponentsProp) {
-  const [debouncedInput, setDebouncedInput] = useState('');
+export default function InputSearch({ setterValue, placeholder = "Cerca..." }: ComponentsProp) {
+  const [debouncedInput, setDebouncedInput] = useState("");
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -27,7 +27,7 @@ export default function InputSearch({ setterValue, placeholder = 'Cerca...' }: C
       placeholder={placeholder}
       variant="outlined"
       onInput={(event: React.ChangeEvent<HTMLInputElement>) => setDebouncedInput(event.target.value)}
-      sx={{ width: '100%' }}
+      sx={{ width: "100%" }}
       InputProps={{
         startAdornment: <SearchIcon />,
       }}

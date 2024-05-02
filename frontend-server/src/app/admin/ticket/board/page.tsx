@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Paper, Typography, Box, Grid, Button } from "@mui/material";
 
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
-import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket"
+import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
 import { TICKET_STATUSES } from "@/constants";
 
@@ -15,12 +15,12 @@ export default function _() {
   function handlerMoveCard(data: any) {
     const oldStatus = data.targetData.node.data.value.status;
     const newStatus = data.targetData.parent.data.config.name;
-  
+
     if (oldStatus !== newStatus) {
       API.put(
         "/ticket/admin/update_board/",
         (response) => {
-          data.targetData.node.data.value.status = newStatus
+          data.targetData.node.data.value.status = newStatus;
         },
         (e) => {
           console.error(e);
@@ -33,8 +33,8 @@ export default function _() {
     }
   }
 
-  const [drawerTicket, setDrawerTicket] = useState(false)
-  const drawerTicketID = useRef<string | null>(null)
+  const [drawerTicket, setDrawerTicket] = useState(false);
+  const drawerTicketID = useRef<string | null>(null);
   const [boardItems, setBoardItems] = useState({
     todo: [],
     progress: [],
@@ -54,18 +54,17 @@ export default function _() {
     );
   }, []);
 
-
   const handlerOpenModal = (id: string | null): void => {
-    drawerTicketID.current = null
+    drawerTicketID.current = null;
     if (id) {
-      drawerTicketID.current = id
-    } 
-    setDrawerTicket(true)
-  }
+      drawerTicketID.current = id;
+    }
+    setDrawerTicket(true);
+  };
 
   return (
     <>
-      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current}/>
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current} />
       <Box
         sx={{
           display: "flex",
@@ -75,11 +74,18 @@ export default function _() {
           boxSizing: "border-box",
         }}
       >
-        <Box display="flex" justifyContent="space-between" mb={2} >
+        <Box display="flex" justifyContent="space-between" mb={2}>
           <Typography variant="h4" color="initial">
             Board
           </Typography>
-          <Button variant="contained" onClick={() => {handlerOpenModal(null)}}>Crea ticket</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handlerOpenModal(null);
+            }}
+          >
+            Crea ticket
+          </Button>
         </Box>
         <Grid container spacing={1} sx={{ height: "100%" }}>
           <Grid item xs={3}>

@@ -27,13 +27,12 @@
 //         (response) => {
 //             setData(response.data.results)
 //             console.log(response.data)
-//         }, 
+//         },
 //         (e) => {
 //             console.error(e);
 //         }
 //     )
 //   }, [])
-
 
 //   const handlerScroll = (event: Event): void => {
 //     const target = scrollContainerRef.current as HTMLElement;
@@ -62,7 +61,6 @@
 //           label: data[data.length - 1].label + index,
 //         }));
 
-
 //       SetLoading(true);
 //       setTimeout(() => {
 //         setData((prev) => [...newElements, ...prev.slice(0, len - 10)]);
@@ -79,7 +77,7 @@
 //         onScroll={handlerScroll}
 //         ref={scrollContainerRef}
 //       >
-//         {/*@ts-ignore*/} 
+//         {/*@ts-ignore*/}
 //         {data && data.map((e, index) => <TicketCard label={e.label} description={e.description} status={e.status} key={index}/>)}
 //       </Box>
 //       <Backdrop

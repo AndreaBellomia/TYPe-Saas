@@ -2,22 +2,16 @@
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 import { RootState } from "@/redux/store";
 
-import {
-  Menu,
-  Typography,
-  Box,
-  Button,
-  Divider,
-} from "@mui/material";
+import { Menu, Typography, Box, Button, Divider } from "@mui/material";
 
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-import { AuthUtility } from "@/libs/auth";
+import { logoutUser } from "@/libs/auth";
 
 export interface ProfileMenuProps {
   open: boolean;
@@ -26,9 +20,8 @@ export interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
-  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
-
 
   const handlerAdmin = () => {
     router.push("/admin/ticket/board");
@@ -41,7 +34,7 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   };
 
   const handlerLogOut = async () => {
-    const response = await AuthUtility.logoutUser();
+    const response = await logoutUser();
     router.push("/authentication/login");
     handlerOpen(false);
   };
@@ -59,7 +52,6 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
           vertical: "bottom",
           horizontal: "right",
         }}
-
         transformOrigin={{
           vertical: "top",
           horizontal: "right",
@@ -82,28 +74,16 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
           <Divider sx={{ my: 2 }} />
 
           {user?.is_staff && (
-            <Button
-              fullWidth
-              onClick={handlerAdmin}
-              sx={{ justifyContent: "start", mb: 1 }}
-            >
+            <Button fullWidth onClick={handlerAdmin} sx={{ justifyContent: "start", mb: 1 }}>
               <AdminPanelSettingsIcon sx={{ mr: 2 }} />
               Admin
             </Button>
           )}
-          <Button
-            fullWidth
-            onClick={handlerSettings}
-            sx={{ justifyContent: "start", mb: 1 }}
-          >
+          <Button fullWidth onClick={handlerSettings} sx={{ justifyContent: "start", mb: 1 }}>
             <SettingsIcon sx={{ mr: 2 }} />
             Impostazioni
           </Button>
-          <Button
-            fullWidth
-            onClick={handlerLogOut}
-            sx={{ justifyContent: "start" }}
-          >
+          <Button fullWidth onClick={handlerLogOut} sx={{ justifyContent: "start" }}>
             <LogoutRoundedIcon sx={{ mr: 2 }} />
             Logout
           </Button>

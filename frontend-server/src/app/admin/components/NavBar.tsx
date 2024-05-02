@@ -2,18 +2,12 @@
 import React, { useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 import { RootState } from "@/redux/store";
 
 import { styled, lighten } from "@mui/material/styles";
 
-import {
-  Box,
-  CssBaseline,
-  Toolbar,
-  IconButton,
-  ButtonBase,
-} from "@mui/material";
+import { Box, CssBaseline, Toolbar, IconButton, ButtonBase } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import SortIcon from "@mui/icons-material/Sort";
@@ -76,7 +70,7 @@ export default function _({
 }>) {
   const dispatch = useDispatch();
   const collapsed = useSelector((state: RootState) => state.navbar.collapsed);
-  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
 
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
@@ -130,9 +124,7 @@ export default function _({
                     setProfileMenu(true);
                   }}
                 >
-                  {user && (
-                    <Avatar user={user} dimension={24} collapsed></Avatar>
-                  )}
+                  {user && <Avatar user={user} dimension={24} collapsed></Avatar>}
 
                   <Box m={0.5} />
 
@@ -143,11 +135,7 @@ export default function _({
           </Toolbar>
         </AppBar>
 
-        <ProfileMenu
-          open={profileMenu}
-          handlerOpen={setProfileMenu}
-          anchorEl={appBarRef.current}
-        />
+        <ProfileMenu open={profileMenu} handlerOpen={setProfileMenu} anchorEl={appBarRef.current} />
 
         <AsideNavbar />
         <Main open={collapsed}>{children}</Main>

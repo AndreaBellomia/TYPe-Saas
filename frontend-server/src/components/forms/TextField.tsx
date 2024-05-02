@@ -5,21 +5,14 @@ import { FormikHandlers, useFormik } from "formik";
 
 interface ComponentsProps {
   name: string;
-  required?: boolean
-  type: React.InputHTMLAttributes<unknown>['type'];
+  required?: boolean;
+  type: React.InputHTMLAttributes<unknown>["type"];
   maxRows?: number;
   label: string;
-  formik: ReturnType<typeof useFormik<any>>
+  formik: ReturnType<typeof useFormik<any>>;
 }
 
-export default function _({
-  name,
-  type,
-  label,
-  maxRows,
-  required,
-  formik
-}: ComponentsProps) {
+export default function _({ name, type, label, maxRows, required, formik }: ComponentsProps) {
   return (
     <TextField
       sx={{ width: "100%" }}

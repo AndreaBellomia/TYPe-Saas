@@ -9,11 +9,11 @@ import { useRouter } from "next/navigation";
 
 import { DjangoApi } from "@/libs/fetch";
 
-import { Ticket } from "@/types";
+import { Ticket } from "@/models/Ticket";
 
 export default function _() {
   const API = new DjangoApi();
-  
+
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState(0);
@@ -37,10 +37,7 @@ export default function _() {
     <>
       <Grid container>
         <Grid item xs={6}>
-          <Button
-            variant="contained"
-            onClick={() => router.push("ticket/crea")}
-          >
+          <Button variant="contained" onClick={() => router.push("ticket/crea")}>
             Nuovo ticket
           </Button>
         </Grid>

@@ -45,9 +45,7 @@ export function Messages({ id }: DrawerMessagesProps) {
           setMessages(data);
         },
         (error) => {
-          throw new FetchDispatchError(
-            "Errore durante il recupero dei messaggio",
-          );
+          throw new FetchDispatchError("Errore durante il recupero dei messaggio");
         },
       );
   }, [id, messages]);
@@ -61,9 +59,7 @@ export function Messages({ id }: DrawerMessagesProps) {
           setMessages(null);
         },
         (error) => {
-          throw new FetchDispatchError(
-            "Errore durante il recupero dei messaggio",
-          );
+          throw new FetchDispatchError("Errore durante il recupero dei messaggio");
         },
         {
           message: inputMessage,
@@ -75,17 +71,11 @@ export function Messages({ id }: DrawerMessagesProps) {
     <>
       <Box p={4}>
         <FormControl fullWidth variant="outlined">
-          <InputLabel htmlFor="outlined-adornment-password">
-            Aggiungi un commento
-          </InputLabel>
+          <InputLabel htmlFor="outlined-adornment-password">Aggiungi un commento</InputLabel>
           <OutlinedInput
             endAdornment={
               <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handlerPost}
-                  edge="end"
-                >
+                <IconButton aria-label="toggle password visibility" onClick={handlerPost} edge="end">
                   <SendRoundedIcon />
                 </IconButton>
               </InputAdornment>
@@ -109,14 +99,8 @@ export function Messages({ id }: DrawerMessagesProps) {
                     <Typography variant="subtitle1">
                       {msg.author.first_name} {msg.author.last_name}
                     </Typography>
-                    <FiberManualRecordRoundedIcon
-                      sx={{ height: 10, ml: 1 }}
-                      color="secondary"
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{ position: "relative", top: 1 }}
-                    >
+                    <FiberManualRecordRoundedIcon sx={{ height: 10, ml: 1 }} color="secondary" />
+                    <Typography variant="caption" sx={{ position: "relative", top: 1 }}>
                       {timeElapsed(msg.created_at)}
                     </Typography>
                   </Box>

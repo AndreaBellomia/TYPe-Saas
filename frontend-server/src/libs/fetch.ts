@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
-import { snack } from "@/libs/SnakClient"
-import { AuthUtility } from "./auth";
+import { snack } from "@/libs/SnakClient";
+import { getToken } from "@/libs/auth";
 
 type ParamsList = Array<{ param: string; value: string }>;
 type GenericObject = { [key: string]: any };
@@ -29,7 +29,6 @@ export class Axios {
   protected axiosClient: AxiosInstance;
 
   constructor(headers = {}) {
-
     this.axiosClient = axios.create({
       headers: {
         ...headers,
@@ -57,7 +56,7 @@ export class Axios {
           error(reason);
         } catch (e) {
           if (e instanceof FetchDispatchError) {
-            snack.error(e.message)
+            snack.error(e.message);
           }
 
           console.error("Api fetch error: ", e);
@@ -65,48 +64,23 @@ export class Axios {
       });
   }
 
-  get(
-    url: string,
-    callback: CallbackFunction,
-    error: CallbackFunction,
-    args: GenericObject = {},
-  ) {
+  get(url: string, callback: CallbackFunction, error: CallbackFunction, args: GenericObject = {}) {
     this.fetch(url, AxiosMethods.GET, callback, error, args);
   }
 
-  post(
-    url: string,
-    callback: CallbackFunction,
-    error: CallbackFunction,
-    args: GenericObject = {},
-  ) {
+  post(url: string, callback: CallbackFunction, error: CallbackFunction, args: GenericObject = {}) {
     this.fetch(url, AxiosMethods.POST, callback, error, args);
   }
 
-  put(
-    url: string,
-    callback: CallbackFunction,
-    error: CallbackFunction,
-    args: GenericObject = {},
-  ) {
+  put(url: string, callback: CallbackFunction, error: CallbackFunction, args: GenericObject = {}) {
     this.fetch(url, AxiosMethods.PUT, callback, error, args);
   }
 
-  patch(
-    url: string,
-    callback: CallbackFunction,
-    error: CallbackFunction,
-    args: GenericObject = {},
-  ) {
+  patch(url: string, callback: CallbackFunction, error: CallbackFunction, args: GenericObject = {}) {
     this.fetch(url, AxiosMethods.PATCH, callback, error, args);
   }
 
-  delete(
-    url: string,
-    callback: CallbackFunction,
-    error: CallbackFunction,
-    args: GenericObject = {},
-  ) {
+  delete(url: string, callback: CallbackFunction, error: CallbackFunction, args: GenericObject = {}) {
     this.fetch(url, AxiosMethods.DELETE, callback, error, args);
   }
 
@@ -127,9 +101,9 @@ export class DjangoApi extends Axios {
   constructor() {
     try {
       super({
-        "Authorization" : `Token ${AuthUtility.getToken()}`
+        Authorization: `Token ${getToken()}`,
       });
-  
+
       this.axiosClient.defaults.baseURL = URLS.API_SERVER;
       this.axiosClient.defaults.withCredentials = true;
     } catch (error) {

@@ -1,21 +1,18 @@
 import { PersistPartial } from "redux-persist/es/persistReducer";
 import { Reducer, Action } from "redux";
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 
 interface UserState {
-  user: null | User;
+  user: null | UserModel;
 }
 
-type UserAction = { type: "USER_GET" } | { type: "USER_SET"; payload: User };
+type UserAction = { type: "USER_GET" } | { type: "USER_SET"; payload: UserModel };
 
 const initialState: UserState = {
   user: null,
 };
 
-const userReducer: Reducer<UserState & Partial<PersistPartial>, UserAction> = (
-  state = initialState,
-  action,
-) => {
+const userReducer: Reducer<UserState & Partial<PersistPartial>, UserAction> = (state = initialState, action) => {
   switch (action.type) {
     case "USER_SET":
       return {
@@ -23,7 +20,7 @@ const userReducer: Reducer<UserState & Partial<PersistPartial>, UserAction> = (
         user: action.payload,
       };
     case "USER_GET":
-      return state
+      return state;
 
     default:
       return state;

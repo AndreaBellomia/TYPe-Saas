@@ -4,14 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
 import { useFormik } from "formik";
-import { AuthUtility, JWT_EXPIRE, JWT_TOKEN } from "@/libs/auth";
+import { JWT_EXPIRE, JWT_TOKEN } from "@/libs/auth";
 
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { Button, Paper, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 
 import TextField from "@/components/forms/TextField";
 import { snack } from "@/libs/SnakClient";
@@ -29,17 +29,12 @@ const CenterCard = styled(Box)(({ theme }) => ({
 
 export default function _() {
   const router = useRouter();
-  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
 
   const formValidation = Yup.object().shape({
-    password: Yup.string()
-      .min(2, "Troppo breve!")
-      .max(100, "Troppo lunga")
-      .required("Campo obbligatorio"),
-    email: Yup.string()
-      .email("Email non valida")
-      .required("Campo obbligatorio"),
+    password: Yup.string().min(2, "Troppo breve!").max(100, "Troppo lunga").required("Campo obbligatorio"),
+    email: Yup.string().email("Email non valida").required("Campo obbligatorio"),
   });
 
   const formik = useFormik({
@@ -68,7 +63,7 @@ export default function _() {
         router.push("/user/ticket");
         return;
       }
-      
+
       helpers.setFieldError("password", "Email o password non sono corretti");
     },
   });
@@ -90,32 +85,16 @@ export default function _() {
 
               <Box sx={{ my: 2 }} />
 
-              <TextField
-                required
-                label="Email"
-                name="email"
-                type="email"
-                formik={formik}
-              />
+              <TextField required label="Email" name="email" type="email" formik={formik} />
 
               <Box sx={{ my: 2 }} />
 
-              <TextField
-                required
-                label="Password"
-                name="password"
-                type="password"
-                formik={formik}
-              />
+              <TextField required label="Password" name="password" type="password" formik={formik} />
 
               <Box sx={{ my: 2 }} />
 
               {/*  @ts-ignore */}
-              <Button
-                variant="contained"
-                onClick={formik.handleSubmit}
-                disabled={!(formik.isValid && formik.dirty)}
-              >
+              <Button variant="contained" onClick={formik.handleSubmit} disabled={!(formik.isValid && formik.dirty)}>
                 Login
               </Button>
             </Box>

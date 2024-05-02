@@ -101,6 +101,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
 
     user_info = UserInfoSerializer()
+    groups = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = CustomUser

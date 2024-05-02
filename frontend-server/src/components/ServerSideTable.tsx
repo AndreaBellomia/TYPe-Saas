@@ -2,21 +2,9 @@ import { useEffect, useState } from "react";
 
 import { styled, lighten } from "@mui/material/styles";
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import {
-  Table,
-  TableHead,
-  TableCell,
-  TableRow,
-  TableSortLabel,
-  TableBody,
-} from "@mui/material";
+import { Table, TableHead, TableCell, TableRow, TableSortLabel, TableBody } from "@mui/material";
 
 interface TableState {
   page: number;
@@ -27,21 +15,13 @@ interface TableState {
 }
 
 interface TableAction {
-  type:
-    | "SET_PAGE"
-    | "SET_ORDER"
-    | "SET_COUNT"
-    | "SET_SEARCH"
-    | "SET_STATE"
-    | "GET_TABLE_SORT";
+  type: "SET_PAGE" | "SET_ORDER" | "SET_COUNT" | "SET_SEARCH" | "SET_STATE" | "GET_TABLE_SORT";
   payload?: any;
 }
-
 
 const CustomTableHeader = styled(TableHead)(({ theme }) => ({
   backgroundColor: theme.palette.grey[300],
 }));
-
 
 export function tableReducer(state: TableState, action: TableAction) {
   switch (action.type) {
@@ -81,11 +61,7 @@ export interface ServerSideTable<T> {
   setState: React.Dispatch<TableAction>;
 }
 
-export function ServerSideTable<T>({
-  data,
-  columns,
-  setState,
-}: ServerSideTable<T>) {
+export function ServerSideTable<T>({ data, columns, setState }: ServerSideTable<T>) {
   const [sorting, setSorting] = useState<{ id: string; desc: boolean }[]>([]);
 
   useEffect(() => {
@@ -128,21 +104,13 @@ export function ServerSideTable<T>({
                 >
                   {header.isPlaceholder ? null : header.column.getCanSort() ? (
                     <TableSortLabel
-                      active={
-                        header.column.getIsSorted() === false ? false : true
-                      }
+                      active={header.column.getIsSorted() === false ? false : true}
                       direction={header.column.getIsSorted() || undefined}
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                     </TableSortLabel>
                   ) : (
-                    flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )
+                    flexRender(header.column.columnDef.header, header.getContext())
                   )}
                 </TableCell>
               ))}
@@ -161,7 +129,6 @@ export function ServerSideTable<T>({
                   sx={{
                     width: cell.column.getSize(),
                   }}
-                  
                   // @ts-ignore
                   padding={cell.column.columnDef.meta?.padding || "normal"}
                 >

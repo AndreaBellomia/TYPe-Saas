@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Snackbar, { SnackProvider } from "@/components/Snackbar";
-import ThemeProvider from '@/app/ThemeProvider';
+import ThemeProvider from "@/app/ThemeProvider";
 import StoreProvider from "@/app/StoreProvider";
-import PermissionRout from "@/app/PermissionRout"
+import PermissionRout from "@/app/PermissionRout";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -28,7 +28,7 @@ export default function RootLayout({
           margin: 0,
           top: 0,
           position: "absolute",
-          backgroundColor: "#fbfbfb"
+          backgroundColor: "#fbfbfb",
         }}
       >
         <StoreProvider>

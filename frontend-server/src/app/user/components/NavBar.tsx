@@ -4,24 +4,14 @@ import React, { useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import {
-  Typography,
-  Button,
-  AppBar,
-  Toolbar,
-  Box,
-  Container,
-  ButtonBase,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { Typography, Button, AppBar, Toolbar, Box, Container, ButtonBase, Menu, MenuItem } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { User } from "@/types";
+import { UserModel } from "@/models/User";
 
 import { StyledAvatar } from "@/components/Avatar";
 
-import { AuthUtility } from "@/libs/auth";
+import { logoutUser } from "@/libs/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
@@ -35,7 +25,7 @@ const CustomToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 function NavBar({ children }: { children: React.ReactNode }) {
-  const user: User | null = useSelector((state: RootState) => state.user.user);
+  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
 
   const [profileMenu, setProfileMenu] = React.useState(false);
@@ -46,17 +36,15 @@ function NavBar({ children }: { children: React.ReactNode }) {
   };
 
   const handlerLogOut = async () => {
-    const response = await AuthUtility.logoutUser();
+    const response = await logoutUser();
     router.push("/authentication/login");
   };
 
   return (
     <>
       <CustomAppBar position="fixed">
-        <Container ref={appBarRef} >
-          <CustomToolbar
-            sx={{ display: "flex", justifyContent: "space-between" }}
-          >
+        <Container ref={appBarRef}>
+          <CustomToolbar sx={{ display: "flex", justifyContent: "space-between" }}>
             <Box>
               <Button color="inherit" href="/user/ticket">
                 Ticket
@@ -67,11 +55,7 @@ function NavBar({ children }: { children: React.ReactNode }) {
               <ButtonBase onClick={() => handleClick()} sx={{ borderRadius: 100 }}>
                 <StyledAvatar></StyledAvatar>
               </ButtonBase>
-              <ProfileMenu
-                  open={profileMenu}
-                  handlerOpen={setProfileMenu}
-                  anchorEl={appBarRef.current}
-                />
+              <ProfileMenu open={profileMenu} handlerOpen={setProfileMenu} anchorEl={appBarRef.current} />
             </Box>
           </CustomToolbar>
         </Container>

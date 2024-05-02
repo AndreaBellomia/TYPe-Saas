@@ -1,15 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useReducer } from "react";
 
-import {
-  Pagination,
-  Grid,
-  Button,
-  Box,
-  Paper,
-  Typography,
-  IconButton,
-} from "@mui/material";
+import { Pagination, Grid, Button, Box, Paper, Typography, IconButton } from "@mui/material";
 
 import { DjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
@@ -26,10 +18,9 @@ import { Ticket } from "@/models/Ticket";
 
 import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeCol";
 
-
 export default function _() {
   const API = new DjangoApi();
-  
+
   const [drawerTicket, setDrawerTicket] = useState(false);
   const drawerTicketID = useRef<string | null>(null);
 
@@ -87,12 +78,7 @@ export default function _() {
     }),
     columnHelper.accessor("status", {
       header: "Stato",
-      cell: (info) => (
-        <StatusChangeCol
-          initialValue={info.getValue()}
-          id={info.row.getValue("id")}
-        />
-      ),
+      cell: (info) => <StatusChangeCol initialValue={info.getValue()} id={info.row.getValue("id")} />,
       meta: {
         padding: "none",
       },
@@ -116,11 +102,7 @@ export default function _() {
 
   return (
     <>
-      <DrawerTicket
-        open={drawerTicket}
-        onClose={() => setDrawerTicket(false)}
-        id={drawerTicketID.current}
-      />
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current} />
       <Grid container spacing={2}>
         <Grid item xs={12} textAlign="end">
           <Button variant="contained" onClick={() => handlerOpenModal(null)}>
@@ -149,11 +131,7 @@ export default function _() {
                 />
               </Grid>
             </Grid>
-            <ServerSideTable
-              data={tableData}
-              columns={columns}
-              setState={tableDispatch}
-            />
+            <ServerSideTable data={tableData} columns={columns} setState={tableDispatch} />
 
             <Box p={2} display="flex" justifyContent="end">
               <Pagination
