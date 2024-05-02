@@ -1,28 +1,27 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { Container, Pagination, Button, Box, Grid } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Pagination, Button, Box, Grid } from "@mui/material";
 
 import TicketCard from "@/app/user/ticket/components/TicketCard";
 import { useRouter } from "next/navigation";
 
-// import InfiniteScroll from "./components/InfiniteScroll";
-
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 
 import { Ticket } from "@/models/Ticket";
 
 export default function _() {
-  const API = new DjangoApi();
-
+  const api = useDjangoApi();
   const router = useRouter();
-  const [page, setPage] = useState(0);
-  const [pageCount, setPageCount] = useState(0);
 
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
   const [data, setData] = useState<Ticket[]>([]);
 
+
   useEffect(() => {
-    API.get(
-      "ticket/",
+    const url: string = DjangoApi.buildURLparams("/ticket/", [{ param: "page", value: String(page) }]);
+    api.get(
+      url,
       (response) => {
         setData(response.data.results);
         setPageCount(response.data.num_pages);
@@ -31,14 +30,14 @@ export default function _() {
         console.error(e);
       },
     );
-  }, []);
+  }, [page]);
 
   return (
     <>
       <Grid container>
         <Grid item xs={6}>
           <Button variant="contained" onClick={() => router.push("ticket/crea")}>
-            Nuovo ticket
+            Nuova richiesta
           </Button>
         </Grid>
         <Grid item xs={6}>

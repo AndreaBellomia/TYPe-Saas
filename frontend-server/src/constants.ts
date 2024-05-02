@@ -31,3 +31,12 @@ const [GROUPS, GROUPS_MAPS] = ((): [{ [key: string]: number }, { [key: number]: 
   return [keysToNumbers, numbersToLabels];
 })();
 export { GROUPS, GROUPS_MAPS, RAW_GROUPS };
+
+
+export enum UserTicketLabel {
+  backlog = "Inviato",
+  todo = "Inviato",
+  progress = "In lavorazione",
+  blocked = "Bloccato",
+  done = "Completato",
+}

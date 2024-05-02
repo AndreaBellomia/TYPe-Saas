@@ -1,25 +1,37 @@
 "use client";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Paper, Box, Grid, Chip, Button } from "@mui/material";
-import Avatar from "@/components/Avatar";
-import { GROUPS_MAPS } from "@/constants";
-import { UserModel } from "@/models/User";
 
+import { styled } from "@mui/material/styles";
+import { Paper, Box, Grid, Chip, FormLabel } from "@mui/material";
+
+import * as Yup from "yup";
+import { useFormik } from "formik";
+
+import Avatar from "@/components/Avatar";
 import TextField from "@/components/forms/TextField";
 
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { snack } from "@/libs/SnakClient";
+import { useDjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { UserModel, PermissionGroupTag } from "@/models/User";
+import { ResponsiveButton } from "@/components/forms";
 
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
-import { useEffect } from "react";
+const TagContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "end",
+  alignItems: "center",
+
+  [theme.breakpoints.down("lg")]: {
+    justifyContent: "start",
+  },
+}));
 
 export interface ProfileCardProps {
   user: UserModel | null;
 }
 
 function ProfileCard({ user }: ProfileCardProps) {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
   const router = useRouter();
 
   const formValidation = Yup.object().shape({
@@ -36,10 +48,9 @@ function ProfileCard({ user }: ProfileCardProps) {
     },
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
-      API.put(
+      api.put(
         "/authentication/update_profile/",
         () => {
-          // helpers.resetForm();
           snack.success("Informazioni cambiata correttamente!");
           router.push("/user/profile");
         },
@@ -73,10 +84,10 @@ function ProfileCard({ user }: ProfileCardProps) {
       <Paper elevation={5} sx={{ width: "100%" }}>
         <Box sx={{ p: 2 }}>
           <Grid container spacing={4}>
-            <Grid item xs={6}>
+            <Grid item xs={12} lg={6}>
               {user && <Avatar user={user} dimension={60} typographyProps={{ variant: "h4" }} />}
             </Grid>
-            <Grid item xs={6} textAlign="end" alignSelf="center">
+            <Grid item xs={12} lg={6} component={TagContainer}>
               {user &&
                 (user.is_active ? (
                   <Chip label="Attivo" color="success" />
@@ -87,23 +98,31 @@ function ProfileCard({ user }: ProfileCardProps) {
               {user && user.is_staff && <Chip label="Staff" color="info" sx={{ ml: 1 }} />}
 
               {user &&
-                user.groups.map((e, i) => <Chip sx={{ ml: 1 }} label={GROUPS_MAPS[e]} color="secondary" key={i} />)}
+                user.groups.map((e, i) => (
+                  <Chip sx={{ ml: 1 }} label={PermissionGroupTag[e]} color="secondary" key={i} />
+                ))}
             </Grid>
 
             <Grid item xs={12}>
-              <TextField required label="Nome" name="first_name" type="text" formik={formik} />
+              <FormLabel>Nome</FormLabel>
+              <TextField required name="first_name" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField required label="Cognome" name="last_name" type="text" formik={formik} />
+              <FormLabel>Cognome</FormLabel>
+              <TextField required name="last_name" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField required label="Numero di telefono" name="phone_number" type="text" formik={formik} />
+              <FormLabel>Numero di telefono</FormLabel>
+              <TextField required name="phone_number" type="text" formik={formik} />
             </Grid>
             <Grid item xs={12} textAlign="end">
-              {/* @ts-ignore */}
-              <Button variant="contained" disabled={!(formik.isValid && formik.dirty)} onClick={formik.handleSubmit}>
-                Aggiorna
-              </Button>
+              <ResponsiveButton
+                variant="contained"
+                disabled={!(formik.isValid && formik.dirty)}
+                onClick={() => formik.handleSubmit()}
+              >
+                Salva
+              </ResponsiveButton>
             </Grid>
           </Grid>
         </Box>

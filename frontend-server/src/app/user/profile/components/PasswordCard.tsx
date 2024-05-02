@@ -1,5 +1,5 @@
 "use client";
-import { Paper, Typography, Box, Grid, Button } from "@mui/material";
+import { Paper, Typography, Box, Grid, FormLabel } from "@mui/material";
 
 import TextField from "@/components/forms/TextField";
 
@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { snack } from "@/libs/SnakClient";
 import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { ResponsiveButton } from "@/components/forms";
 
 export function PasswordCard() {
   const API = new DjangoApi();
@@ -58,25 +59,25 @@ export function PasswordCard() {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <TextField required label="Password attuale" name="old_password" type="password" formik={formik} />
+              <FormLabel>Password</FormLabel>
+              <TextField required name="old_password" type="password" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField required label="Nuova password" name="new_password" type="password" formik={formik} />
+              <FormLabel>Nuova password</FormLabel>
+              <TextField required name="new_password" type="password" formik={formik} />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                required
-                label="Ripeti nuova password"
-                name="confirm_new_password"
-                type="password"
-                formik={formik}
-              />
+              <FormLabel>Ripeti nuova password</FormLabel>
+              <TextField required name="confirm_new_password" type="password" formik={formik} />
             </Grid>
             <Grid item xs={12} textAlign="end">
-              {/* @ts-ignore */}
-              <Button variant="contained" disabled={!(formik.isValid && formik.dirty)} onClick={formik.handleSubmit}>
+              <ResponsiveButton
+                variant="contained"
+                disabled={!(formik.isValid && formik.dirty)}
+                onClick={() => formik.handleSubmit()}
+              >
                 Aggiorna
-              </Button>
+              </ResponsiveButton>
             </Grid>
           </Grid>
         </Box>

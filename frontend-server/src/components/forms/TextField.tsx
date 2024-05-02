@@ -8,7 +8,7 @@ interface ComponentsProps {
   required?: boolean;
   type: React.InputHTMLAttributes<unknown>["type"];
   maxRows?: number;
-  label: string;
+  label?: string;
   formik: ReturnType<typeof useFormik<any>>;
 }
 

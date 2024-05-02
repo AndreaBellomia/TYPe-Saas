@@ -1,165 +1,117 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
-import dayjs from "dayjs";
 
 import {
   Box,
   Typography,
   Grid,
   Chip,
-  Divider,
-  IconButton,
   Paper,
-  TextField,
-  InputAdornment,
-  Button,
   Link,
 } from "@mui/material";
 
-import SendIcon from "@mui/icons-material/Send";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import Avatar from "@/components/Avatar";
 
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { useDjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { Ticket } from "@/models/Ticket";
+import { UserTicketLabel } from "@/constants";
+import { dateParser, dateTimeParser } from "@/libs/utils";
 
-function dateTimeParser(date: string): string {
-  // @ts-ignore
-  return dayjs(date, "YYYY-mm-ddTHH:mm:ss").$d.toLocaleString("it");
-}
-
-function dateParser(date: string): string {
-  // @ts-ignore
-  return dayjs(date, "YYYY-mm-ddTHH:mm:ss").$d.toLocaleString("it", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
+import MessageBox from "@/app/user/ticket/[id]/components/MessageBox"
 
 function TicketDetail() {
-  const API = new DjangoApi();
-
+  const api = useDjangoApi();
   const params = useParams();
-  const router = useRouter();
   const [data, setData] = useState<Ticket | null>(null);
-  const [messages, setMessages] = useState<any[] | null>(null);
-  const [inputMessage, setInputMessage] = useState<string>("");
 
   useEffect(() => {
-    API.get(
+    api.get(
       `ticket/${params.id}/`,
       (response) => {
         setData(response.data);
       },
-      (e) => {
-        throw new FetchDispatchError("Errore");
+      () => {
+        throw new FetchDispatchError("Si è verificato un errore");
       },
     );
   }, [params]);
 
-  useEffect(() => {
-    if (messages === null) {
-      API.get(
-        `/ticket/${params.id}/message/`,
-        (response) => {
-          const data: any[] = response.data;
-
-          setMessages(data);
-        },
-        () => {
-          throw new FetchDispatchError("Errore durante il recupero dei dati, riprova più tardi.");
-        },
-      );
-    }
-  }, [messages, params]);
-
-  const handlerMessageSubmit = () => {
-    API.post(
-      `/ticket/${params.id}/message/`,
-      (response) => {
-        setInputMessage("");
-        setMessages(null);
-      },
-      () => {
-        throw new FetchDispatchError("Errore durante l'inserimento del messaggio");
-      },
-      {
-        message: inputMessage,
-      },
-    );
-  };
 
   return (
     <>
       {data && (
         <>
-          <Link href="/user/ticket" underline="none" variant="body2" alignItems="center" display="flex">
+          <Link href="/user/ticket" underline="none" variant="subtitle1" alignItems="center" display="flex">
             <ArrowBackIosNewRoundedIcon sx={{ fontSize: 16 }} />
-            Indietro
+            Torna ai tuoi ticket
           </Link>
+
+          <Box marginY={1} />
+
+          <Paper sx={{ padding: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box display="flex" alignItems="center">
+                <ConfirmationNumberIcon fontSize="large" sx={{ mr: 1 }} color="primary" />
+                <Typography variant="h4">
+                  Richiesta {data.id} del {dateParser(data.created_at)}
+                </Typography>
+              </Box>
+
+              <Typography variant="h6" color="text.secondary">
+                <Chip label={UserTicketLabel[data.status]} variant="filled" />
+              </Typography>
+            </Box>
+          </Paper>
 
           <Box marginY={2} />
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h6" color="text.secondary">
-              <Chip label={data.status} variant="filled" sx={{ mr: 2 }} />
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-              {data.id}
-            </Typography>
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
           <Grid container spacing={2}>
-            <Grid item xs={12} lg={8}>
-              <Typography variant="subtitle1" color="text.secondary">
-                Titolo
-              </Typography>
-              <Typography variant="h6">{data.label}</Typography>
+            <Grid item xs={12} lg={8} display="flex">
+              <Paper sx={{ padding: 2, width: "100%" }}>
+                <Typography variant="subtitle1" color="text.secondary">
+                  Titolo della richiesta
+                </Typography>
+                <Typography variant="h6">{data.label}</Typography>
 
-              <Box my={2} />
+                <Box my={2} />
 
-              <Typography variant="subtitle1" color="text.secondary">
-                Descrizione
-              </Typography>
-              <Typography variant="body1">{data.description || "nessuna descrizione"}</Typography>
+                <Typography variant="subtitle1" color="text.secondary">
+                  Descrizione
+                </Typography>
+                <Typography variant="body2">{data.description || "nessuna descrizione"}</Typography>
+              </Paper>
             </Grid>
-            <Grid item xs={12} lg={3}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Categoria
-              </Typography>
-              <Chip label={data.type.name} variant="filled" color="primary" />
+            <Grid item xs={12} lg={4} boxSizing="border-box">
+              <Paper sx={{ padding: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Categoria
+                </Typography>
+                <Chip label={data.type.name} variant="filled" color="primary" />
+                <Box my={2} />
+                <Typography variant="subtitle2" color="text.secondary">
+                  Data di consegna richiesta
+                </Typography>
+                <Chip label={dateParser(data.expiring_date)} variant="outlined" />
 
-              <Box my={2} />
-              <Typography variant="subtitle2" color="text.secondary">
-                Data di consegna richiesta
-              </Typography>
-              <Chip label={dateParser(data.expiring_date)} variant="outlined" />
+                <Box my={2} />
 
-              <Box my={2} />
+                <Typography variant="subtitle2" color="text.secondary">
+                  Responsabile
+                </Typography>
+                <Avatar user={data.assigned_to} dimension={24} />
 
-              <Typography variant="subtitle2" color="text.secondary">
-                Responsabile
-              </Typography>
-              {data.assigned_to ? <Avatar user={data.assigned_to} dimension={24} /> : "Nessuno"}
+                <Box my={2} />
 
-              <Box my={2} />
+                <Typography variant="subtitle2" color="text.secondary">
+                  Creato il
+                </Typography>
+                <Chip label={"Creato: " + dateTimeParser(data.created_at)} variant="outlined" />
 
-              <Typography variant="subtitle2" color="text.secondary">
-                Creato il
-              </Typography>
-              <Chip label={"Creato: " + dateTimeParser(data.created_at)} variant="outlined" />
-              <Box my={2} />
+                <Box my={2} />
+              </Paper>
             </Grid>
           </Grid>
         </>
@@ -171,53 +123,9 @@ function TicketDetail() {
         Messaggi
       </Typography>
 
-      <Divider sx={{ my: 2 }} />
+      <Box mt={1} />
 
-      <TextField
-        label="Messaggio"
-        id=""
-        value={inputMessage}
-        onChange={(e) => {
-          setInputMessage(e.target.value);
-        }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={handlerMessageSubmit}>
-                <SendIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        fullWidth
-      />
-
-      <Box sx={{ overflow: "auto", maxHeight: "50vh" }}>
-        {messages &&
-          messages.map((msg) => (
-            <Paper elevation={0} key={msg.id} sx={{ mt: 2 }}>
-              <Box p={2}>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="subtitle2" color="initial">
-                    {msg.author.first_name + " " + msg.author.last_name}
-                  </Typography>
-                  <Typography variant="subtitle2" color="initial">
-                    {msg.author.email}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="initial">
-                  {msg.message}
-                </Typography>
-
-                <Box sx={{ textAlign: "end" }}>
-                  <Typography variant="caption" color="initial">
-                    {new Date(msg.updated_at).toLocaleString()}
-                  </Typography>
-                </Box>
-              </Box>
-            </Paper>
-          ))}
-      </Box>
+      <MessageBox id={params.id} />
     </>
   );
 }

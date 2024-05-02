@@ -7,7 +7,7 @@ interface ComponentsProps {
   options: Array<any>;
   errors: { [key: string]: any };
   touched: { [key: string]: any };
-  label: string;
+  label?: string;
   values: { [key: string]: any };
   setFieldValue: FormikHelpers<any>["setFieldValue"];
   setFieldTouched: FormikHelpers<any>["setFieldTouched"];

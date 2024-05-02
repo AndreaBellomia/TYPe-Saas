@@ -3,6 +3,11 @@ export enum PermissionGroup {
   EMPLOYER = "employer",
 }
 
+export enum PermissionGroupTag {
+  manager = "Amministratore",
+  employer = "Responsabile",
+}
+
 export interface SmallUser {
   id: number;
   email: string;

@@ -25,6 +25,13 @@ export class FetchDispatchError extends Error {
   }
 }
 
+class ClientSideOnlyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ClientSideOnlyError";
+  }
+}
+
 export class Axios {
   protected axiosClient: AxiosInstance;
 
@@ -110,4 +117,12 @@ export class DjangoApi extends Axios {
       console.log("DjangoAPI work only in client side", error);
     }
   }
+}
+
+export function useDjangoApi() {
+  if (typeof window === "undefined") {
+    throw new ClientSideOnlyError("DjangoAPI can be use only in client side!");
+  }
+
+  return new DjangoApi();
 }

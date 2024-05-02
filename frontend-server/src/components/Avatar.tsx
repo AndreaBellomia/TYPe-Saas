@@ -22,7 +22,7 @@ export const StyledAvatar = styled(Avatar, {
 }));
 
 export interface AvatarProps {
-  user: SmallUser | UserModel;
+  user?: SmallUser | UserModel;
   dimension: number;
   typographyProps?: TypographyProps;
   collapsed?: boolean;
@@ -32,7 +32,7 @@ function CustomAvatar({ user, dimension, typographyProps, collapsed }: AvatarPro
   if (!user) {
     return (
       <Typography variant="body2" color="text.secondary">
-        nessuno
+        Non assegnato
       </Typography>
     );
   }
