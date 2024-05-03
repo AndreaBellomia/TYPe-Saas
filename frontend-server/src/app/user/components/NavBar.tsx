@@ -1,20 +1,11 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-
-import { useRouter } from "next/navigation";
-
-import { Typography, Button, AppBar, Toolbar, Box, Container, ButtonBase, Menu, MenuItem } from "@mui/material";
+import React, { useRef } from "react";
 
 import { styled } from "@mui/material/styles";
-import { UserModel } from "@/models/User";
+import { Button, AppBar, Toolbar, Box, Container, ButtonBase } from "@mui/material";
 
 import { StyledAvatar } from "@/components/Avatar";
-
-import { logoutUser } from "@/libs/auth";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-
 import ProfileMenu from "@/app/user/components/ProfileMenu";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
@@ -25,19 +16,11 @@ const CustomToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 function NavBar({ children }: { children: React.ReactNode }) {
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
-  const router = useRouter();
-
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
 
   const handleClick = () => {
     setProfileMenu(true);
-  };
-
-  const handlerLogOut = async () => {
-    const response = await logoutUser();
-    router.push("/authentication/login");
   };
 
   return (

@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { UserModel } from "@/models/User";
@@ -7,7 +7,7 @@ import { RootState } from "@/redux/store";
 
 import { styled, lighten } from "@mui/material/styles";
 
-import { Box, CssBaseline, Toolbar, IconButton, ButtonBase } from "@mui/material";
+import { Box, CssBaseline, Toolbar, IconButton, ButtonBase, Backdrop, Typography } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import SortIcon from "@mui/icons-material/Sort";
@@ -63,6 +63,18 @@ const ProfileButton = styled(ButtonBase)<CustomAppBarProps>(({ theme }) => ({
   padding: 5,
 }));
 
+const BlockBackdrop = styled(Backdrop)(({ theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+}));
+
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height,
+  };
+}
+
 export default function _({
   children,
 }: Readonly<{
@@ -71,6 +83,7 @@ export default function _({
   const dispatch = useDispatch();
   const collapsed = useSelector((state: RootState) => state.navbar.collapsed);
   const user: UserModel | null = useSelector((state: RootState) => state.user.user);
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
@@ -78,6 +91,15 @@ export default function _({
   const handlerSidebarToggle = () => {
     dispatch({ type: "TOGGLE_NAVBAR" });
   };
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <>
@@ -138,7 +160,20 @@ export default function _({
         <ProfileMenu open={profileMenu} handlerOpen={setProfileMenu} anchorEl={appBarRef.current} />
 
         <AsideNavbar />
-        <Main open={collapsed}>{children}</Main>
+
+        <BlockBackdrop open={windowDimensions.width < 800}>
+          <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
+            <Typography variant="h4" color="white">
+              Display non supportato
+            </Typography>
+
+            <Typography variant="subtitle2" color="white">
+              Per funzionare correttamente <br /> è necessario uno schermo di almeno 800px
+            </Typography>
+          </Box>
+        </BlockBackdrop>
+
+        {windowDimensions.width > 800 && <Main open={collapsed}>{children}</Main>}
       </Box>
     </>
   );

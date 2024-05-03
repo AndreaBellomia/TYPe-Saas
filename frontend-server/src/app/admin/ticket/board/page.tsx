@@ -7,17 +7,17 @@ import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
 import { TICKET_STATUSES } from "@/constants";
 
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 
 export default function _() {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
 
   function handlerMoveCard(data: any) {
     const oldStatus = data.targetData.node.data.value.status;
     const newStatus = data.targetData.parent.data.config.name;
 
     if (oldStatus !== newStatus) {
-      API.put(
+      api.put(
         "/ticket/admin/update_board/",
         (response) => {
           data.targetData.node.data.value.status = newStatus;
@@ -43,7 +43,7 @@ export default function _() {
   });
 
   useEffect(() => {
-    API.get(
+    api.get(
       "/ticket/admin/board/",
       (response) => {
         setBoardItems(response.data);

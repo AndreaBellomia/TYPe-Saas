@@ -4,7 +4,7 @@ import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@m
 
 import { StatusesType } from "@/models/Ticket";
 import { TICKET_STATUSES } from "@/constants";
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { DjangoApi, FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { useState } from "react";
 
 export interface StatusChangeCol {
@@ -13,15 +13,14 @@ export interface StatusChangeCol {
 }
 
 export function StatusChangeCol({ initialValue, id }: StatusChangeCol) {
-  const API = new DjangoApi();
-
+  const api = useDjangoApi();
   const [value, setValue] = useState(initialValue);
 
   const handlerChange = (event: SelectChangeEvent) => {
     const newValue = event.target.value as StatusesType;
     setValue(newValue);
 
-    API.patch(
+    api.patch(
       `/ticket/admin/${id}/`,
       () => {
         initialValue = newValue;
@@ -38,7 +37,7 @@ export function StatusChangeCol({ initialValue, id }: StatusChangeCol) {
 
   return (
     <>
-      <FormControl sx={{ m: 1, width: "100%" }}>
+      <FormControl sx={{ width: "100%" }}>
         <Select value={value} onChange={handlerChange} fullWidth>
           {Object.values(TICKET_STATUSES).map((value) => (
             <MenuItem value={value} key={value}>

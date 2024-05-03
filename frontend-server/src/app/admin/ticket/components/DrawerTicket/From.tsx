@@ -30,7 +30,7 @@ import { UserModel, PermissionGroup } from "@/models/User";
 
 import { snack } from "@/libs/SnakClient";
 import { hasGroupPermission } from "@/libs/auth";
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { DjangoApi, FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { TICKET_STATUSES } from "@/constants";
 
 function errorsHandler(helpers: FormikHelpers<any>, errors: { [key: string]: string }): void {
@@ -45,7 +45,7 @@ export interface DrawerFormProps {
 }
 
 export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
 
   const user: UserModel | null = useSelector((state: RootState) => state.user.user);
 
@@ -96,14 +96,13 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
     initialValues: formFields,
     validationSchema: validation,
     onSubmit: (values, helpers) => {
-      console.log(values);
       if (id !== null) {
-        API.put(
+        api.put(
           `/ticket/admin/${id}/`,
           () => {
             helpers.resetForm();
             snack.success(`Ticket numero ${id} è stato aggiornato`);
-            handlerCloseDrawer;
+            handlerCloseDrawer();
           },
           (error) => {
             console.error(error);
@@ -113,12 +112,12 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
           values,
         );
       } else {
-        API.post(
+        api.post(
           "/ticket/admin/",
           () => {
             helpers.resetForm();
             snack.success("Nuovo ticket creato");
-            handlerCloseDrawer;
+            handlerCloseDrawer();
           },
           (error) => {
             console.error(error);
@@ -133,7 +132,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
 
   useEffect(() => {
     id !== null &&
-      API.get(
+      api.get(
         `/ticket/admin/${id}/`,
         (response) => {
           const data: Ticket = response.data;
@@ -149,7 +148,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   }, [id]);
 
   useEffect(() => {
-    API.get(
+    api.get(
       "ticket/types/list",
       (response) => {
         const data: Array<any> = response.data;
@@ -160,7 +159,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
       },
     );
 
-    API.get(
+    api.get(
       "authentication/users/small/",
       (response) => {
         const data: Array<any> = response.data;
@@ -172,7 +171,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
     );
 
     partial &&
-      API.get(
+      api.get(
         DjangoApi.buildURLparams("authentication/users/small/", [{ param: "admin_only", value: "true" }]),
         (response) => {
           const data: Array<any> = response.data;
@@ -199,7 +198,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
       <Box display="flex" justifyContent="space-between" px={4} pt={2}>
         <Typography variant="h4">{data ? data.label : "Nuovo Ticket"}</Typography>
 
-        <IconButton onClick={() => {}} color="error">
+        <IconButton onClick={() => {}} color="error" disabled>
           <DeleteRoundedIcon />
         </IconButton>
       </Box>

@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useRef, useState, useReducer } from "react";
+import React, { useEffect, useRef, useState, useReducer, useMemo } from "react";
 
 import { Pagination, Grid, Button, Box, Paper, Typography, IconButton } from "@mui/material";
 
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
 import { ServerSideTable, tableReducer } from "@/components/ServerSideTable";
 import { InputField, StatusField } from "@/components/filters";
@@ -18,12 +18,11 @@ import { Ticket } from "@/models/Ticket";
 
 import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeCol";
 
+import { dateParser } from "@/libs/utils";
+
 export default function _() {
-  const API = new DjangoApi();
-
-  const [drawerTicket, setDrawerTicket] = useState(false);
   const drawerTicketID = useRef<string | null>(null);
-
+  const [drawerTicket, setDrawerTicket] = useState(false);
   const handlerOpenModal = (id: string | null): void => {
     drawerTicketID.current = null;
     if (id) {
@@ -31,6 +30,56 @@ export default function _() {
     }
     setDrawerTicket(true);
   };
+
+  const api = useDjangoApi();
+  const [tableData, setTableData] = useState([]);
+  const columnHelper = createColumnHelper<Ticket>();
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("id", {
+        header: "ID",
+        cell: (info) => (
+          <Box display="flex" flexDirection="column" alignItems="start">
+            <Typography variant="body1">{info.row.getValue("id")}</Typography>
+            <Typography variant="body1">{info.row.original.label}</Typography>
+          </Box>
+        ),
+      }),
+      columnHelper.accessor("status", {
+        header: "Stato",
+        cell: (info) => <StatusChangeCol initialValue={info.getValue()} id={info.row.getValue("id")} />,
+        meta: {
+          padding: "none",
+        },
+        size: 50,
+      }),
+      columnHelper.accessor("expiring_date", {
+        header: "Data scadenza",
+        cell: (info) => (
+          <Typography variant="subtitle2" color="text.secondary">
+            {dateParser(info.getValue())}
+          </Typography>
+        ),
+        size: 10,
+      }),
+      columnHelper.accessor("id", {
+        header: "",
+        id: "detail",
+        enableSorting: false,
+        size: 1,
+        cell: (info) => (
+          <IconButton onClick={() => handlerOpenModal(String(info.getValue()))}>
+            <DragIndicatorRoundedIcon />
+          </IconButton>
+        ),
+        meta: {
+          align: "right",
+        },
+      }),
+    ],
+    [tableData],
+  );
 
   const [tableState, tableDispatch] = useReducer(tableReducer, {
     page: 1,
@@ -41,7 +90,6 @@ export default function _() {
       .filter((e) => e === TICKET_STATUSES.BACKLOG)
       .reduce((acc, key) => acc + "," + key),
   });
-  const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/admin/", [
@@ -51,7 +99,7 @@ export default function _() {
       { param: "page", value: String(tableState.page) },
     ]);
 
-    API.get(
+    api.get(
       url,
       (response) => {
         tableDispatch({ type: "SET_COUNT", payload: response.data.num_pages });
@@ -63,42 +111,6 @@ export default function _() {
       },
     );
   }, [tableState.order, tableState.page, tableState.search, tableState.state]);
-
-  const columnHelper = createColumnHelper<Ticket>();
-  const columns = [
-    columnHelper.accessor("id", {
-      header: "ID",
-      size: 1,
-      cell: (info) => (
-        <Box display="flex" flexDirection="column" alignItems="start">
-          <Typography variant="body1">{info.row.getValue("id")}</Typography>
-          <Typography variant="body1">{info.row.original.label}</Typography>
-        </Box>
-      ),
-    }),
-    columnHelper.accessor("status", {
-      header: "Stato",
-      cell: (info) => <StatusChangeCol initialValue={info.getValue()} id={info.row.getValue("id")} />,
-      meta: {
-        padding: "none",
-      },
-      size: 1,
-    }),
-    columnHelper.accessor("id", {
-      header: "",
-      id: "detail",
-      enableSorting: false,
-      size: 2,
-      cell: (info) => (
-        <IconButton onClick={() => handlerOpenModal(String(info.getValue()))}>
-          <DragIndicatorRoundedIcon />
-        </IconButton>
-      ),
-      meta: {
-        align: "right",
-      },
-    }),
-  ];
 
   return (
     <>
