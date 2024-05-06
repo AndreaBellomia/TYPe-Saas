@@ -1,3 +1,4 @@
+"use client";
 import { useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -6,14 +7,13 @@ import { Button, Box, Paper, Grid, Chip } from "@mui/material";
 
 import Avatar from "@/components/Avatar";
 import TextField from "@/components/forms/TextField";
-import { GROUPS_MAPS } from "@/constants";
-import { UserModel } from "@/models/User";
+import { UserModel, PermissionGroupTag } from "@/models/User";
 
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
-
-const API = new DjangoApi();
+import { useDjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { snack } from "@/libs/SnakClient";
 
 function UserCardComponent({ user }: { user: UserModel }) {
+  const api = useDjangoApi();
   const formValidation = Yup.object().shape({
     first_name: Yup.string().max(100, "Nome troppo lungo").required("Campo obbligatorio"),
     last_name: Yup.string().max(100, "Nome troppo corto").required("Campo obbligatorio"),
@@ -28,14 +28,13 @@ function UserCardComponent({ user }: { user: UserModel }) {
     },
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
-      API.put(
-        `/authentication/users/${user.id}`,
+      api.put(
+        `/authentication/users/${user.id}/`,
         () => {
-          // helpers.resetForm();
-          // snack.success("Informazioni cambiata correttamente!");
-          // router.push("/user/profile");
+          snack.success("Informazioni cambiata correttamente!");
         },
         (error) => {
+          console.log(error);
           const data = error.response.data;
           Object.keys(data).forEach((key) => {
             helpers.setFieldError(key, data[key]);
@@ -75,9 +74,12 @@ function UserCardComponent({ user }: { user: UserModel }) {
                   <Chip label="Non attivo" color="warning" />
                 ))}
 
-              {user && user.is_staff && <Chip label="Staff" color="info" />}
+              {user && user.is_staff && <Chip label="Staff" color="info" sx={{ ml: 1 }} />}
 
-              {user && user.groups.map((e, i) => <Chip label={GROUPS_MAPS[e]} color="secondary" key={i} />)}
+              {user &&
+                user.groups.map((e, i) => (
+                  <Chip label={PermissionGroupTag[e]} color="secondary" key={i} sx={{ ml: 1 }} />
+                ))}
             </Grid>
 
             <Grid item xs={12}>

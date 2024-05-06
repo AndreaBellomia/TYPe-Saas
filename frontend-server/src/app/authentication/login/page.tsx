@@ -44,6 +44,8 @@ export default function _() {
     },
     validationSchema: formValidation,
     onSubmit: async (values, helpers) => {
+      console.log(URLS.API_SERVER)
+      console.log(process.env)
       const response = await fetch(URLS.API_SERVER + "/authentication/login/", {
         method: "POST",
         headers: {

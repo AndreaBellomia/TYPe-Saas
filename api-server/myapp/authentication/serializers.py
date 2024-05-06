@@ -4,6 +4,7 @@ import secrets
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import (
     make_password,
@@ -101,7 +102,13 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
 
     user_info = UserInfoSerializer()
-    groups = serializers.StringRelatedField(many=True)
+    groups = serializers.SlugRelatedField(
+        many=True,
+        slug_field="name",
+        queryset=Group.objects.all(),
+        allow_null=True,
+        required=False,
+    )
 
     class Meta:
         model = CustomUser
