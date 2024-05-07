@@ -3,10 +3,12 @@
 import React, { useRef } from "react";
 
 import { styled } from "@mui/material/styles";
-import { Button, AppBar, Toolbar, Box, Container, ButtonBase } from "@mui/material";
+import { Button, AppBar, Toolbar, Box, Container, ButtonBase, IconButton } from "@mui/material";
 
 import { StyledAvatar } from "@/components/Avatar";
 import ProfileMenu from "@/app/user/components/ProfileMenu";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationMenu from "@/components/NotificationMenu";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.grey[800],
@@ -17,10 +19,15 @@ const CustomToolbar = styled(Toolbar)(({ theme }) => ({
 
 function NavBar({ children }: { children: React.ReactNode }) {
   const [profileMenu, setProfileMenu] = React.useState(false);
+  const [notificationMenu, setNotificationMenu] = React.useState(false);
   const appBarRef = useRef(null);
 
-  const handleClick = () => {
+  const handleClickProfileMenu = () => {
     setProfileMenu(true);
+  };
+
+  const handleClickNotificationMenu = () => {
+    setNotificationMenu(true);
   };
 
   return (
@@ -34,8 +41,16 @@ function NavBar({ children }: { children: React.ReactNode }) {
               </Button>
             </Box>
 
-            <Box>
-              <ButtonBase onClick={() => handleClick()} sx={{ borderRadius: 100 }}>
+            <Box display="flex">
+              <IconButton aria-label="delete" onClick={() => handleClickNotificationMenu()}>
+                <NotificationsIcon />
+              </IconButton>
+
+              <NotificationMenu open={notificationMenu} handlerOpen={setNotificationMenu} anchorEl={appBarRef.current} />
+
+              <Box m={1} />
+
+              <ButtonBase onClick={() => handleClickProfileMenu()} sx={{ borderRadius: 100 }}>
                 <StyledAvatar></StyledAvatar>
               </ButtonBase>
               <ProfileMenu open={profileMenu} handlerOpen={setProfileMenu} anchorEl={appBarRef.current} />

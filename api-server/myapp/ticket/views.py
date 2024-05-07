@@ -161,7 +161,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         serializer_class=TicketMsgSerializer,
     )
     def message(self, request, pk=None):
-        ticket = Ticket.objects.filter(pk=pk).first()
+        ticket = self.get_queryset().filter(pk=pk).first()
 
         if ticket is None:
             return Response(

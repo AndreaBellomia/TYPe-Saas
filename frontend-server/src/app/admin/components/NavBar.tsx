@@ -7,16 +7,18 @@ import { RootState } from "@/redux/store";
 
 import { styled, lighten } from "@mui/material/styles";
 
-import { Box, CssBaseline, Toolbar, IconButton, ButtonBase, Backdrop, Typography } from "@mui/material";
+import { Box, CssBaseline, Toolbar, ButtonBase, Backdrop, Typography, IconButton } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import SortIcon from "@mui/icons-material/Sort";
 import SettingsIcon from "@mui/icons-material/Settings";
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import AsideNavbar from "@/app/admin/components/AsideNavbar";
 import ProfileMenu from "@/app/admin/components/ProfileMenu";
 
 import Avatar from "@/components/Avatar";
+import NotificationMenu from "@/components/NotificationMenu";
 
 const drawerWidth = 240;
 const drawerMinWidth = 62;
@@ -85,6 +87,8 @@ export default function _({
   const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
+  const [notificationMenu, setNotificationMenu] = React.useState(false);
+
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
 
@@ -100,6 +104,11 @@ export default function _({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleClickNotificationMenu = () => {
+    setNotificationMenu(true);
+  };
+
 
   return (
     <>
@@ -140,7 +149,15 @@ export default function _({
                 widows: "100%",
               }}
             >
-              <Box>
+              <Box display="flex">
+                <IconButton aria-label="delete" onClick={() => handleClickNotificationMenu()}>
+                  <NotificationsIcon />
+                </IconButton>
+
+                <NotificationMenu open={notificationMenu} handlerOpen={setNotificationMenu} anchorEl={appBarRef.current} />
+
+                <Box m={1} />
+
                 <ProfileButton
                   onClick={() => {
                     setProfileMenu(true);
