@@ -6,14 +6,14 @@ from myapp.ticket.models import TicketType, Ticket
 
 
 @admin.register(TicketType)
-class TicketType(admin.ModelAdmin):
+class TicketTypePage(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
     ordering = ("name", "id")
 
 
 @admin.register(Ticket)
-class TicketType(admin.ModelAdmin):
+class TicketPage(admin.ModelAdmin):
     list_display = (
         "id",
         "type_link",

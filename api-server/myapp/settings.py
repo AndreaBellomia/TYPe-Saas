@@ -43,7 +43,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 LIBRARY_APP = ["rest_framework", "knox", "django_filters", "drf_yasg", "corsheaders"]
 
-INTERNAL_APP = ["myapp.authentication", "myapp.core", "myapp.ticket"]
+INTERNAL_APP = [
+    "myapp.authentication",
+    "myapp.core",
+    "myapp.ticket",
+    "myapp.notification",
+]
 
 
 INSTALLED_APPS = (
@@ -166,7 +171,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "/api/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

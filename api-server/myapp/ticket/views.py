@@ -26,6 +26,8 @@ from myapp.ticket.serializers import (
 )
 from myapp.ticket.models import TicketMsg, TicketType, Ticket
 
+from myapp.notification.signals import notify_ticket
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,9 +61,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         return serializer
 
     def query_employer(self):
-        return Ticket.objects.filter(
-            Q(created_by=self.request.user)
-        )
+        return Ticket.objects.filter(Q(created_by=self.request.user))
 
     def get_queryset(self):  # type: ignore
         user: CustomUser = self.request.user  # type: ignore
@@ -78,6 +78,33 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             instance.assigned_to = user
             instance.save()
 
+        notify_ticket.send(
+            sender=self.request,
+            user=instance.created_by,
+            ticket=instance,
+            message=f"Il ticket {instance.pk} - {instance.label} è stato da un admin",
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+
+        notify_ticket.send(
+            sender=self.request,
+            user=instance.created_by,
+            ticket=instance,
+            message=f"Il ticket {instance.pk} - {instance.label} è stato aggiornato",
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+        notify_ticket.send(
+            sender=self.request,
+            user=instance.created_by,
+            ticket=instance,
+            message=f"Il ticket {instance.pk} - {instance.label} è stato eliminato",
+        )
+
     @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
     def board(self, request):
 
@@ -85,15 +112,21 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
         resp = {
             "todo": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.TODO).order_by("assigned_to_id"),
+                instance=queryset.filter(status=Ticket.Status.TODO).order_by(
+                    "assigned_to_id"
+                ),
                 many=True,
             ).data,
             "progress": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.PROGRESS).order_by("assigned_to_id"),
+                instance=queryset.filter(status=Ticket.Status.PROGRESS).order_by(
+                    "assigned_to_id"
+                ),
                 many=True,
             ).data,
             "blocked": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.BLOCKED).order_by("assigned_to_id"),
+                instance=queryset.filter(status=Ticket.Status.BLOCKED).order_by(
+                    "assigned_to_id"
+                ),
                 many=True,
             ).data,
             "done": AdminTicketSerializer(
@@ -113,7 +146,49 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         instance = Ticket.objects.get(id=data["id"])
         instance.status = data["status"]
         instance.save()
+
+        notify_ticket.send(
+            sender=request,
+            user=instance.created_by,
+            ticket=instance,
+            message=f"Il ticket {instance.pk} - {instance.label} è stato aggiornato",
+        )
         return Response({}, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=[HTTPMethod.GET, HTTPMethod.POST],
+        serializer_class=TicketMsgSerializer,
+    )
+    def message(self, request, pk=None):
+        ticket = Ticket.objects.filter(pk=pk).first()
+
+        if ticket is None:
+            return Response(
+                {"detail": "ticket non trovato"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if request.method == HTTPMethod.GET:
+            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by("-created_at")
+
+            serializer = self.serializer_class(queryset, many=True)
+            return Response(serializer.data)
+
+        if request.method == HTTPMethod.POST:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(author=request.user, ticket_id=ticket.pk)
+
+            notify_ticket.send(
+                sender=self.request,
+                user=ticket.created_by,
+                ticket=ticket,
+                message=f"Il ticket {ticket.pk} - {ticket.label} ha dei nuovi messaggi",
+            )
+
+            return Response(serializer.data)
+
+        raise exceptions.MethodNotAllowed(request.method)
 
 
 class TicketTypeListAPI(ListCreateAPIView):
@@ -163,10 +238,9 @@ class TicketUserViewset(
         serializer_class=TicketMsgSerializer,
     )
     def message(self, request, pk=None):
-        if (
-            not Ticket.objects.filter(created_by_id=request.user.id, pk=pk).exists()
-            and not request.user.is_staff
-        ):
+        ticket = Ticket.objects.filter(pk=pk).first()
+
+        if ticket is None or not ticket.created_by == request.user:
             return Response(
                 {"detail": "ticket non trovato"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -180,7 +254,16 @@ class TicketUserViewset(
         if request.method == HTTPMethod.POST:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save(author=request.user, ticket_id=pk)
+            serializer.save(author=request.user, ticket_id=ticket.pk)
+
+            if ticket.assigned_to:
+
+                notify_ticket.send(
+                    sender=self.request,
+                    user=ticket.assigned_to,
+                    ticket=ticket,
+                    message=f"Il ticket {ticket.pk} - {ticket.label} ha dei nuovi messaggi",
+                )
 
             return Response(serializer.data)
 

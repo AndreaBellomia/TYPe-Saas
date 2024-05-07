@@ -39,7 +39,7 @@ export function Messages({ id }: DrawerMessagesProps) {
     id &&
       messages === null &&
       API.get(
-        `/ticket/${id}/message/`,
+        `/ticket/admin/${id}/message/`,
         (response) => {
           const data: Array<Message> = response.data;
           setMessages(data);
@@ -53,7 +53,7 @@ export function Messages({ id }: DrawerMessagesProps) {
   const handlerPost = () => {
     id &&
       API.post(
-        `/ticket/${id}/message/`,
+        `/ticket/admin/${id}/message/`,
         () => {
           setInputMessage("");
           setMessages(null);
