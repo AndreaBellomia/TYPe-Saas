@@ -2,23 +2,28 @@ import type { Metadata } from "next";
 import Snackbar, { SnackProvider } from "@/components/Snackbar";
 import ThemeProvider from "@/app/ThemeProvider";
 import StoreProvider from "@/app/StoreProvider";
-import PermissionRout from "@/app/PermissionRout";
+import SessionProvider from "@/app/SessionProvider";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/libs/auth";
+
 
 export const metadata: Metadata = {
   title: "CRM",
   description: "Ticket CRM",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="it">
       <body
@@ -32,14 +37,14 @@ export default function RootLayout({
         }}
       >
         <StoreProvider>
-          <PermissionRout>
+          <SessionProvider session={session}>
             <ThemeProvider>
               <Snackbar>
                 <SnackProvider />
                 {children}
               </Snackbar>
             </ThemeProvider>
-          </PermissionRout>
+          </SessionProvider>
         </StoreProvider>
       </body>
     </html>

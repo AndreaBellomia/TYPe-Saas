@@ -5,7 +5,9 @@ import { useSelector } from "react-redux";
 import { UserModel } from "@/models/User";
 import { RootState } from "@/redux/store";
 
-import { Menu, Typography, Box, Button, Divider, List, ListItem, ListItemText, ListItemButton } from "@mui/material";
+import { Menu, Typography, Box, Button, Divider, List, ListItem, ListItemText, ListItemButton, IconButton } from "@mui/material";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 
 import { useDjangoApi, FetchDispatchError } from "@/libs/fetch";
 import { useEffect, useState } from "react";
@@ -43,16 +45,23 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
       "/notification/set_read/",
       (response) => {
         snack.success("Notifiche lette");
-        setNotifications([])
+        setNotifications([]);
       },
       (error) => {
         throw new FetchDispatchError("errore nel recupero delle notifiche ");
       },
     );
-  }
+  };
 
   return (
     <>
+      <IconButton aria-label="delete" onClick={() => handlerOpen(true)}>
+        {notification.length > 0 ? 
+        <NotificationsActiveIcon color="primary" /> : <NotificationsIcon />
+        }
+        
+      </IconButton>
+      
       <Menu
         id="basic-menu"
         open={open}
@@ -72,21 +81,29 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
       >
         <Box>
           <Box textAlign="center">
-            <Typography variant="h6" color="initial">Notifiche</Typography>
+            <Typography variant="h6" color="initial">
+              Notifiche
+            </Typography>
           </Box>
 
-          <List sx={{ width:  "18rem" }}>
-            {notification.length > 0 ? notification.map((e: NotificationModel) => (
-              <ListItem disablePadding key={e.id} >
-                <Box sx={{ paddingY: 1, paddingX: 2 }}>
-                  <Typography variant="body2" color="initial">{e.message}</Typography>
-                </Box>
-              </ListItem>
-            )) : 
-            <Box textAlign="center">
-              <Typography variant="body2" color="initial">Nessuna notifica da visualizzare</Typography>
-            </Box>
-            }
+          <List sx={{ width: "18rem" }}>
+            {notification.length > 0 ? (
+              notification.map((e: NotificationModel) => (
+                <ListItem disablePadding key={e.id}>
+                  <Box sx={{ paddingY: 1, paddingX: 2 }}>
+                    <Typography variant="body2" color="initial">
+                      {e.message}
+                    </Typography>
+                  </Box>
+                </ListItem>
+              ))
+            ) : (
+              <Box textAlign="center">
+                <Typography variant="body2" color="initial">
+                  Nessuna notifica da visualizzare
+                </Typography>
+              </Box>
+            )}
 
             <ListItem disablePadding>
               <ListItemButton sx={{ textAlign: "center" }}>
@@ -94,7 +111,6 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
               </ListItemButton>
             </ListItem>
           </List>
-          
         </Box>
       </Menu>
     </>

@@ -7,7 +7,6 @@ import { Button, AppBar, Toolbar, Box, Container, ButtonBase, IconButton } from 
 
 import { StyledAvatar } from "@/components/Avatar";
 import ProfileMenu from "@/app/user/components/ProfileMenu";
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationMenu from "@/components/NotificationMenu";
 
 const CustomAppBar = styled(AppBar)(({ theme }) => ({
@@ -25,11 +24,6 @@ function NavBar({ children }: { children: React.ReactNode }) {
   const handleClickProfileMenu = () => {
     setProfileMenu(true);
   };
-
-  const handleClickNotificationMenu = () => {
-    setNotificationMenu(true);
-  };
-
   return (
     <>
       <CustomAppBar position="fixed">
@@ -42,10 +36,6 @@ function NavBar({ children }: { children: React.ReactNode }) {
             </Box>
 
             <Box display="flex">
-              <IconButton aria-label="delete" onClick={() => handleClickNotificationMenu()}>
-                <NotificationsIcon />
-              </IconButton>
-
               <NotificationMenu open={notificationMenu} handlerOpen={setNotificationMenu} anchorEl={appBarRef.current} />
 
               <Box m={1} />

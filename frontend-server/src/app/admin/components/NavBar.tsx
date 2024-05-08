@@ -12,7 +12,6 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import SortIcon from "@mui/icons-material/Sort";
 import SettingsIcon from "@mui/icons-material/Settings";
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import AsideNavbar from "@/app/admin/components/AsideNavbar";
 import ProfileMenu from "@/app/admin/components/ProfileMenu";
@@ -105,10 +104,6 @@ export default function _({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleClickNotificationMenu = () => {
-    setNotificationMenu(true);
-  };
-
 
   return (
     <>
@@ -150,10 +145,6 @@ export default function _({
               }}
             >
               <Box display="flex">
-                <IconButton aria-label="delete" onClick={() => handleClickNotificationMenu()}>
-                  <NotificationsIcon />
-                </IconButton>
-
                 <NotificationMenu open={notificationMenu} handlerOpen={setNotificationMenu} anchorEl={appBarRef.current} />
 
                 <Box m={1} />
