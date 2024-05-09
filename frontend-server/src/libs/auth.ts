@@ -1,111 +1,62 @@
-import dayjs from "dayjs";
+import { NextAuthOptions, User } from "next-auth";
+import { signOut, useSession } from "next-auth/react";
+import CredentialsProvider from "next-auth/providers/credentials";
 
-import { snack } from "@/libs/SnakClient";
-import { GROUPS } from "@/constants";
-
-import { URLS } from "@/libs/fetch";
 import { UserModel, PermissionGroup } from "@/models/User";
+import { URLS } from "@/libs/fetch";
+import { snack } from "@/libs/SnakClient";
 
-export const JWT_TOKEN = "token";
-export const JWT_EXPIRE = "token_expire";
+export async function singOut(session: ReturnType<typeof useSession>) {
+  if (typeof window === "undefined") {
+    throw new Error("signOut can be use only in client side!");
+  }
 
-export async function logoutUser() {
+  if (session === null) {
+    signOut();
+  }
+
   const resp = await fetch(URLS.API_SERVER + "/authentication/logout/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Token " + sessionStorage.getItem(JWT_TOKEN),
+      Authorization: "Token " + session.data?.djangoToken,
     },
   });
 
   if (!resp.ok) {
     snack.error("Logout non eseguito");
   } else {
-    sessionStorage.removeItem(JWT_TOKEN);
-    sessionStorage.removeItem(JWT_EXPIRE);
+    signOut();
   }
-
-  return resp;
-}
-
-export function getToken() {
-  const token = sessionStorage.getItem(JWT_TOKEN);
-
-  const expire = dayjs(sessionStorage.getItem(JWT_EXPIRE));
-  const now = new Date();
-
-  if (expire.diff(now) <= 0) {
-    sessionStorage.removeItem(JWT_TOKEN);
-    sessionStorage.removeItem(JWT_EXPIRE);
-    return undefined;
-  }
-
-  return token;
 }
 
 export function hasGroupPermission(user: UserModel | null, permissionName: PermissionGroup) {
   if (user && user.groups.find((p) => (p === permissionName) !== undefined)) {
     return true;
   }
-
   return false;
 }
 
-import { NextAuthOptions, User } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-
-declare module "next-auth" {
-  interface DefaultUser {
-    djangoToken: string;
-    djangoExpire: string;
-    groups: Array<PermissionGroup>;
-    is_staff: boolean;
-    is_active: boolean;
-  }
-
-  interface DefaultSession {
-    djangoToken: string;
-    djangoExpire: string;
-    groups: Array<PermissionGroup>;
-    is_staff: boolean;
-    is_active: boolean;
-  }
-  interface DefaultJWT {
-    djangoToken: string;
-    djangoExpire: string;
-    groups: Array<PermissionGroup>;
-    is_staff: boolean;
-    is_active: boolean;
-  }
-}
-
 export const authOptions: NextAuthOptions = {
-  secret: "process.env.NEXTAUTH_SECRET",
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: '/authentication/login',
+  },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      if (user.djangoToken) {
-        return true;
-      } else {
-        return false;
-      }
+    async signIn({ user, account, profile, credentials }) {
+      return true;
     },
     async redirect({ url, baseUrl }) {
-      console.log("redirect call");
-      return url.startsWith(baseUrl) ? Promise.resolve(url) : Promise.resolve(baseUrl);
+      return baseUrl + "/user/ticket";
     },
     async jwt({ token, user, account }) {
-      if (user) {
-        token.djangoToken = user.djangoToken;
-        token.djangoExpire = user.djangoExpire;
-      }
-      return token;
+      return { ...token, ...user };
     },
     async session({ session, token }) {
-      session.djangoToken = token.djangoToken as string;
-      return session;
+      return { ...token, ...session };
     },
   },
   providers: [
@@ -116,8 +67,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        console.log(credentials);
 
+        console.log(credentials)
         if (credentials === undefined) {
           return null;
         }
@@ -138,8 +89,9 @@ export const authOptions: NextAuthOptions = {
           return {
             djangoToken: data.token,
             djangoExpire: data.expiry,
+            djangoGroups: data.user.groups,
             id: data.user.id,
-            name: data.user_info.first_name,
+            name: data.user_info?.first_name,
             email: data.user.email,
             is_staff: data.is_staff,
             is_active: data.is_active,

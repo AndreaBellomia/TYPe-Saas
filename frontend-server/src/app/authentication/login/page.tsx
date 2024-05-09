@@ -2,9 +2,9 @@
 // @ts-ignore
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { signIn } from "next-auth/react";
 
 import { useFormik } from "formik";
-import { JWT_EXPIRE, JWT_TOKEN } from "@/libs/auth";
 
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
@@ -44,29 +44,23 @@ export default function _() {
     },
     validationSchema: formValidation,
     onSubmit: async (values, helpers) => {
-      console.log(URLS.API_SERVER)
-      console.log(process.env)
-      const response = await fetch(URLS.API_SERVER + "/authentication/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
+      const response = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
       });
-      if (response.ok) {
-        const data = await response.json();
 
-        sessionStorage.setItem(JWT_TOKEN, data.token);
-        sessionStorage.setItem(JWT_EXPIRE, data.expiry);
-        dispatch({ type: "USER_SET", payload: data.user });
-        router.push("/user/ticket");
+      if (response === undefined) {
+        snack.error("Errore, se il problema persiste contattare un amministratore!");
         return;
       }
 
-      helpers.setFieldError("password", "Email o password non sono corretti");
+      if (response.ok) {
+        router.push(response.url || "/user/ticket");
+        return;
+      }
+
+      helpers.setFieldError("password", "Email o password non corretti.");
     },
   });
 

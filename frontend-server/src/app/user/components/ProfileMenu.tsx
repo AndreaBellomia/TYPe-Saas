@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { useSession } from "next-auth/react";
 
 import { UserModel } from "@/models/User";
 import { RootState } from "@/redux/store";
@@ -11,7 +12,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-import { logoutUser } from "@/libs/auth";
+import { singOut } from "@/libs/auth";
 
 export interface ProfileMenuProps {
   open: boolean;
@@ -22,6 +23,7 @@ export interface ProfileMenuProps {
 export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const router = useRouter();
+  const session = useSession()
 
   const handlerAdmin = () => {
     router.push("/admin/ticket/board");
@@ -34,9 +36,7 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   };
 
   const handlerLogOut = async () => {
-    const response = await logoutUser();
-    router.push("/authentication/login");
-    handlerOpen(false);
+    singOut(session);
   };
 
   return (

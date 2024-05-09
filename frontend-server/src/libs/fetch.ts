@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { snack } from "@/libs/SnakClient";
-import { getToken } from "@/libs/auth";
+import { useSession } from "next-auth/react";
 
 type ParamsList = Array<{ param: string; value: string }>;
 type GenericObject = { [key: string]: any };
@@ -105,10 +105,10 @@ export class Axios {
 }
 
 export class DjangoApi extends Axios {
-  constructor() {
+  constructor(token: string) {
     try {
       super({
-        Authorization: `Token ${getToken()}`,
+        Authorization: `Token ${token}`,
       });
 
       this.axiosClient.defaults.baseURL = URLS.API_SERVER;
@@ -124,5 +124,9 @@ export function useDjangoApi() {
     throw new ClientSideOnlyError("DjangoAPI can be use only in client side!");
   }
 
-  return new DjangoApi();
+  const session = useSession();
+  if (session.status !== "authenticated") {
+    throw new Error("Need authentication for use DjangoAPI");
+  }
+  return new DjangoApi(session.data?.djangoToken);
 }
