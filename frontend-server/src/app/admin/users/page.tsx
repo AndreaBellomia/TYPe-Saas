@@ -5,13 +5,13 @@ import { Pagination, Grid, Button, Container, Box, Typography } from "@mui/mater
 
 import UserCard from "@/app/admin/users/components/UserCard";
 
-import { DjangoApi } from "@/libs/fetch";
+import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 import { InputField } from "@/components/filters";
 
 import CreateUserModal from "@/app/admin/users/components/CreateUserModal";
 
 export default function _() {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
   const [createUser, setCreateUser] = useState(false);
   const [userList, setUserList] = useState<[any]>([{}]);
   const [page, setPage] = useState(1);
@@ -27,7 +27,7 @@ export default function _() {
       { param: "search", value: search },
       { param: "page", value: String(page) },
     ]);
-    API.get(
+    api.get(
       url,
       (response) => {
         const data = response.data;

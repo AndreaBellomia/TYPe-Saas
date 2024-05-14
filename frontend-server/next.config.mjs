@@ -9,6 +9,9 @@ const { parsed: myEnv } = dotenv.config({
 const nextConfig = {
   output: "standalone",
   env: myEnv,
+  compiler: {
+    removeConsole: false
+  }
 };
 
 export default nextConfig;

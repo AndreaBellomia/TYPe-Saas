@@ -6,11 +6,11 @@ import TextField from "@/components/forms/TextField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { snack } from "@/libs/SnakClient";
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { ResponsiveButton } from "@/components/forms";
 
 export function PasswordCard() {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
 
   const validationSchema = Yup.object().shape({
     old_password: Yup.string().required("Campo obbligatorio"),
@@ -29,7 +29,7 @@ export function PasswordCard() {
     validationSchema: validationSchema,
     onSubmit: (values, helpers) => {
       console.log("data", values);
-      API.post(
+      api.post(
         "/authentication/change_password/",
         () => {
           helpers.resetForm();

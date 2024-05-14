@@ -2,7 +2,7 @@
 
 import { Paper, Box, Grid } from "@mui/material";
 
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { useEffect, useState } from "react";
 
 import { UserModel } from "@/models/User";
@@ -11,11 +11,11 @@ import PasswordCard from "./components/PasswordCard";
 import ProfileCard from "./components/ProfileCard";
 
 export default function _() {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
   const [user, setUser] = useState<null | UserModel>(null);
 
   useEffect(() => {
-    API.get(
+    api.get(
       "/authentication/profile/",
       (response) => {
         setUser(response.data);

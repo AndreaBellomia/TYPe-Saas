@@ -5,7 +5,7 @@ import { styled, lighten } from "@mui/material/styles";
 import FiberManualRecordRoundedIcon from "@mui/icons-material/FiberManualRecordRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
-import { DjangoApi, FetchDispatchError } from "@/libs/fetch";
+import { FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import {
   Paper,
   Box,
@@ -31,14 +31,14 @@ export interface DrawerMessagesProps {
 }
 
 export function Messages({ id }: DrawerMessagesProps) {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [inputMessage, setInputMessage] = useState<string>("");
 
   useEffect(() => {
     id &&
       messages === null &&
-      API.get(
+      api.get(
         `/ticket/admin/${id}/message/`,
         (response) => {
           const data: Array<Message> = response.data;
@@ -52,7 +52,7 @@ export function Messages({ id }: DrawerMessagesProps) {
 
   const handlerPost = () => {
     id &&
-      API.post(
+      api.post(
         `/ticket/admin/${id}/message/`,
         () => {
           setInputMessage("");

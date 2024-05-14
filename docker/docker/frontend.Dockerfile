@@ -24,6 +24,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
 COPY --from=deps /app/package-lock.json ./
 COPY frontend-server/ .
+COPY docker/local/.env .
 # This will do the trick, use the corresponding env file for each environment.
 # COPY .env.production.sample .env.production
 RUN npm run build

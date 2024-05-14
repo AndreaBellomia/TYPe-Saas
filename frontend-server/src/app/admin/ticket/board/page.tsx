@@ -7,7 +7,7 @@ import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
 import { TICKET_STATUSES } from "@/constants";
 
-import { DjangoApi, useDjangoApi } from "@/libs/fetch";
+import { useDjangoApi } from "@/libs/fetch";
 
 export default function _() {
   const api = useDjangoApi();

@@ -4,7 +4,7 @@ import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@m
 
 import { StatusesType } from "@/models/Ticket";
 import { TICKET_STATUSES } from "@/constants";
-import { DjangoApi, FetchDispatchError, useDjangoApi } from "@/libs/fetch";
+import { FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { useState } from "react";
 
 export interface StatusChangeCol {

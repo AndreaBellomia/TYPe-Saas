@@ -2,11 +2,11 @@
 import { useParams, useRouter } from "next/navigation";
 
 import { useFormik } from "formik";
-
 import * as Yup from "yup";
 
-import { Button, Paper, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Button, Paper, Box, Typography } from "@mui/material";
+
 import TextField from "@/components/forms/TextField";
 import { URLS } from "@/libs/fetch";
 import { snack } from "@/libs/SnakClient";
@@ -39,14 +39,6 @@ export default function _() {
     },
     validationSchema: formValidation,
     onSubmit: async (values, helpers) => {
-      console.log(
-        JSON.stringify({
-          uidb64: params.uidb64,
-          token: params.token,
-          password1: values.password,
-          password2: values.password2,
-        }),
-      );
       const response = await fetch(URLS.API_SERVER + "/authentication/password_reset_confirm/", {
         method: "POST",
         headers: {

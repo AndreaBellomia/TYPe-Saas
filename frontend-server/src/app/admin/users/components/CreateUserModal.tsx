@@ -5,14 +5,14 @@ import { TextField } from "@/components/forms";
 import Modal from "@/components/Modal";
 import { Typography, Button, Box } from "@mui/material";
 
-import { DjangoApi } from "@/libs/fetch";
+import { useDjangoApi } from "@/libs/fetch";
 
 export interface CreateUserModalProps {
   state: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 }
 
 export function CreateUserModal({ state }: CreateUserModalProps) {
-  const API = new DjangoApi();
+  const api = useDjangoApi();
   const [open, setOpen] = state;
 
   const formValidation = Yup.object().shape({
@@ -25,7 +25,7 @@ export function CreateUserModal({ state }: CreateUserModalProps) {
     },
     validationSchema: formValidation,
     onSubmit: (values, helpers) => {
-      API.post(
+      api.post(
         "authentication/users/",
         (response) => {
           setOpen(false);
