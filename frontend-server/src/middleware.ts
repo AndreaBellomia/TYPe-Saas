@@ -12,7 +12,7 @@ const accessConfig = [
   },
 ];
 
-const publicPath = ["/authentication/login", "/api/auth", "/_next"];
+const publicPath = ["/authentication/login", "/api/auth", "/_next", "/authentication/password_change"];
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({

@@ -30,12 +30,19 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
     queryset = CustomUser.objects.all().prefetch_related("user_info")
     serializer_class = UserProfileSerializer
 
+    token_generator = default_token_generator
+    email_template_name = "registration/password_reset_email.html"
+    subject_template_name = "registration/password_reset_subject.txt"
+
     @action(
         detail=False,
         methods=[HTTPMethod.GET, HTTPMethod.PUT],
         permission_classes=[permissions.IsAuthenticated],
     )
     def profile(self, request):
+        """
+        This function provide a profile
+        """
         user: CustomUser = request.user
 
         if user:
@@ -52,6 +59,9 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def update_profile(self, request):
+        """
+        This function handle a profile update
+        """
         user: CustomUser = request.user
 
         serializer = self.serializer_class(data=request.data, instance=user)
@@ -67,6 +77,9 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         serializer_class=AuthSerializer,
     )
     def login(self, request):
+        """
+        This function handle a login
+        """
         user: CustomUser = request.user
 
         if user.is_authenticated:
@@ -105,9 +118,11 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def logout(self, request):
+        """
+        This function handle a logout
+        """
         logout(request)
         request._auth.delete()
-
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -116,6 +131,9 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def password_change(self, request):
+        """
+        This function handles password change requests.
+        """
         user: CustomUser = request.user
 
         if not user:
@@ -132,6 +150,72 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
 
         return Response(
             {"detail": "Password changed correctly"}, status=status.HTTP_200_OK
+        )
+
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.AllowAny],
+        serializer_class=PasswordChangeSerializer,
+    )
+    def password_reset(self, request):
+        """
+        This function handles password reset requests.
+        """
+
+        serializer = PasswordChangeSerializer(data=request.data)
+
+        if not serializer.is_valid(raise_exception=False):
+            return Response({"detail": "L'email è stata inviata!"})
+
+        email = cast(dict, serializer.validated_data)["email"]
+        user = cast(dict, serializer.validated_data)["user"]
+
+        current_site = get_current_site(request)
+
+        context = {
+            "email": email,
+            "domain": current_site.domain,
+            "site_name": current_site.name,
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "user": user,
+            "token": self.token_generator.make_token(user),
+            "protocol": "https" if self.request.is_secure() else "http",
+        }
+
+        serializer.send_mail(  # type: ignore
+            self.subject_template_name,
+            self.email_template_name,
+            context,
+            None,
+            email,
+            html_email_template_name=None,
+        )
+        return Response({"detail": "L'email è stata inviata!"})
+
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.AllowAny],
+        serializer_class=PasswordChangeConfirmSerializer,
+    )
+    def password_reset_confirm(self, request):
+        """
+        This function confirm password reset requests.
+        """
+        serializer = PasswordChangeConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = cast(dict, serializer.validated_data)["token"]
+        user = cast(dict, serializer.validated_data)["user"]
+
+        if self.token_generator.check_token(user, token):
+            serializer.update(
+                instance=user, validated_data=serializer.validated_data
+            )
+            return Response(status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Token not valid"}, status=status.HTTP_403_FORBIDDEN
         )
 
 
@@ -183,80 +267,4 @@ class AdminUserViewset(viewsets.ModelViewSet):
     def small(self, request):
         return Response(
             UserInfoSmallSerializer(self.get_queryset(), many=True).data
-        )
-
-
-class PasswordResetViewset(viewsets.GenericViewSet):
-    serializer_class = PasswordChangeSerializer
-
-    token_generator = default_token_generator
-    from_email = None
-    email_template_name = "registration/password_reset_email.html"
-    subject_template_name = "registration/password_reset_subject.txt"
-    html_email_template_name = None
-    extra_email_context = None
-
-    @action(
-        detail=False,
-        methods=[HTTPMethod.POST],
-        permission_classes=[permissions.AllowAny],
-    )
-    def password_reset(self, request):
-        """
-        This function handles password reset requests.
-        """
-
-        serializer = PasswordChangeSerializer(data=request.data)
-
-        if not serializer.is_valid(raise_exception=False):
-            return Response({"detail": "L'email è stata inviata!"})
-
-        email = cast(dict, serializer.validated_data)["email"]
-        user = cast(dict, serializer.validated_data)["user"]
-
-        current_site = get_current_site(request)
-
-        context = {
-            "email": email,
-            "domain": current_site.domain,
-            "site_name": current_site.name,
-            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-            "user": user,
-            "token": self.token_generator.make_token(user),
-            "protocol": "https" if self.request.is_secure() else "http",
-        }
-
-        serializer.send_mail(  # type: ignore
-            self.subject_template_name,
-            self.email_template_name,
-            context,
-            self.from_email,
-            email,
-            html_email_template_name=self.html_email_template_name,
-        )
-        return Response({"detail": "L'email è stata inviata!"})
-
-    @action(
-        detail=False,
-        methods=[HTTPMethod.POST],
-        permission_classes=[permissions.AllowAny],
-        serializer_class=PasswordChangeConfirmSerializer,
-    )
-    def password_reset_confirm(self, request):
-        """
-        This function confirm password reset requests.
-        """
-        serializer = PasswordChangeConfirmSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        token = cast(dict, serializer.validated_data)["token"]
-        user = cast(dict, serializer.validated_data)["user"]
-
-        if self.token_generator.check_token(user, token):
-            serializer.update(
-                instance=user, validated_data=serializer.validated_data
-            )
-            return Response(status=status.HTTP_200_OK)
-        return Response(
-            {"detail": "Token not valid"}, status=status.HTTP_403_FORBIDDEN
         )

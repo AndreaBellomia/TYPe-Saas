@@ -55,13 +55,14 @@ class CustomUser(AbstractModel, AbstractUser):
         if self.groups.filter(name=group_name).exists():
             return True
         return False
-    
+
     @property
     def is_manager(self):
         group_name = "manager"
         if self.groups.filter(name=group_name).exists():
             return True
         return False
+
 
 class UserInfo(AbstractModel):
     user = models.OneToOneField(

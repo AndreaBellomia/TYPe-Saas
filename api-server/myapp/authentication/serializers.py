@@ -281,16 +281,16 @@ class PasswordChangeConfirmSerializer(serializers.Serializer):
     def validate(self, attrs):
         validated_data = super().validate(attrs)
 
-        if not validated_data["password1"] == validated_data["password2"]:
-            raise serializers.ValidationError(_("Confirm password not match"))
-
         user = self.get_user(validated_data["uidb64"])
         if not user:
             raise serializers.ValidationError(_("The user does not exist."))
 
-        # validate_password(validated_data["password2"], user)
-
         validated_data["user"] = user
+
+        if not validated_data["password1"] == validated_data["password2"]:
+            raise serializers.ValidationError(_("Confirm password not match"))
+        validate_password(validated_data["password2"], user)
+
         return validated_data
 
     def create(self, validated_data): ...
