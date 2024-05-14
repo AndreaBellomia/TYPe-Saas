@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { UserModel, PermissionGroup } from "@/models/User";
 import { URLS } from "@/libs/fetch";
-import { snack } from "@/libs/SnakClient";
 
 export async function singOut(session: ReturnType<typeof useSession>) {
   if (typeof window === "undefined") {
@@ -23,11 +22,7 @@ export async function singOut(session: ReturnType<typeof useSession>) {
     },
   });
 
-  if (!resp.ok) {
-    snack.error("Logout non eseguito");
-  } else {
-    signOut();
-  }
+  signOut();
 }
 
 export function hasGroupPermission(user: UserModel | null, permissionName: PermissionGroup) {
@@ -67,8 +62,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-
-        console.log(credentials)
         if (credentials === undefined) {
           return null;
         }

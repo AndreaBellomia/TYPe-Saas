@@ -26,3 +26,10 @@ black = "^24.2.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+target-version = ['py311']
+preview = true
+skip-string-normalization = true
+skip-magic-trailing-comma = true

@@ -1,27 +1,29 @@
 from http import HTTPMethod
+from typing import cast
 
-from django.conf import settings
-from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth import login, logout
+from django.contrib.auth.signals import user_logged_in
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.utils import timezone as tz
-
-from rest_framework import permissions, status, filters, mixins, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from myapp.core.paginations import BasicPaginationController
-
-from knox.views import LoginView as KnoxLoginView
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from knox.models import AuthToken
-
+from knox.views import LoginView as KnoxLoginView
+from myapp.authentication.models import CustomUser
 from myapp.authentication.serializers import (
     AuthSerializer,
     ChangePasswordSerializer,
     CreateUserSerializer,
-    UserProfileSerializer,
+    PasswordChangeConfirmSerializer,
+    PasswordChangeSerializer,
     UserInfoSmallSerializer,
+    UserProfileSerializer,
 )
-from myapp.authentication.models import CustomUser
+from myapp.core.paginations import BasicPaginationController
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
@@ -30,10 +32,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
 
     @action(
         detail=False,
-        methods=[
-            HTTPMethod.GET,
-            HTTPMethod.PUT,
-        ],
+        methods=[HTTPMethod.GET, HTTPMethod.PUT],
         permission_classes=[permissions.IsAuthenticated],
     )
     def profile(self, request):
@@ -43,14 +42,13 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             return Response(self.serializer_class(user).data)
 
         return Response(
-            {"detail": "User not found in request"}, status=status.HTTP_404_NOT_FOUND
+            {"detail": "User not found in request"},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     @action(
         detail=False,
-        methods=[
-            HTTPMethod.PUT,
-        ],
+        methods=[HTTPMethod.PUT],
         permission_classes=[permissions.IsAuthenticated],
     )
     def update_profile(self, request):
@@ -66,14 +64,15 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         detail=False,
         methods=[HTTPMethod.POST],
         permission_classes=[permissions.AllowAny],
-        serializer_class=AuthSerializer
+        serializer_class=AuthSerializer,
     )
     def login(self, request):
         user: CustomUser = request.user
 
         if user.is_authenticated:
             return Response(
-                {"detail": "Already logged in"}, status=status.HTTP_403_FORBIDDEN
+                {"detail": "Already logged in"},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         serializer = AuthSerializer(data=request.data)
@@ -87,7 +86,9 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             token = request.user.auth_token_set.filter(expiry__gt=now)
             if token.count() >= token_limit_per_user:
                 return Response(
-                    {"error": "Maximum amount of tokens allowed per user exceeded."},
+                    {
+                        "error": "Maximum amount of tokens allowed per user exceeded."
+                    },
                     status=status.HTTP_403_FORBIDDEN,
                 )
         token_ttl = self.get_token_ttl()
@@ -96,7 +97,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
             sender=request.user.__class__, request=request, user=request.user
         )
         data = self.get_post_response_data(request, token, instance)
-        return  Response(data)
+        return Response(data)
 
     @action(
         detail=False,
@@ -123,9 +124,11 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={"user": user}
+        )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.create(serializer.validated_data)
 
         return Response(
             {"detail": "Password changed correctly"}, status=status.HTTP_200_OK
@@ -152,7 +155,7 @@ class AdminUserViewset(viewsets.ModelViewSet):
         serializer_class = UserProfileSerializer
 
         if not getattr(user, "is_manager", False):
-            serializer_class.Meta.read_only_fields = ( # type: ignore
+            serializer_class.Meta.read_only_fields = (  # type: ignore
                 "groups",
                 "is_staff",
             )  # type: ignore
@@ -178,4 +181,82 @@ class AdminUserViewset(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
     def small(self, request):
-        return Response(UserInfoSmallSerializer(self.get_queryset(), many=True).data)
+        return Response(
+            UserInfoSmallSerializer(self.get_queryset(), many=True).data
+        )
+
+
+class PasswordResetViewset(viewsets.GenericViewSet):
+    serializer_class = PasswordChangeSerializer
+
+    token_generator = default_token_generator
+    from_email = None
+    email_template_name = "registration/password_reset_email.html"
+    subject_template_name = "registration/password_reset_subject.txt"
+    html_email_template_name = None
+    extra_email_context = None
+
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.AllowAny],
+    )
+    def password_reset(self, request):
+        """
+        This function handles password reset requests.
+        """
+
+        serializer = PasswordChangeSerializer(data=request.data)
+
+        if not serializer.is_valid(raise_exception=False):
+            return Response({"detail": "L'email è stata inviata!"})
+
+        email = cast(dict, serializer.validated_data)["email"]
+        user = cast(dict, serializer.validated_data)["user"]
+
+        current_site = get_current_site(request)
+
+        context = {
+            "email": email,
+            "domain": current_site.domain,
+            "site_name": current_site.name,
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "user": user,
+            "token": self.token_generator.make_token(user),
+            "protocol": "https" if self.request.is_secure() else "http",
+        }
+
+        serializer.send_mail(  # type: ignore
+            self.subject_template_name,
+            self.email_template_name,
+            context,
+            self.from_email,
+            email,
+            html_email_template_name=self.html_email_template_name,
+        )
+        return Response({"detail": "L'email è stata inviata!"})
+
+    @action(
+        detail=False,
+        methods=[HTTPMethod.POST],
+        permission_classes=[permissions.AllowAny],
+        serializer_class=PasswordChangeConfirmSerializer,
+    )
+    def password_reset_confirm(self, request):
+        """
+        This function confirm password reset requests.
+        """
+        serializer = PasswordChangeConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = cast(dict, serializer.validated_data)["token"]
+        user = cast(dict, serializer.validated_data)["user"]
+
+        if self.token_generator.check_token(user, token):
+            serializer.update(
+                instance=user, validated_data=serializer.validated_data
+            )
+            return Response(status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Token not valid"}, status=status.HTTP_403_FORBIDDEN
+        )
