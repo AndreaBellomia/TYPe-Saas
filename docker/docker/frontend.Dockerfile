@@ -1,5 +1,7 @@
 FROM node:20-alpine AS base
 
+ARG ERVIROMENT
+
 # 1. Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
@@ -9,12 +11,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY frontend-server/package.json frontend-server/package-lock.json  ./
-RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+RUN npm ci
 
 
 # 2. Rebuild the source code only when needed
@@ -24,7 +21,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
 COPY --from=deps /app/package-lock.json ./
 COPY frontend-server/ .
-COPY docker/local/.env .
+COPY docker/${ERVIROMENT}/.env .
 # This will do the trick, use the corresponding env file for each environment.
 # COPY .env.production.sample .env.production
 RUN npm run build

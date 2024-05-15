@@ -63,6 +63,8 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/docker/frontend.Dockerfile
+      args:
+        ERVIROMENT: "local"
     env_file:
       - ".env"
     restart: always

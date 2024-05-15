@@ -5,6 +5,17 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { UserModel, PermissionGroup } from "@/models/User";
 import { URLS } from "@/libs/fetch";
 
+class NonTrackableError extends Error {
+  public omit: boolean;
+
+  constructor(message: string, omit: boolean = false) {
+    super(message);
+    this.name = this.constructor.name;
+    this.omit = omit;
+    Object.setPrototypeOf(this, NonTrackableError.prototype);
+  }
+}
+
 export async function singOut(session: ReturnType<typeof useSession>) {
   if (typeof window === "undefined") {
     throw new Error("signOut can be use only in client side!");
@@ -38,7 +49,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   pages: {
-    signIn: '/authentication/login',
+    signIn: "/authentication/login",
   },
   callbacks: {
     async signIn({ user, account, profile, credentials }) {
@@ -66,19 +77,32 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const response = await fetch(URLS.API_SERVER + "/authentication/login/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
-        });
+        try {
+          const response = await fetch(
+            ( process.env.NEXT_API_URL || process.env.NEXTCLIENT_API_URL ) + "/authentication/login/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+            },
+          );
 
-        if (response.ok) {
+          if (response.status === 400) {
+            throw new NonTrackableError("WrongCredentials", true);
+          }
+
+          if (!response.ok) {
+            console.log(response)
+            throw new NonTrackableError("ConnectionError " + JSON.stringify(response));
+          }
+
           const data = await response.json();
+
           return {
             djangoToken: data.token,
             djangoExpire: data.expiry,
@@ -89,6 +113,9 @@ export const authOptions: NextAuthOptions = {
             is_staff: data.is_staff,
             is_active: data.is_active,
           } as User;
+        } catch (err) {
+          const error = err as NonTrackableError;
+          if (error.omit) throw error;
         }
         return null;
       },

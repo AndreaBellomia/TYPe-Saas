@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 type ParamsList = Array<{ param: string; value: string }>;
 type GenericObject = { [key: string]: any };
 type CallbackFunction = (response: any) => void;
-type CallbackErrorFunction = (error: any) => void;
+
 enum AxiosMethods {
   GET = "get",
   POST = "post",
@@ -15,7 +15,7 @@ enum AxiosMethods {
 }
 
 export const URLS: GenericObject = {
-  API_SERVER: process.env.FRONTEND_API_URL,
+  API_SERVER: process.env.NEXTCLIENT_API_URL,
 };
 
 export class FetchDispatchError extends Error {

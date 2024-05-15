@@ -10,8 +10,6 @@ import { useRouter } from "next/navigation";
 import { Button, Paper, Box, Typography, Divider, Link } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { UserModel } from "@/models/User";
-
 import TextField from "@/components/forms/TextField";
 import { snack } from "@/libs/SnakClient";
 
@@ -46,19 +44,19 @@ export default function _() {
         redirect: false,
       });
 
-      console.log(response)
-
-      if (response === undefined) {
-        snack.error("Errore, se il problema persiste contattare un amministratore!");
-        return;
-      }
-
-      if (response.ok) {
+      if (response && response.ok) {
         router.push(response.url || "/user/ticket");
         return;
       }
 
-      helpers.setFieldError("password", "Email o password non corretti.");
+      switch (response && response.error) {
+        case "WrongCredentials":
+          helpers.setFieldError("password", "Email o password non corretti.");
+          break;
+        default:
+          snack.error("Errore, se il problema persiste contattare un amministratore!");
+          break;
+      }
     },
   });
 
@@ -66,7 +64,7 @@ export default function _() {
     <>
       <CenterCard>
         <Paper elevation={4}>
-          <Box padding={5} textAlign="center">  
+          <Box padding={5} textAlign="center">
             <form>
               <Box
                 sx={{
@@ -91,13 +89,10 @@ export default function _() {
                 <Button variant="contained" onClick={formik.handleSubmit} disabled={!(formik.isValid && formik.dirty)}>
                   Login
                 </Button>
-
               </Box>
-
             </form>
 
-
-            <Divider sx={{ my: 2 }}/>
+            <Divider sx={{ my: 2 }} />
 
             <Link href="/authentication/password_change">Password dimenticata</Link>
           </Box>
@@ -106,4 +101,3 @@ export default function _() {
     </>
   );
 }
-
