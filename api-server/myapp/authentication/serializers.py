@@ -1,5 +1,6 @@
 import secrets
 
+from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
@@ -183,19 +184,16 @@ class CreateUserSerializer(serializers.Serializer):
             is_active=True,
         )
 
-        html_content = f"""
-        Attiva il tuo account ticket crm 
-        email: {user.email}
-        password: {password}
-        sito: http://localhost:3000
-        dopo il login reimposta la password dalla sezione profilo
-        """
-
         send_html_email(
-            "Registrazione a TicketCRM",
-            html_content,
-            from_email="noreply@ticketCRM.it",
-            to=[user.email],
+            "Registrazione a TYPe",
+            "registration_email.html",
+            {
+                "email": user.email,
+                "password": password,
+                "domain": settings.FRONTEND_URL,
+                "protocol": self.context.get("protocol", "http"),
+            },
+            to=user.email,
         )
 
         return user
@@ -236,18 +234,13 @@ class PasswordChangeSerializer(serializers.Serializer):
         """
         subject = loader.render_to_string(subject_template_name, context)
         subject = "".join(subject.splitlines())
-        body = loader.render_to_string(email_template_name, context)
 
-        email_message = EmailMultiAlternatives(
-            subject, body, from_email, [to_email]
+        send_html_email(
+            subject,
+            email_template_name,
+            context,
+            to=to_email,
         )
-        if html_email_template_name is not None:
-            html_email = loader.render_to_string(
-                html_email_template_name, context
-            )
-            email_message.attach_alternative(html_email, "text/html")
-
-        email_message.send()
 
 
 class PasswordChangeConfirmSerializer(serializers.Serializer):

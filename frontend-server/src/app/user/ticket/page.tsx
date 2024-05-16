@@ -9,7 +9,6 @@ import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 
 import { Ticket } from "@/models/Ticket";
 
-import { useSession } from "next-auth/react"
 
 export default function _() {
   const api = useDjangoApi();
@@ -19,9 +18,6 @@ export default function _() {
   const [pageCount, setPageCount] = useState(0);
   const [data, setData] = useState<Ticket[]>([]);
 
-  const session = useSession()
-
-  console.log(session)
 
   useEffect(() => {
     const url: string = DjangoApi.buildURLparams("/ticket/", [{ param: "page", value: String(page) }]);

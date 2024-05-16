@@ -34,14 +34,21 @@ DEBUG = env("API_DEBUG_MODE", False)
 
 ALLOWED_HOSTS = env.list("API_ALLOWED_HOSTS", ["*"])
 CORS_ALLOWED_ORIGINS = env.list(
-    "API_CORS_ALLOWED_ORIGINS", ["http://localhost:3000", "http://127.0.0.1:3000"]
+    "API_CORS_ALLOWED_ORIGINS",
+    ["http://localhost:3000", "http://127.0.0.1:3000"],
 )
 CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
 
-LIBRARY_APP = ["rest_framework", "knox", "django_filters", "drf_yasg", "corsheaders"]
+LIBRARY_APP = [
+    "rest_framework",
+    "knox",
+    "django_filters",
+    "drf_yasg",
+    "corsheaders",
+]
 
 INTERNAL_APP = [
     "myapp.authentication",
@@ -90,9 +97,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = "myapp.wsgi.application"
@@ -104,9 +111,11 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticated"
     ],
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
 }
 
 # Knox security framework
@@ -125,16 +134,14 @@ REST_KNOX = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
     },
 ]
 
@@ -184,7 +191,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "console": {
-            "format": "[%(asctime)s][%(levelname)8s][%(name)30.30s]@[%(lineno)5s] : %(message)s",
+            "format": "[%(asctime)s][%(levelname)8s][%(name)30.30s]@[%(lineno)5s] : %(message)s"
         }
     },
     "handlers": {
@@ -192,7 +199,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "console",
-        },
+        }
     },
     "root": {
         "handlers": ["console"],
@@ -200,18 +207,25 @@ LOGGING = {
         "formatter": "console",
     },
     "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": ["console"],
-            "propagate": True,
-        },
-        "": {
-            "handlers": ["console"],
-        },
+        "django": {"handlers": ["console"], "propagate": False},
+        "django.request": {"handlers": ["console"], "propagate": True},
+        "": {"handlers": ["console"]},
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend"
+)
+EMAIL_HOST = env("API_EMAIL_HOST", "")
+EMAIL_HOST_USER = env("API_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD", "")
+EMAIL_PORT = env("API_EMAIL_PORT", "")
+EMAIL_USE_TLS = env("API_EMAIL_USE_TLS", "")
+EMAIL_USE_SSL = env("API_EMAIL_USE_SSL", "")
+DEFAULT_FROM_EMAIL = env("API_DEFAULT_FROM_EMAIL", "")
+
+
+FRONTEND_URL = env("API_FRONTEND_URL", "localhost:3000")

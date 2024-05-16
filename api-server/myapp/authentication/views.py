@@ -1,6 +1,7 @@
 from http import HTTPMethod
 from typing import cast
 
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth.tokens import default_token_generator
@@ -31,8 +32,8 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
     serializer_class = UserProfileSerializer
 
     token_generator = default_token_generator
-    email_template_name = "registration/password_reset_email.html"
-    subject_template_name = "registration/password_reset_subject.txt"
+    email_template_name = "password_reset_email.html"
+    subject_template_name = "password_reset_subject.txt"
 
     @action(
         detail=False,
@@ -175,7 +176,7 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
 
         context = {
             "email": email,
-            "domain": current_site.domain,
+            "domain": settings.FRONTEND_URL,
             "site_name": current_site.name,
             "uid": urlsafe_base64_encode(force_bytes(user.pk)),
             "user": user,
@@ -246,7 +247,9 @@ class AdminUserViewset(viewsets.ModelViewSet):
         return serializer_class
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateUserSerializer(data=request.data)
+        serializer = CreateUserSerializer(
+            data=request.data, context={"protocol": self.request.is_secure()}
+        )
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
