@@ -6,6 +6,7 @@ import * as Yup from "yup";
 
 import { styled } from "@mui/material/styles";
 import { Button, Paper, Box, Typography } from "@mui/material";
+import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 
 import TextField from "@/components/forms/TextField";
 import { URLS } from "@/libs/fetch";
@@ -15,9 +16,7 @@ const CenterCard = styled(Box)(({ theme }) => ({
   top: "50%",
   left: "50%",
   position: "relative",
-
   transform: "translate(-50%, -50%)",
-
   maxWidth: 600,
 }));
 
@@ -52,52 +51,62 @@ export default function _() {
         }),
       });
 
-      if (!response.ok) {
-        snack.error("Errore, se il problema persiste contattare un amministratore!");
+      const data = await response.json();
+
+      if (response.status === 400) {
+        helpers.setFieldError("password2", data.non_field_errors);
+        return;
       }
 
       if (response.status === 200) {
         snack.success("Password cambiata con successo!");
         router.push("/login");
+        return;
       }
 
-      const data = await response.json();
-      helpers.setFieldError("password", data.non_field_errors);
+      snack.error("Errore, se il problema persiste contattare un amministratore!");
     },
   });
 
   return (
     <>
       <CenterCard>
-        <Paper elevation={4}>
-          <form>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                p: 5,
-                alignItems: "center",
-              }}
+        <form>
+          <Box textAlign="center" padding={3}>
+            <Typography variant="h3" gutterBottom>
+              Password Reset
+            </Typography>
+
+            <Typography variant="subtitle1" color="text.secondary">
+              Inserisci la nuova password per il tuo account.
+            </Typography>
+
+            <Box sx={{ my: 3 }} />
+
+            <TextField required label="Password" name="password" type="password" formik={formik} />
+
+            <Box sx={{ my: 3 }} />
+
+            <TextField required label="Conferma Password" name="password2" type="password" formik={formik} />
+
+            <Box sx={{ my: 3 }} />
+
+            <Button
+              variant="contained"
+              onClick={() => formik.handleSubmit()}
+              disabled={!(formik.isValid && formik.dirty && !formik.isSubmitting)}
+              fullWidth
             >
-              <Typography variant="h4">Password Reset</Typography>
+              Conferma
+            </Button>
 
-              <Box sx={{ my: 2 }} />
+            <Box sx={{ my: 3 }} />
 
-              <TextField required label="Password" name="password" type="password" formik={formik} />
-
-              <Box sx={{ my: 2 }} />
-
-              <TextField required label="Conferma Password" name="password2" type="password" formik={formik} />
-
-              <Box sx={{ my: 2 }} />
-
-              {/*  @ts-ignore */}
-              <Button variant="contained" onClick={formik.handleSubmit} disabled={!(formik.isValid && formik.dirty)}>
-                Conferma
-              </Button>
-            </Box>
-          </form>
-        </Paper>
+            <Button href="/authentication/login" startIcon={<ArrowBackIosRoundedIcon />}>
+              Torna al login
+            </Button>
+          </Box>
+        </form>
       </CenterCard>
     </>
   );
