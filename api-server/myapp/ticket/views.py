@@ -82,7 +82,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             sender=self.request,
             user=instance.created_by,
             ticket=instance,
-            message=f"Il ticket {instance.pk} - {instance.label} è stato da un admin",
+            message=f"Il ticket \"{instance.pk} - {instance.label}\" è stato creato da un admin",
         )
 
     def perform_update(self, serializer):
@@ -92,7 +92,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             sender=self.request,
             user=instance.created_by,
             ticket=instance,
-            message=f"Il ticket {instance.pk} - {instance.label} è stato aggiornato",
+            message=f"Il ticket \"{instance.pk} - {instance.label}\" è stato aggiornato",
         )
 
     def perform_destroy(self, instance):
@@ -102,7 +102,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             sender=self.request,
             user=instance.created_by,
             ticket=instance,
-            message=f"Il ticket {instance.pk} - {instance.label} è stato eliminato",
+            message=f"Il ticket \"{instance.pk} - {instance.label}\" è stato eliminato",
         )
 
     @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
@@ -151,7 +151,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
             sender=request,
             user=instance.created_by,
             ticket=instance,
-            message=f"Il ticket {instance.pk} - {instance.label} è stato aggiornato",
+            message=f"Il ticket \"{instance.pk} - {instance.label}\" è stato aggiornato",
         )
         return Response({}, status=status.HTTP_200_OK)
 
@@ -183,7 +183,7 @@ class TicketAdminViewset(viewsets.ModelViewSet):
                 sender=self.request,
                 user=ticket.created_by,
                 ticket=ticket,
-                message=f"Il ticket {ticket.pk} - {ticket.label} ha dei nuovi messaggi",
+                message=f"Il ticket \"{ticket.pk} - {ticket.label}\" ha un nuovo messaggio",
             )
 
             return Response(serializer.data)
@@ -262,7 +262,7 @@ class TicketUserViewset(
                     sender=self.request,
                     user=ticket.assigned_to,
                     ticket=ticket,
-                    message=f"Il ticket {ticket.pk} - {ticket.label} ha dei nuovi messaggi",
+                    message=f"Il ticket \"{ticket.pk} - {ticket.label}\" ha un nuovo messaggio",
                 )
 
             return Response(serializer.data)

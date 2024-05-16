@@ -1,24 +1,21 @@
 from http import HTTPMethod
-from myapp.core.permissions import UserReadOnly, GroupPermission
-from rest_framework import permissions, status, filters, mixins, viewsets, exceptions
+
+from rest_framework import permissions, status, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from myapp.notification.serializers import NotificationSerializer
-from myapp.notification.models import Notifications
 
 
 class NotificationViewset(viewsets.GenericViewSet, mixins.ListModelMixin):
     serializer_class = NotificationSerializer
 
     def get_queryset(self):
-        return self.request.user.notifications.all()
+        return self.request.user.notifications.all().order_by("-created_at")
 
     @action(
         detail=False,
-        methods=[
-            HTTPMethod.GET,
-        ],
+        methods=[HTTPMethod.GET],
         permission_classes=[permissions.IsAuthenticated],
     )
     def to_read(self, request):
@@ -28,9 +25,7 @@ class NotificationViewset(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     @action(
         detail=False,
-        methods=[
-            HTTPMethod.POST,
-        ],
+        methods=[HTTPMethod.POST],
         permission_classes=[permissions.IsAuthenticated],
     )
     def set_read(self, request):

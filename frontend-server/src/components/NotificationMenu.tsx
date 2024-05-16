@@ -1,18 +1,16 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
-import { UserModel } from "@/models/User";
-import { RootState } from "@/redux/store";
-
-import { Menu, Typography, Box, Button, Divider, List, ListItem, ListItemText, ListItemButton, IconButton } from "@mui/material";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import { Menu, Typography, Box, List, ListItem, IconButton, Badge } from "@mui/material";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 
 import { useDjangoApi, FetchDispatchError } from "@/libs/fetch";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NotificationModel } from "@/models/Notifications";
 import { snack } from "@/libs/SnakClient";
+import { timeElapsed } from "@/libs/utils";
 
 export interface ProfileMenuProps {
   open: boolean;
@@ -21,10 +19,8 @@ export interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
   const [notification, setNotifications] = useState([]);
-
-  const router = useRouter();
+  const notificationCount = useMemo(() => notification.length, [notification]);
 
   const api = useDjangoApi();
 
@@ -56,12 +52,11 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   return (
     <>
       <IconButton aria-label="delete" onClick={() => handlerOpen(true)}>
-        {notification.length > 0 ? 
-        <NotificationsActiveIcon color="primary" /> : <NotificationsIcon />
-        }
-        
+        <Badge badgeContent={notificationCount} color="error" overlap="circular">
+          {notification.length > 0 ? <NotificationsActiveIcon color="primary" /> : <NotificationsIcon />}
+        </Badge>
       </IconButton>
-      
+
       <Menu
         id="basic-menu"
         open={open}
@@ -79,37 +74,61 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
         }}
         anchorEl={anchorEl}
       >
-        <Box>
-          <Box textAlign="center">
-            <Typography variant="h6" color="initial">
-              Notifiche
-            </Typography>
+        <Box paddingY={1}>
+          <Box paddingX={2} marginBottom={1} display="flex" justifyContent="space-between" alignItems="center">
+            <Box display="flex" alignItems="center">
+              <Typography variant="subtitle1" color="text.secondary" marginRight={1}>
+                Notifiche
+              </Typography>
+              {notificationCount > 0 && (
+                <Typography variant="subtitle1" color="error">
+                  {notificationCount}
+                </Typography>
+              )}
+            </Box>
+
+            <IconButton onClick={() => handlerDeleteNotification()} color="error" size="small">
+              <CancelRoundedIcon />
+            </IconButton>
           </Box>
 
-          <List sx={{ width: "18rem" }}>
+          <List sx={{ minWidth: "15rem", maxWidth: "25rem", maxHeight: "18rem", overflow: "auto", padding: 0 }}>
             {notification.length > 0 ? (
-              notification.map((e: NotificationModel) => (
-                <ListItem disablePadding key={e.id}>
-                  <Box sx={{ paddingY: 1, paddingX: 2 }}>
-                    <Typography variant="body2" color="initial">
-                      {e.message}
-                    </Typography>
+              notification.map((e: NotificationModel, index) => (
+                <ListItem
+                  disablePadding
+                  key={e.id}
+                  sx={(theme) => ({
+                    backgroundColor: theme.palette.grey[200],
+                    ...(index !== 0 && { marginTop: 0.5 }),
+                    ...(index !== notification.length - 1 && { marginBottom: 0.5 }),
+                  })}
+                >
+                  <Box position="relative" height="100%" top="50%" padding={1}>
+                    <ConfirmationNumberIcon color="primary" />
+                  </Box>
+                  <Box padding={1} width="100%">
+                    <Box display="flex" height="100%">
+                      <Typography variant="body2" color="initial">
+                        {e.message}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" justifyContent="end">
+                      <Typography variant="caption" color="error">
+                        {timeElapsed(e.created_at)}
+                      </Typography>
+                    </Box>
                   </Box>
                 </ListItem>
               ))
             ) : (
-              <Box textAlign="center">
+              <Box textAlign="center" padding={2}>
                 <Typography variant="body2" color="initial">
-                  Nessuna notifica da visualizzare
+                  Non ci sono nuove notifiche
                 </Typography>
               </Box>
             )}
-
-            <ListItem disablePadding>
-              <ListItemButton sx={{ textAlign: "center" }}>
-                <ListItemText primary="Segna come lette" onClick={() => handlerDeleteNotification()} />
-              </ListItemButton>
-            </ListItem>
           </List>
         </Box>
       </Menu>
