@@ -8,7 +8,7 @@ services:
       context: ../../
       dockerfile: ./docker/production/api.Dockerfile
     env_file:
-      - ".env.production"
+      - ".env"
     command: poetry run ./manage.py migrate
     networks:
       - app-network
@@ -21,7 +21,7 @@ services:
       args:
         COLLECTSTATIC: "true"
     env_file:
-      - ".env.production"
+      - ".env"
     restart: always
     command: poetry run gunicorn myapp.wsgi:application -b 0.0.0.0:8000 --workers 4 --timeout 120 --log-level info
     depends_on:
@@ -37,8 +37,10 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/docker/frontend.Dockerfile
+      args:
+        ERVIROMENT: "local"
     env_file:
-      - ".env.production"
+      - ".env"
     restart: always
     networks:
       - app-network
