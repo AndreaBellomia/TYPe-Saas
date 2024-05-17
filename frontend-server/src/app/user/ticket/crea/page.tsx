@@ -67,7 +67,7 @@ export default function _() {
   return (
     <>
       <Container>
-        <Paper elevation={5} sx={{ padding: 2 }}>
+        <Paper sx={{ padding: 2 }}>
           <Box display="flex" alignItems="middle">
             <ConfirmationNumberIcon fontSize="large" sx={{ mr: 1 }} color="primary" />
             <Typography variant="h4">Crea una richiesta</Typography>

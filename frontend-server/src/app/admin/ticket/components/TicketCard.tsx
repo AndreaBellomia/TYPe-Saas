@@ -8,15 +8,19 @@ export interface TicketCardProps {
   user: any;
   description: string;
   category: string;
+  id: string;
 }
 
-export function TicketCard({ title, user, description, category }: TicketCardProps) {
+export function TicketCard({ title, user, description, category, id }: TicketCardProps) {
   const formattedDesc = description && description.length >= 50 ? description.slice(0, 47) + "..." : description;
 
   return (
     <>
       <Paper variant="outlined" sx={{ p: 2, cursor: "pointer", overflow: "hidden" }}>
-        <Typography variant="caption">{category}</Typography>
+        <Box display="flex" justifyContent="space-between">
+          <Typography variant="caption">{category}</Typography>
+          <Typography variant="caption">{id}</Typography>
+        </Box>
         <Typography gutterBottom variant="subtitle1" sx={{ textTransform: "capitalize" }}>
           {title}
         </Typography>
