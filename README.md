@@ -1,4 +1,4 @@
-TYPe-Saas 
+# TYPe-Saas 
 
 This software is designed to streamline communication between users and administrators, improving efficiency in handling requests and tasks. Through an intuitive ticketing system, users can open tickets to report issues or make requests, while administrators can track progress, send update messages, and monitor ticket status.
 
