@@ -6,11 +6,16 @@ from http import HTTPMethod
 from django.db.models import Q
 from django.utils import timezone as tz
 
-from rest_framework.generics import (
-    ListCreateAPIView,
-)
+from rest_framework.generics import ListCreateAPIView
 
-from rest_framework import permissions, status, filters, mixins, viewsets, exceptions
+from rest_framework import (
+    permissions,
+    status,
+    filters,
+    mixins,
+    viewsets,
+    exceptions,
+)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -37,7 +42,11 @@ class TicketAdminViewset(viewsets.ModelViewSet):
     permission_groups = ["manager", "employer"]
 
     pagination_class = BasicPaginationController
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, StatusFilter]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        StatusFilter,
+    ]
 
     status_field = "status"
     ordering_fields = [
@@ -49,7 +58,12 @@ class TicketAdminViewset(viewsets.ModelViewSet):
         "status",
         "type",
     ]
-    search_fields = ["label", "created_by__email", "assigned_to__email"]
+    search_fields = [
+        "label",
+        "created_by__email",
+        "assigned_to__email",
+        "type__name",
+    ]
 
     def get_serializer_class(self):  # type: ignore
         user: CustomUser = self.request.user  # type: ignore
@@ -107,8 +121,8 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[HTTPMethod.GET], pagination_class=None)
     def board(self, request):
-
-        queryset = self.get_queryset()
+        """Return a kanban board"""
+        queryset = self.filter_queryset(self.get_queryset())
 
         resp = {
             "todo": AdminTicketSerializer(
@@ -118,15 +132,15 @@ class TicketAdminViewset(viewsets.ModelViewSet):
                 many=True,
             ).data,
             "progress": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.PROGRESS).order_by(
-                    "assigned_to_id"
-                ),
+                instance=queryset.filter(
+                    status=Ticket.Status.PROGRESS
+                ).order_by("assigned_to_id"),
                 many=True,
             ).data,
             "blocked": AdminTicketSerializer(
-                instance=queryset.filter(status=Ticket.Status.BLOCKED).order_by(
-                    "assigned_to_id"
-                ),
+                instance=queryset.filter(
+                    status=Ticket.Status.BLOCKED
+                ).order_by("assigned_to_id"),
                 many=True,
             ).data,
             "done": AdminTicketSerializer(
@@ -165,11 +179,14 @@ class TicketAdminViewset(viewsets.ModelViewSet):
 
         if ticket is None:
             return Response(
-                {"detail": "ticket non trovato"}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "ticket non trovato"},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         if request.method == HTTPMethod.GET:
-            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by("-created_at")
+            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by(
+                "-created_at"
+            )
 
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data)
@@ -206,7 +223,11 @@ class TicketUserViewset(
 ):
     serializer_class = UserTicketSerializer
     pagination_class = BasicPaginationController
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, StatusFilter]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        StatusFilter,
+    ]
     ordering_fields = [
         "id",
         "assigned_to",
@@ -215,10 +236,7 @@ class TicketUserViewset(
         "status",
         "type",
     ]
-    search_fields = [
-        "label",
-        "assigned_to",
-    ]
+    search_fields = ["label", "assigned_to"]
 
     def get_queryset(self):  # type: ignore
         user = self.request.user
@@ -242,11 +260,14 @@ class TicketUserViewset(
 
         if ticket is None or not ticket.created_by == request.user:
             return Response(
-                {"detail": "ticket non trovato"}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "ticket non trovato"},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         if request.method == HTTPMethod.GET:
-            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by("-created_at")
+            queryset = TicketMsg.objects.filter(ticket_id=pk).order_by(
+                "-created_at"
+            )
 
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data)

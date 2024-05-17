@@ -54,7 +54,7 @@ export function BoardColumn({ groupName, header, name, handleEnd, columnData, ha
       <List ref={dataList} sx={{ height: "100%" }}>
         {data.map((e, index) => (
           <Box my={index === 0 ? 0 : 2} key={e.id} onClick={() => handleCard(String(e.id))}>
-            <TicketCard title={e.label} user={e.assigned_to} description={e.description} />
+            <TicketCard title={e.label} user={e.assigned_to} description={e.description} category={e.type.name} />
           </Box>
         ))}
       </List>

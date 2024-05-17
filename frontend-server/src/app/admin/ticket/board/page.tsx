@@ -5,8 +5,10 @@ import { Typography, Box, Grid } from "@mui/material";
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
 import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
-import { useDjangoApi } from "@/libs/fetch";
+import { DjangoApi, useDjangoApi } from "@/libs/fetch";
 import { Statuses, StatusesType } from "@/models/Ticket";
+
+import { InputField } from "@/components/filters";
 
 interface FormReducerState {
   id: string | null;
@@ -57,6 +59,7 @@ export default function _() {
   }
 
   const [drawerTicket, setDrawerTicket] = useState(false);
+  const [search, setSearch] = useState("");
   const [initial, dispatch] = useReducer(ticketFormReducer, { id: null, state: null });
   const [boardItems, setBoardItems] = useState({
     [Statuses.TODO]: [],
@@ -90,7 +93,7 @@ export default function _() {
   useEffect(() => {
     if (!drawerTicket)
       api.get(
-        "/ticket/admin/board/",
+        DjangoApi.buildURLparams("/ticket/admin/board/", [{ param: "search", value: search }]),
         (response) => {
           setBoardItems(response.data);
         },
@@ -98,7 +101,7 @@ export default function _() {
           console.error(e);
         },
       );
-  }, [drawerTicket]);
+  }, [drawerTicket, search]);
 
   const handlerCreateTicket = (state: StatusesType | null): void => {
     dispatch({ type: "CLEAR" });
@@ -118,11 +121,11 @@ export default function _() {
     <>
       <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} initial={initial} />
       <Box display="flex" height="100%" position="relative" flexDirection="column" boxSizing="border-box">
-        <Box display="flex" justifyContent="space-between" mb={2}>
-          <Typography variant="h4" color="initial">
-            Board
-          </Typography>
-        </Box>
+        <Grid container spacing={1} marginBottom={2}>
+          <Grid item xs={4}>
+            <InputField setterValue={setSearch} placeholder="Cerca nella board..."></InputField>
+          </Grid>
+        </Grid>
         <Grid container spacing={1} sx={{ height: "100%" }}>
           {columns.map((col) => (
             <Grid item xs={3} key={col.header}>

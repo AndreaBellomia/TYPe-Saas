@@ -14,19 +14,19 @@ import DragIndicatorRoundedIcon from "@mui/icons-material/DragIndicatorRounded";
 
 import { TICKET_STATUSES } from "@/constants";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Ticket } from "@/models/Ticket";
+import { StatusesType, Ticket } from "@/models/Ticket";
 
 import StatusChangeCol from "@/app/admin/ticket/backlog/components/StatusChangeCol";
 
 import { dateParser } from "@/libs/utils";
 
 export default function _() {
-  const drawerTicketID = useRef<string | null>(null);
+  const drawerTicketID = useRef<{ id: string | null; state: StatusesType | null; }>({ id: null, state: null });
   const [drawerTicket, setDrawerTicket] = useState(false);
   const handlerOpenModal = (id: string | null): void => {
-    drawerTicketID.current = null;
+    drawerTicketID.current.id = null;
     if (id) {
-      drawerTicketID.current = id;
+      drawerTicketID.current.id = id;
     }
     setDrawerTicket(true);
   };
@@ -114,7 +114,7 @@ export default function _() {
 
   return (
     <>
-      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current} />
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} initial={drawerTicketID.current} />
       <Grid container spacing={2}>
         <Grid item xs={12} textAlign="end">
           <Button variant="contained" onClick={() => handlerOpenModal(null)}>

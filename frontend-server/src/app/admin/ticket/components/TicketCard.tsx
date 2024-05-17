@@ -7,15 +7,17 @@ export interface TicketCardProps {
   title: string;
   user: any;
   description: string;
+  category: string;
 }
 
-export function TicketCard({ title, user, description }: TicketCardProps) {
-  const formattedDesc = description && description.length >= 250 ? description.slice(0, 247) + "..." : description;
+export function TicketCard({ title, user, description, category }: TicketCardProps) {
+  const formattedDesc = description && description.length >= 50 ? description.slice(0, 47) + "..." : description;
 
   return (
     <>
       <Paper variant="outlined" sx={{ p: 2, cursor: "pointer", overflow: "hidden" }}>
-        <Typography gutterBottom variant="h6" sx={{ textTransform: "capitalize" }}>
+        <Typography variant="caption">{category}</Typography>
+        <Typography gutterBottom variant="subtitle1" sx={{ textTransform: "capitalize" }}>
           {title}
         </Typography>
         <Typography variant="body2">{formattedDesc}</Typography>
