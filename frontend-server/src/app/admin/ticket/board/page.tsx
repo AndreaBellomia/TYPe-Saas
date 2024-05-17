@@ -1,13 +1,36 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { Paper, Typography, Box, Grid, Button } from "@mui/material";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
+import { Typography, Box, Grid } from "@mui/material";
 
 import ColumnBoard from "@/app/admin/ticket/board/components/Column";
 import DrawerTicket from "@/app/admin/ticket/components/DrawerTicket";
 
-import { TICKET_STATUSES } from "@/constants";
-
 import { useDjangoApi } from "@/libs/fetch";
+import { Statuses, StatusesType } from "@/models/Ticket";
+
+interface FormReducerState {
+  id: string | null;
+  state: StatusesType | null;
+}
+
+type FormReducerAction = { type: "SET"; payload: { key: keyof FormReducerState; value: any } } | { type: "CLEAR" };
+
+function ticketFormReducer(state: FormReducerState, action: FormReducerAction): FormReducerState {
+  switch (action.type) {
+    case "SET":
+      return {
+        ...state,
+        [action.payload.key]: action.payload.value,
+      };
+    case "CLEAR":
+      return Object.keys(state).reduce((acc, key) => {
+        acc[key as keyof FormReducerState] = null;
+        return acc;
+      }, {} as FormReducerState);
+    default:
+      return state;
+  }
+}
 
 export default function _() {
   const api = useDjangoApi();
@@ -34,100 +57,86 @@ export default function _() {
   }
 
   const [drawerTicket, setDrawerTicket] = useState(false);
-  const drawerTicketID = useRef<string | null>(null);
+  const [initial, dispatch] = useReducer(ticketFormReducer, { id: null, state: null });
   const [boardItems, setBoardItems] = useState({
-    todo: [],
-    progress: [],
-    blocked: [],
-    done: [],
+    [Statuses.TODO]: [],
+    [Statuses.PROGRESS]: [],
+    [Statuses.BLOCKED]: [],
+    [Statuses.DONE]: [],
   });
 
-  useEffect(() => {
-    api.get(
-      "/ticket/admin/board/",
-      (response) => {
-        setBoardItems(response.data);
+  const columns: { header: string; name: Exclude<StatusesType, Statuses.BACKLOG> }[] = useMemo(
+    () => [
+      {
+        header: "To Do",
+        name: Statuses.TODO,
       },
-      (e) => {
-        console.error(e);
+      {
+        header: "Progress",
+        name: Statuses.PROGRESS,
       },
-    );
-  }, []);
+      {
+        header: "Blocked",
+        name: Statuses.BLOCKED,
+      },
+      {
+        header: "Completed",
+        name: Statuses.DONE,
+      },
+    ],
+    [],
+  );
 
-  const handlerOpenModal = (id: string | null): void => {
-    drawerTicketID.current = null;
-    if (id) {
-      drawerTicketID.current = id;
-    }
+  useEffect(() => {
+    if (!drawerTicket)
+      api.get(
+        "/ticket/admin/board/",
+        (response) => {
+          setBoardItems(response.data);
+        },
+        (e) => {
+          console.error(e);
+        },
+      );
+  }, [drawerTicket]);
+
+  const handlerCreateTicket = (state: StatusesType | null): void => {
+    dispatch({ type: "CLEAR" });
+
+    if (state) dispatch({ type: "SET", payload: { key: "state", value: state } });
+    setDrawerTicket(true);
+  };
+
+  const handlerEditModal = (id: string | null): void => {
+    dispatch({ type: "CLEAR" });
+
+    if (id) dispatch({ type: "SET", payload: { key: "id", value: id } });
     setDrawerTicket(true);
   };
 
   return (
     <>
-      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} id={drawerTicketID.current} />
-      <Box
-        sx={{
-          display: "flex",
-          height: "100%",
-          position: "relative",
-          flexDirection: "column",
-          boxSizing: "border-box",
-        }}
-      >
+      <DrawerTicket open={drawerTicket} onClose={() => setDrawerTicket(false)} initial={initial} />
+      <Box display="flex" height="100%" position="relative" flexDirection="column" boxSizing="border-box">
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Typography variant="h4" color="initial">
             Board
           </Typography>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handlerOpenModal(null);
-            }}
-          >
-            Crea ticket
-          </Button>
         </Box>
         <Grid container spacing={1} sx={{ height: "100%" }}>
-          <Grid item xs={3}>
-            <ColumnBoard
-              groupName="board"
-              header="To Do"
-              name={TICKET_STATUSES.TODO}
-              columnData={boardItems.todo}
-              handleEnd={handlerMoveCard}
-              handleCard={handlerOpenModal}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <ColumnBoard
-              groupName="board"
-              header="Progress"
-              name={TICKET_STATUSES.PROGRESS}
-              columnData={boardItems.progress}
-              handleEnd={handlerMoveCard}
-              handleCard={handlerOpenModal}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <ColumnBoard
-              groupName="board"
-              header="Blocked"
-              name={TICKET_STATUSES.BLOCKED}
-              columnData={boardItems.blocked}
-              handleEnd={handlerMoveCard}
-              handleCard={handlerOpenModal}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <ColumnBoard
-              groupName="board"
-              header="Completed"
-              name={TICKET_STATUSES.DONE}
-              columnData={boardItems.done}
-              handleEnd={handlerMoveCard}
-              handleCard={handlerOpenModal}
-            />
-          </Grid>
+          {columns.map((col) => (
+            <Grid item xs={3} key={col.header}>
+              <ColumnBoard
+                groupName="board"
+                header={col.header}
+                name={col.name}
+                columnData={boardItems[col.name]}
+                handleEnd={handlerMoveCard}
+                handleCard={handlerEditModal}
+                handleCreate={handlerCreateTicket}
+              />
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </>

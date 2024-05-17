@@ -25,7 +25,7 @@ import UTurnLeftRoundedIcon from "@mui/icons-material/UTurnLeftRounded";
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
 import { Autocomplete, TextField } from "@/components/forms";
 
-import { Ticket } from "@/models/Ticket";
+import { StatusesType, Ticket } from "@/models/Ticket";
 import { UserModel, PermissionGroup } from "@/models/User";
 
 import { snack } from "@/libs/SnakClient";
@@ -41,10 +41,13 @@ function errorsHandler(helpers: FormikHelpers<any>, errors: { [key: string]: str
 
 export interface DrawerFormProps {
   handlerCloseDrawer: () => void;
-  id: string | null;
+  initial: {
+    id: string | null
+    state: StatusesType | null
+  };
 }
 
-export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
+export function DrawerForm({ handlerCloseDrawer, initial }: DrawerFormProps) {
   const api = useDjangoApi();
 
   const user: UserModel | null = useSelector((state: RootState) => state.user.user);
@@ -86,7 +89,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
     label: "",
     expiring_date: "",
     description: "",
-    status: TICKET_STATUSES.BACKLOG,
+    status: initial.state || TICKET_STATUSES.BACKLOG,
     created_by_id: null,
     type_id: null,
     ...(partial && { assigned_to_id: null }),
@@ -96,12 +99,12 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
     initialValues: formFields,
     validationSchema: validation,
     onSubmit: (values, helpers) => {
-      if (id !== null) {
+      if (initial.id !== null) {
         api.put(
-          `/ticket/admin/${id}/`,
+          `/ticket/admin/${initial.id}/`,
           () => {
             helpers.resetForm();
-            snack.success(`Ticket numero ${id} è stato aggiornato`);
+            snack.success(`Ticket numero ${initial.id} è stato aggiornato`);
             handlerCloseDrawer();
           },
           (error) => {
@@ -131,9 +134,9 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
   });
 
   useEffect(() => {
-    id !== null &&
+    initial.id !== null &&
       api.get(
-        `/ticket/admin/${id}/`,
+        `/ticket/admin/${initial.id}/`,
         (response) => {
           const data: Ticket = response.data;
           setData(data);
@@ -145,7 +148,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
           throw new FetchDispatchError("Errore durante il recupero dei dati, riprova più tardi.");
         },
       );
-  }, [id]);
+  }, [initial.id]);
 
   useEffect(() => {
     api.get(
@@ -181,7 +184,7 @@ export function DrawerForm({ handlerCloseDrawer, id }: DrawerFormProps) {
           throw new FetchDispatchError("Errore durante il recupero degli amministratori, riprova più tardi.");
         },
       );
-  }, [id]);
+  }, [initial.id]);
 
   const handlerUndo = () => {
     if (data !== null) {

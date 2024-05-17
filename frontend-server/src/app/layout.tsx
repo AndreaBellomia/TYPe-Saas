@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Snackbar, { SnackProvider } from "@/components/Snackbar";
 import ThemeProvider from "@/app/ThemeProvider";
 import StoreProvider from "@/app/StoreProvider";
@@ -11,10 +11,16 @@ import "@fontsource/roboto/700.css";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/libs/auth";
 
-
 export const metadata: Metadata = {
-  title: "CRM",
-  description: "Ticket CRM",
+  title: "TYPe",
+  description: "",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({

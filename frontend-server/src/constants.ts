@@ -32,7 +32,6 @@ const [GROUPS, GROUPS_MAPS] = ((): [{ [key: string]: number }, { [key: number]: 
 })();
 export { GROUPS, GROUPS_MAPS, RAW_GROUPS };
 
-
 export enum UserTicketLabel {
   backlog = "Inviato",
   todo = "Inviato",

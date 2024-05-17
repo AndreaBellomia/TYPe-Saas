@@ -8,7 +8,7 @@ export enum Statuses {
   DONE = "done",
 }
 
-export type StatusesType = Statuses.BACKLOG | Statuses.TODO | Statuses.PROGRESS | Statuses.TODO;
+export type StatusesType = Statuses.BACKLOG | Statuses.TODO | Statuses.PROGRESS | Statuses.DONE | Statuses.BLOCKED;
 
 export interface Message {
   id: number;

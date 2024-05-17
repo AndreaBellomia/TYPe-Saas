@@ -1,23 +1,26 @@
 import React from "react";
-import { Paper, Typography, List, Box } from "@mui/material";
+import { Paper, Typography, List, Box, IconButton } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 import { useDragAndDrop } from "@formkit/drag-and-drop/react";
 
 import TicketCard from "@/app/admin/ticket/components/TicketCard";
 
 import { NodeDragEventData, NodeTouchEventData } from "@formkit/drag-and-drop";
 
-import { Ticket } from "@/models/Ticket";
+import { Statuses, Ticket } from "@/models/Ticket";
+import { StatusesType } from "@/models/Ticket";
 
 export interface BoardColumnProps {
   groupName: string;
-  name: string;
+  name: Exclude<StatusesType, Statuses.BACKLOG>;
   header: string;
   columnData: Array<Ticket>;
   handleEnd: (data: NodeDragEventData<Ticket> | NodeTouchEventData<Ticket>) => void;
   handleCard: (id: string | null) => void;
+  handleCreate: (state: StatusesType) => void;
 }
 
-export function BoardColumn({ groupName, header, name, handleEnd, columnData, handleCard }: BoardColumnProps) {
+export function BoardColumn({ groupName, header, name, handleEnd, columnData, handleCard, handleCreate }: BoardColumnProps) {
   const [dataList, data, setValues] = useDragAndDrop<HTMLUListElement, Ticket>([], {
     group: groupName,
     name: name,
@@ -39,10 +42,13 @@ export function BoardColumn({ groupName, header, name, handleEnd, columnData, ha
       }}
       variant="outlined"
     >
-      <Box sx={{ p: 1 }}>
+      <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" color="grey.600">
           {header}
         </Typography>
+        <IconButton aria-label="" onClick={() => handleCreate(name)}>
+          <AddIcon/>
+        </IconButton>
       </Box>
 
       <List ref={dataList} sx={{ height: "100%" }}>
