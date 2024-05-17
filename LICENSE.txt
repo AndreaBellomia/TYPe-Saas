@@ -1,0 +1,65 @@
+Demonstration Use and Authorized Sale License
+
+Copyright 2024 Andrea Bellomia
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use
+the Software exclusively for personal, educational, and demonstration purposes, subject to the following conditions:
+
+1. The Software must not be used for any commercial purpose or sold by anyone
+   other than Andrea Bellomia or a representative explicitly authorized in writing
+   by Andrea Bellomia.
+2. The Software must not be incorporated into any other software that is
+   distributed or sold without the explicit permission of Andrea Bellomia.
+3. The Software is provided "as is", without warranty of any kind, express
+   or implied, including but not limited to the warranties of merchantability,
+   fitness for a particular purpose, and noninfringement. In no event shall
+   the authors or copyright holders be liable for any claim, damages, or other
+   liability, whether in an action of contract, tort, or otherwise, arising
+   from, out of, or in connection with the Software or the use or other
+   dealings in the Software.
+4. The use of the Software for purposes other than portfolio, demonstration,
+   or educational purposes requires explicit authorization from Andrea Bellomia.
+   Without such authorization, the Software may only be used for demonstration
+   or educational purposes.
+5. Any damage caused by the use of the Software is the sole responsibility of the user.
+   Neither Andrea Bellomia nor any authorized representative can be held liable
+   for any damages resulting from the use of the Software.
+6. The Software may process personal data of users during its use, and Andrea Bellomia
+   assumes no responsibility for any dissemination or other issues related to the handling
+   of such personal data.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+
+Licenza per Uso Dimostrativo e Vendita Autorizzata
+
+Copyright 2024 Andrea Bellomia
+
+Con la presente si concede il permesso, gratuitamente, a qualsiasi persona che ottiene una copia
+di questo software e dei file di documentazione associati (il "Software"), di utilizzare
+il Software esclusivamente per scopi personali, educativi e dimostrativi, a condizione che:
+
+1. Il Software non deve essere utilizzato per scopi commerciali o venduto da nessuno
+   tranne Andrea Bellomia o un rappresentante autorizzato esplicitamente per iscritto
+   da Andrea Bellomia.
+2. Il Software non deve essere incorporato in nessun altro software che venga
+   distribuito o venduto senza l'esplicita autorizzazione di Andrea Bellomia.
+3. Il Software è fornito "così com'è", senza garanzia di alcun tipo, espressa
+   o implicita, incluse ma non limitate alle garanzie di commerciabilità,
+   idoneità per un particolare scopo e non violazione di diritti. In nessun caso
+   gli autori o i detentori del copyright possono essere ritenuti responsabili per qualsiasi
+   reclamo, danno o altra responsabilità, sia in un'azione contrattuale,
+   illecito o altro, derivante da, fuori o in connessione con il
+   Software o l'uso o altri rapporti con il Software.
+4. L'uso del Software per scopi diversi da quelli di portfolio, dimostrativi
+   o educativi richiede un'autorizzazione esplicita da parte di Andrea Bellomia.
+   Senza tale autorizzazione, il Software può essere utilizzato solo a scopo dimostrativo
+   o educativo.
+5. Qualsiasi danno causato dall'uso del Software è di esclusiva responsabilità dell'utente.
+   Né Andrea Bellomia né alcun rappresentante autorizzato possono essere ritenuti responsabili
+   per eventuali danni derivanti dall'uso del Software.
+
+La suddetta notifica di copyright e questa notifica di permesso devono essere incluse in
+tutte le copie o porzioni sostanziali del Software.
