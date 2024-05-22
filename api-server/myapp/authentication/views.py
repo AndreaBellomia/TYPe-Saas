@@ -1,4 +1,5 @@
 from http import HTTPMethod
+import logging
 from typing import cast
 
 from django.conf import settings
@@ -6,6 +7,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
+from django.db.transaction import atomic
 from django.utils import timezone as tz
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -25,6 +27,8 @@ from myapp.core.paginations import BasicPaginationController
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+logger = logging.getLogger(__name__)
 
 
 class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
@@ -204,17 +208,19 @@ class AuthenticationViewset(KnoxLoginView, viewsets.GenericViewSet):
         """
         This function confirm password reset requests.
         """
-        serializer = PasswordChangeConfirmSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        
+        with atomic():
+            serializer = PasswordChangeConfirmSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        token = cast(dict, serializer.validated_data)["token"]
-        user = cast(dict, serializer.validated_data)["user"]
+            token = cast(dict, serializer.validated_data)["token"]
+            user = cast(dict, serializer.validated_data)["user"]
 
-        if self.token_generator.check_token(user, token):
-            serializer.update(
-                instance=user, validated_data=serializer.validated_data
-            )
-            return Response(status=status.HTTP_200_OK)
+            if self.token_generator.check_token(user, token):
+                serializer.update(
+                    instance=user, validated_data=serializer.validated_data
+                )
+                return Response(status=status.HTTP_200_OK)
         return Response(
             {"detail": "Token not valid"}, status=status.HTTP_403_FORBIDDEN
         )
@@ -247,15 +253,30 @@ class AdminUserViewset(viewsets.ModelViewSet):
         return serializer_class
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateUserSerializer(
-            data=request.data, context={"protocol": self.request.is_secure()}
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        with atomic():
+            serializer = CreateUserSerializer(
+                data=request.data,
+                context={"protocol": self.request.is_secure()},
+            )
+            serializer.is_valid(raise_exception=True)
+
+            try:
+                self.perform_create(serializer)
+
+            except Exception as e:
+                logger.error("Error during create user: %s", e)
+                return Response(
+                    {
+                        "detail": "Errore nella generazione della email riprovare"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers,
+            )
 
     def get_queryset(self):
         admin_only = self.request.GET.get("admin_only")

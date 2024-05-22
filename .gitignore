@@ -4,3 +4,8 @@ poetry.lock
 __pycache__
 
 api-server/.env
+
+docker/local/*.key
+docker/local/*.csr
+docker/local/*.crt
+docker/local/*.key.nopass

@@ -214,20 +214,15 @@ LOGGING = {
 }
 
 
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
-    if DEBUG
-    and env("API_EMAIL_HOST_USER", False)
-    and env("API_EMAIL_HOST_PASSWORD", False)
-    else "django.core.mail.backends.smtp.EmailBackend"
-)
-EMAIL_HOST = env("API_EMAIL_HOST", "")
-EMAIL_HOST_USER = env("API_EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD", "")
-EMAIL_PORT = env("API_EMAIL_PORT", "")
-EMAIL_USE_TLS = env("API_EMAIL_USE_TLS", "")
-EMAIL_USE_SSL = env("API_EMAIL_USE_SSL", "")
-DEFAULT_FROM_EMAIL = env("API_DEFAULT_FROM_EMAIL", "")
+EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
+if DEBUG == False and env("API_EMAIL_HOST_USER", False) and env("API_EMAIL_HOST_PASSWORD", False): 
+    EMAIL_HOST = env("API_EMAIL_HOST")
+    EMAIL_HOST_USER = env("API_EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD")
+    EMAIL_PORT = env("API_EMAIL_PORT")
+    EMAIL_USE_TLS = env("API_EMAIL_USE_TLS")
+    EMAIL_USE_SSL = env("API_EMAIL_USE_SSL")
+    DEFAULT_FROM_EMAIL = env("API_DEFAULT_FROM_EMAIL")
 
 
 FRONTEND_URL = env("API_FRONTEND_URL", "localhost:3000")
