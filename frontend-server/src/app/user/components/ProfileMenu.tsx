@@ -1,10 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
-
-import { UserModel } from "@/models/User";
-import { RootState } from "@/redux/store";
 
 import { Menu, Typography, Box, Button, Divider } from "@mui/material";
 
@@ -21,10 +17,11 @@ export interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
-  const router = useRouter();
   const session = useSession()
-
+  const router = useRouter();
+  
+  const user = session.data?.user_data;
+  
   const handlerAdmin = () => {
     router.push("/admin/ticket/board");
     handlerOpen(false);

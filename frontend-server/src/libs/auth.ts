@@ -4,6 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { UserModel, PermissionGroup } from "@/models/User";
 import { URLS } from "@/libs/fetch";
+import { Dispatch } from "react";
+import { UnknownAction } from "@reduxjs/toolkit";
 
 class NonTrackableError extends Error {
   public omit: boolean;
@@ -36,7 +38,7 @@ export async function singOut(session: ReturnType<typeof useSession>) {
   signOut();
 }
 
-export function hasGroupPermission(user: UserModel | null, permissionName: PermissionGroup) {
+export function hasGroupPermission(user: UserModel | null | undefined, permissionName: PermissionGroup) {
   if (user && user.groups.find((p) => (p === permissionName) !== undefined)) {
     return true;
   }
@@ -112,6 +114,7 @@ export const authOptions: NextAuthOptions = {
             email: data.user.email,
             is_staff: data.is_staff,
             is_active: data.is_active,
+            user_data: data.user
           } as User;
         } catch (err) {
           const error = err as NonTrackableError;

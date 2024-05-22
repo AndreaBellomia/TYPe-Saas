@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { UserModel } from "@/models/User";
 import { RootState } from "@/redux/store";
 
 import { styled, lighten } from "@mui/material/styles";
@@ -18,6 +17,7 @@ import ProfileMenu from "@/app/admin/components/ProfileMenu";
 
 import Avatar from "@/components/Avatar";
 import NotificationMenu from "@/components/NotificationMenu";
+import { useSession } from "next-auth/react";
 
 const drawerWidth = 240;
 const drawerMinWidth = 62;
@@ -83,13 +83,16 @@ export default function _({
 }>) {
   const dispatch = useDispatch();
   const collapsed = useSelector((state: RootState) => state.navbar.collapsed);
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
+  const session = useSession();
+
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
   const [notificationMenu, setNotificationMenu] = React.useState(false);
 
   const [profileMenu, setProfileMenu] = React.useState(false);
   const appBarRef = useRef(null);
+
+  const user = session.data?.user_data;
 
   const handlerSidebarToggle = () => {
     dispatch({ type: "TOGGLE_NAVBAR" });
@@ -103,7 +106,6 @@ export default function _({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
 
   return (
     <>
@@ -145,7 +147,11 @@ export default function _({
               }}
             >
               <Box display="flex">
-                <NotificationMenu open={notificationMenu} handlerOpen={setNotificationMenu} anchorEl={appBarRef.current} />
+                <NotificationMenu
+                  open={notificationMenu}
+                  handlerOpen={setNotificationMenu}
+                  anchorEl={appBarRef.current}
+                />
 
                 <Box m={1} />
 

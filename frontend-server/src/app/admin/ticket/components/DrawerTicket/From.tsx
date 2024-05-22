@@ -1,7 +1,5 @@
 "use-client";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
@@ -32,6 +30,7 @@ import { snack } from "@/libs/SnakClient";
 import { hasGroupPermission } from "@/libs/auth";
 import { DjangoApi, FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { TICKET_STATUSES } from "@/constants";
+import { useSession } from "next-auth/react";
 
 function errorsHandler(helpers: FormikHelpers<any>, errors: { [key: string]: string }): void {
   Object.keys(errors).forEach((key) => {
@@ -50,7 +49,8 @@ export interface DrawerFormProps {
 export function DrawerForm({ handlerCloseDrawer, initial }: DrawerFormProps) {
   const api = useDjangoApi();
 
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
+  const session = useSession()
+  const user = session.data?.user_data;
 
   const partial = hasGroupPermission(user, PermissionGroup.MANAGER);
   const [types, setTypes] = useState<{ label: string; id: number }[]>([]);

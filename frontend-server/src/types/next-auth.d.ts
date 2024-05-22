@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { UserModel } from "@/models/User"
 
 declare module "next-auth" {
     interface DefaultSession {
@@ -7,6 +8,7 @@ declare module "next-auth" {
       djangoGroups: Array<PermissionGroup>;
       is_staff: boolean;
       is_active: boolean;
+      user_data: UserModel | null
     }
     interface DefaultJWT {
       djangoToken: string;
@@ -21,5 +23,6 @@ declare module "next-auth" {
       djangoGroups: Array<PermissionGroup>;
       is_staff: boolean;
       is_active: boolean;
+      user_data: UserModel | null
     }
   }

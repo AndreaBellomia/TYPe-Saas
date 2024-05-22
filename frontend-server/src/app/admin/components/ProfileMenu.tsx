@@ -1,10 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useSelector } from "react-redux";
-
-import { UserModel } from "@/models/User";
-import { RootState } from "@/redux/store";
 
 import { Menu, Typography, Box, Button, Divider } from "@mui/material";
 
@@ -20,9 +16,9 @@ export interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
-  const user: UserModel | null = useSelector((state: RootState) => state.user.user);
+  const session = useSession()
+  const user = session.data?.user_data;
   const router = useRouter();
-  const session = useSession();
 
   const handlerUser = () => {
     router.push("/user/ticket");
@@ -35,7 +31,7 @@ export function ProfileMenu({ open, handlerOpen, anchorEl }: ProfileMenuProps) {
   };
 
   const handlerLogOut = async () => {
-    singOut(session);
+    singOut(session)
   };
 
   return (
