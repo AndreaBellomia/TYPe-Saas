@@ -63,6 +63,9 @@ services:
       - app-network
     volumes:
       - static:/api/static
+      - ./certificate.crt:/etc/nginx/certificate.crt:ro
+      - ./private.key.nopass:/etc/nginx/private.key:ro
+      - ../../nginx/nginx-production.conf:/etc/nginx/conf.d/nginx.conf:ro
 
 volumes:
   static:

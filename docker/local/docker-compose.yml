@@ -78,8 +78,6 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/docker/nginx.Dockerfile
-      args:
-        CONFNAME: "nginx-local"
     restart: always
     ports:
       - "80:80"
@@ -93,6 +91,7 @@ services:
       - static:/api/static
       - ./certificate.crt:/etc/nginx/certificate.crt:ro
       - ./private.key.nopass:/etc/nginx/private.key:ro
+      - ../../nginx/nginx-local.conf:/etc/nginx/conf.d/nginx.conf:ro
 
 volumes:
   db:
