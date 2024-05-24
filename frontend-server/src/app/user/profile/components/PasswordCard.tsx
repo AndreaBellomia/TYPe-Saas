@@ -28,15 +28,15 @@ export function PasswordCard() {
     },
     validationSchema: validationSchema,
     onSubmit: (values, helpers) => {
-      console.log("data", values);
       api.post(
-        "/authentication/change_password/",
+        "/authentication/password_change/",
         () => {
           helpers.resetForm();
           snack.success("Password cambiata correttamente!");
         },
 
         (error) => {
+          console.log(error)
           const data = error.response.data;
           Object.keys(data).forEach((key) => {
             helpers.setFieldError(key, data[key]);

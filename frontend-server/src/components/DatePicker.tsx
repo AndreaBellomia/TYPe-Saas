@@ -36,6 +36,7 @@ export default function CustomDatePicker(props: any) {
         localeText={{
           clearButtonLabel: "CANCELLA",
         }}
+        autoFocus
       />
     </LocalizationProvider>
   );

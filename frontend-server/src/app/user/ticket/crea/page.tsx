@@ -13,11 +13,16 @@ import { FetchDispatchError, useDjangoApi } from "@/libs/fetch";
 import { TextField, Autocomplete, ResponsiveButton } from "@/components/forms";
 import DatePicker, { parseDateValue } from "@/components/DatePicker";
 
-
 export default function _() {
   const api = useDjangoApi();
   const router = useRouter();
   const [type, setType] = useState<{ label: string; id: number }[]>([]);
+  const today = new Date();
+
+  let minDate = new Date()
+  minDate.setDate(today.getDate() + 4)
+  let maxDate = new Date()
+  maxDate.setDate(today.getDate() + 61)
 
   useEffect(() => {
     api.get(
@@ -34,6 +39,14 @@ export default function _() {
     label: Yup.string().min(10, "Troppo breve!").max(100, "Troppo lunga").required("Campo obbligatorio"),
     description: Yup.string().max(5000, "Troppo lunga"),
     type_id: Yup.string().required("Campo obbligatorio"),
+    expiring_date: Yup.date().min(
+      minDate,
+      "La data di scadenza deve essere minimo tra 5 giorni",
+    )
+    .max(
+      maxDate,
+      "La data di scadenza non può superare i 60 giorni",
+    ),
   });
 
   const formik = useFormik({

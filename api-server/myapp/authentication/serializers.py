@@ -1,3 +1,4 @@
+import logging
 import secrets
 
 from django.conf import settings
@@ -16,6 +17,8 @@ from rest_framework import serializers
 
 from myapp.authentication.models import CustomUser, UserInfo
 from myapp.core.email import send_html_email
+
+logger = logging.getLogger(__name__)
 
 
 class AuthSerializer(serializers.Serializer):
@@ -235,11 +238,14 @@ class PasswordChangeSerializer(serializers.Serializer):
         subject = loader.render_to_string(subject_template_name, context)
         subject = "".join(subject.splitlines())
 
-        send_html_email(
-            subject,
-            email_template_name,
-            context,
-            to=to_email,
+        send_html_email(subject, email_template_name, context, to=to_email)
+        link = (
+            f"{context.get('protocol')}://{context.get('domain')}"
+            f"/authentication/password_change/{context.get('uid')}/"
+            f"{context.get('token')}"
+        )
+        logger.debug(
+            "Email reset link for user %s: %s", context.get("user"), link
         )
 
 

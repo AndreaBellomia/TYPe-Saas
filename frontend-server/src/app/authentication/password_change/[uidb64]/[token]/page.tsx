@@ -50,10 +50,9 @@ export default function _() {
           password2: values.password2,
         }),
       });
-
-      const data = await response.json();
-
+      
       if (response.status === 400) {
+        const data = await response.json();
         helpers.setFieldError("password2", data.non_field_errors);
         return;
       }
