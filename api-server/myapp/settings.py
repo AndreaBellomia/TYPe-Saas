@@ -221,8 +221,8 @@ if DEBUG == False and env("API_EMAIL_HOST_USER", False) and env("API_EMAIL_HOST_
     EMAIL_HOST_USER = env("API_EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD")
     EMAIL_PORT = env("API_EMAIL_PORT")
-    EMAIL_USE_TLS = env("API_EMAIL_USE_TLS")
-    EMAIL_USE_SSL = env("API_EMAIL_USE_SSL")
+    EMAIL_USE_TLS = True if env("API_EMAIL_USE_TLS") == "True" else False
+    EMAIL_USE_SSL = True if env("API_EMAIL_USE_SSL", False) == "True" else False
     DEFAULT_FROM_EMAIL = env("API_DEFAULT_FROM_EMAIL")
 
 
