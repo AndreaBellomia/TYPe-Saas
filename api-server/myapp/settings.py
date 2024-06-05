@@ -30,7 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env("API_SECRET_KEY", "api_secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("API_DEBUG_MODE", False)
+DEBUG = True if env("API_DEBUG_MODE", "False") == "True" else False
 
 ALLOWED_HOSTS = env.list("API_ALLOWED_HOSTS", ["*"])
 CORS_ALLOWED_ORIGINS = env.list(
