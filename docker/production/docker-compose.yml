@@ -6,7 +6,7 @@ services:
     image: api-server
     build:
       context: ../../
-      dockerfile: ./docker/production/api.Dockerfile
+      dockerfile: ./docker/docker/api.Dockerfile
     env_file:
       - ".env"
     command: poetry run ./manage.py migrate
