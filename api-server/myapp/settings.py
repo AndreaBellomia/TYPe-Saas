@@ -216,6 +216,7 @@ LOGGING = {
 
 EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
 if DEBUG == False and env("API_EMAIL_HOST_USER", False) and env("API_EMAIL_HOST_PASSWORD", False): 
+    EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("API_EMAIL_HOST")
     EMAIL_HOST_USER = env("API_EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD")
