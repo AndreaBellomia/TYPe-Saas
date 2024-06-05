@@ -38,7 +38,7 @@ services:
       context: ../../
       dockerfile: ./docker/docker/frontend.Dockerfile
       args:
-        ERVIROMENT: "local"
+        ERVIROMENT: "production"
     env_file:
       - ".env"
     restart: always
