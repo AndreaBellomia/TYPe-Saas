@@ -30,7 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env("API_SECRET_KEY", "api_secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if env("API_DEBUG_MODE", "False") == "True" else False
+DEBUG = env.bool("API_DEBUG_MODE", False)
 
 ALLOWED_HOSTS = env.list("API_ALLOWED_HOSTS", ["*"])
 CORS_ALLOWED_ORIGINS = env.list(
@@ -220,9 +220,9 @@ if DEBUG == False and env("API_EMAIL_HOST_USER", False) and env("API_EMAIL_HOST_
     EMAIL_HOST = env("API_EMAIL_HOST")
     EMAIL_HOST_USER = env("API_EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("API_EMAIL_HOST_PASSWORD")
-    EMAIL_PORT = env("API_EMAIL_PORT")
-    EMAIL_USE_TLS = True if env("API_EMAIL_USE_TLS", False) == "True" else False
-    EMAIL_USE_SSL = True if env("API_EMAIL_USE_SSL", False) == "True" else False
+    EMAIL_PORT = env.int("API_EMAIL_PORT")
+    EMAIL_USE_TLS = env.bool("API_EMAIL_USE_TLS", False)
+    EMAIL_USE_SSL = env.bool("API_EMAIL_USE_SSL", False)
     DEFAULT_FROM_EMAIL = env("API_DEFAULT_FROM_EMAIL")
 
 
